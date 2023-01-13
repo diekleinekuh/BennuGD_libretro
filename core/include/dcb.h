@@ -76,7 +76,7 @@ DCB_ID ;
 typedef struct
 {
     union {
-        uint8_t     * Name ;
+        //uint8_t     * Name ;
         uint32_t    SName ;
     };
     uint8_t     Flags ;
