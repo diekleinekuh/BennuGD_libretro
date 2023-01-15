@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -29,7 +29,7 @@
 #ifndef __CONVERSION_H
 #define __CONVERSION_H
 
-/* Rutinas de conversión entre formatos */
+/* Rutinas de conversiÃ³n entre formatos */
 
 extern void gr_convert16_ScreenTo565( uint16_t * ptr, int len );
 extern void gr_convert16_565ToScreen( uint16_t * ptr, int len );

@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -67,7 +67,7 @@ extern void         instance_dirty( INSTANCE * i ) ;
 
 extern void         instance_reset_iterator_by_priority() ;
 
-/* Las siguientes funciones son el punto de entrada del intérprete */
+/* Las siguientes funciones son el punto de entrada del intÃ©rprete */
 
 extern int          instance_go( INSTANCE * r ) ;
 extern int          instance_go_all() ;

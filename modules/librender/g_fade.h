@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -31,9 +31,9 @@
 
 #include <SDL.h>
 
-extern int fade_on ;               /* ¿Hay un fade activo?                  */
-extern int fade_set ;              /* ¿Hay un fade seteado pero inactivo?   */
-extern int fade_step ;             /* Si lo hay, posición (0=off)           */
+extern int fade_on ;               /* Â¿Hay un fade activo?                  */
+extern int fade_set ;              /* Â¿Hay un fade seteado pero inactivo?   */
+extern int fade_step ;             /* Si lo hay, posiciÃ³n (0=off)           */
 
 extern SDL_Color vpalette[ 256 ] ;
 

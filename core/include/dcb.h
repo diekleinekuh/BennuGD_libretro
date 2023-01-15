@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -45,7 +45,7 @@
 #pragma pack(push, 1)
 #endif
 
-/* Opción del GNU C para que la estructura ocupe el mínimo de memoria */
+/* OpciÃ³n del GNU C para que la estructura ocupe el mÃ­nimo de memoria */
 
 #ifdef __GNUC__
 #define __PACKED __attribute__ ((packed))
@@ -207,7 +207,7 @@ DCB_LABEL ;
 typedef struct          /* Cabecera general del fichero */
 {
     uint8_t     Header[8] ; /* "DCB"            */
-    uint32_t    Version ;   /* 0x0100 para versión 1.0  */
+    uint32_t    Version ;   /* 0x0100 para versiÃ³n 1.0  */
 
     uint32_t    NProcs ;
     uint32_t    NFiles ;

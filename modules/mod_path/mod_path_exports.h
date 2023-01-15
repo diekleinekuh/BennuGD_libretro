@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -53,7 +53,7 @@ DLCONSTANT __bgdexport( mod_path, constants_def )[] =
 
 DLSYSFUNCS __bgdexport( mod_path, functions_exports )[] =
 {
-    /* Búsqueda de caminos*/
+    /* BÃºsqueda de caminos*/
     FUNC( "PATH_FIND"   , "IIIIIII", TYPE_INT   , modpathfind_path_find     ),
     FUNC( "PATH_GETXY"  , "PP"     , TYPE_INT   , modpathfind_path_getxy    ),
     FUNC( "PATH_WALL"   , "I"      , TYPE_INT   , modpathfind_path_wall     ),

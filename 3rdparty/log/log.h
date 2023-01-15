@@ -1,6 +1,6 @@
 /* ******************************************** */
 /* File Name: log.h                             */
-/* Author: (C) 2007-2009 - Juan JosÈ Ponteprino */
+/* Author: (C) 2007-2009 - Juan Jos√© Ponteprino */
 /* Description: Loggin API Headers              */
 /* License: This code is licenced as LGPL       */
 /* ******************************************** */
@@ -21,14 +21,14 @@
 #define LOG_INIT_INTERNAL_BUFFER_SIZE   16384
 
 enum {
-    LOG_PRIO_EMERGENCY  = 0      ,  /* el sistema est· inutilizable */
-    LOG_PRIO_ALERT               ,  /* debe tomarse una acciÛn correctora inmediatamente */
-    LOG_PRIO_CRITICAL            ,  /* condiciones crÌticas */
+    LOG_PRIO_EMERGENCY  = 0      ,  /* el sistema est√° inutilizable */
+    LOG_PRIO_ALERT               ,  /* debe tomarse una acci√≥n correctora inmediatamente */
+    LOG_PRIO_CRITICAL            ,  /* condiciones cr√≠ticas */
     LOG_PRIO_ERROR               ,  /* condiciones de error */
     LOG_PRIO_WARNNING            ,  /* condiciones de advertencia */
-    LOG_PRIO_NOTICE              ,  /* condiciÛn normal, pero significativa */
+    LOG_PRIO_NOTICE              ,  /* condici√≥n normal, pero significativa */
     LOG_PRIO_INFO                ,  /* mensaje informativo */
-    LOG_PRIO_DEBUG               ,  /* mensaje del nivel de depuraciÛn */
+    LOG_PRIO_DEBUG               ,  /* mensaje del nivel de depuraci√≥n */
     LOG_PRIO_NODEF               ,  /* No definido */
     LOG_PRIO_MAX = LOG_PRIO_NODEF   /* valor maximo permitido ( - 1 ) */
 };
