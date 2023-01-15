@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 JosÈ Luis Cebri·n Pag¸e (Fenix)
+ *  Copyright ¬© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright ¬© 2002-2006 Fenix Team (Fenix)
+ *  Copyright ¬© 1999-2002 Jos√© Luis Cebri√°n Pag√ºe (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -101,7 +101,7 @@ static GRAPH * gr_read_map( file * fp )
     else
         gr->cpoints = 0 ;
 
-    /* Datos del gr·fico */
+    /* Datos del gr√°fico */
 
     for ( y = 0 ; y < gr->height ; y++ )
     {

@@ -1,6 +1,6 @@
 /* ******************************************** */
 /* File Name: log.c                             */
-/* Author: (C) 2007-2009 - Juan José Ponteprino */
+/* Author: (C) 2007-2009 - Juan JosÃ© Ponteprino */
 /* Description: Loggin API                      */
 /* License: This code is licenced as LGPL       */
 /* ******************************************** */
@@ -283,7 +283,7 @@ void log_close( log_t * backend )
 
 void log_write( log_t * backend, int priority, char * format, ... )
 {
-    /* Suponemos que no necesitamos más de 100 bytes. */
+    /* Suponemos que no necesitamos mÃ¡s de 100 bytes. */
     int n;
     va_list ap;
 
@@ -321,14 +321,14 @@ void log_write( log_t * backend, int priority, char * format, ... )
                 break ;
             }
 
-            /* Si no, inténtalo de nuevo con más espacio. */
+            /* Si no, intÃ©ntalo de nuevo con mÃ¡s espacio. */
             if ( n > -1 )  /* glibc 2.1 */
             {
                 size = n + 1; /* exactamente lo que se necesita */
             }
             else           /* glibc 2.0 */
             {
-                size *= 2;  /* el doble del tamaño anterior*/
+                size *= 2;  /* el doble del tamaÃ±o anterior*/
             }
 
             if (( p1 = realloc( p, size ) ) == NULL )

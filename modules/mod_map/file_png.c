@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -58,7 +58,7 @@ GRAPH * gr_read_png( const char * filename )
     png_uint_32 width, height/*, rowbytes*/;
     int depth, color ;
 
-    /* Abre el fichero y se asegura de que screen está inicializada */
+    /* Abre el fichero y se asegura de que screen estÃ¡ inicializada */
 
     file * png = file_open( filename, "rb" ) ;
     if ( !png ) return NULL;
@@ -94,7 +94,7 @@ GRAPH * gr_read_png( const char * filename )
         return NULL;
     }
 
-    /* Recupera información sobre el PNG */
+    /* Recupera informaciÃ³n sobre el PNG */
 
     png_set_read_fn( png_ptr, png, user_read_data ) ;
     png_read_info( png_ptr, info_ptr ) ;

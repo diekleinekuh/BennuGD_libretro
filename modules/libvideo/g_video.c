@@ -1,7 +1,7 @@
 /*
- *  Copyright � 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright � 2002-2006 Fenix Team (Fenix)
- *  Copyright � 1999-2002 Jos� Luis Cebri�n Pag�e (Fenix)
+ *  Copyright ï¿½ 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright ï¿½ 2002-2006 Fenix Team (Fenix)
+ *  Copyright ï¿½ 1999-2002 Josï¿½ Luis Cebriï¿½n Pagï¿½e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -107,7 +107,7 @@ enum {
 
 DLVARFIXUP __bgdexport( libvideo, globals_fixup )[] =
 {
-    /* Nombre de variable global, puntero al dato, tama�o del elemento, cantidad de elementos */
+    /* Nombre de variable global, puntero al dato, tamaï¿½o del elemento, cantidad de elementos */
     { "graph_mode" , NULL, -1, -1 },
     { "scale_mode" , NULL, -1, -1 },
     { "full_screen" , NULL, -1, -1 },
@@ -301,7 +301,7 @@ int gr_set_mode( int width, int height, int depth )
         }
     }
 
-    /* Inicializa el modo gr�fico */
+    /* Inicializa el modo grï¿½fico */
 
     if ( scrbitmap )
     {

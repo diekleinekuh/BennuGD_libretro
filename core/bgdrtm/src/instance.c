@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -52,8 +52,8 @@
 #define INSTANCE_NORMALIZE_PRIORITY 32768 // used for get an array index from 0 to 65535
 
 /* ---------------------------------------------------------------------- */
-/* Módulo de gestión de instancias, con las funciones de incialización y  */
-/* destrucción, duplicado, etc.                                           */
+/* MÃ³dulo de gestiÃ³n de instancias, con las funciones de incializaciÃ³n y  */
+/* destrucciÃ³n, duplicado, etc.                                           */
 /* ---------------------------------------------------------------------- */
 
 #define HASH(id)            (unsigned int)((id)&0x0000ffff)
@@ -349,7 +349,7 @@ INSTANCE * instance_duplicate( INSTANCE * father )
 
     /* Inicializa datos de jerarquia */
 
-    /* Crea el proceso clónico como si lo hubiera llamado el padre */
+    /* Crea el proceso clÃ³nico como si lo hubiera llamado el padre */
 
     type = LOCDWORD( father, PROCESS_TYPE ) ;
     LOCDWORD( r, PROCESS_ID )   = pid ;
@@ -612,7 +612,7 @@ void instance_destroy( INSTANCE * r )
     for ( n = 0 ; n < r->proc->pubstring_count ; n++ ) string_discard( PUBDWORD( r, r->proc->pubstrings[n] ) ) ; /* Strings publicas */
     for ( n = 0 ; n < local_strings ; n++ ) string_discard( LOCDWORD( r, localstr[n] ) ) ; /* Strings locales */
 
-    /* Actualiza árbol de jerarquias */
+    /* Actualiza Ã¡rbol de jerarquias */
 
     bigbro = instance_get( LOCDWORD( r, BIGBRO ) ) ; /* Tengo hermano mayor? */
     if ( bigbro ) LOCDWORD( bigbro, SMALLBRO ) = LOCDWORD( r, SMALLBRO ) ; /* El hermano menor de mi hermano mayor es mi hermano menor */

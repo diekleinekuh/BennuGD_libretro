@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -83,7 +83,7 @@ enum {
 
 DLVARFIXUP __bgdexport( libscroll, locals_fixup )[] =
 {
-    /* Nombre de variable global, puntero al dato, tamaño del elemento, cantidad de elementos */
+    /* Nombre de variable global, puntero al dato, tamaÃ±o del elemento, cantidad de elementos */
     { "ctype" , NULL, -1, -1 },
     { "cnumber" , NULL, -1, -1 },
     { "id", NULL, -1, -1 },
@@ -99,7 +99,7 @@ DLVARFIXUP __bgdexport( libscroll, locals_fixup )[] =
 
 DLVARFIXUP __bgdexport( libscroll, globals_fixup )[] =
 {
-    /* Nombre de variable global, puntero al dato, tamaño del elemento, cantidad de elementos */
+    /* Nombre de variable global, puntero al dato, tamaÃ±o del elemento, cantidad de elementos */
     { "scroll" , NULL, -1, -1 },
     { NULL , NULL, -1, -1 }
 };
@@ -264,7 +264,7 @@ void scroll_update( int n )
                 }
         }
 
-        /* Forzar a que esté en el centro de la ventana */
+        /* Forzar a que estÃ© en el centro de la ventana */
 
         cx = LOCDWORD( libscroll, scrolls[n].camera, COORDX ) ;
         cy = LOCDWORD( libscroll, scrolls[n].camera, COORDY ) ;
@@ -280,7 +280,7 @@ void scroll_update( int n )
         if ( data->y0 > cy ) data->y0 = MAX( data->y0 - speed, cy ) ;
     }
 
-    /* Scrolls no cíclicos y posición del background */
+    /* Scrolls no cÃ­clicos y posiciÃ³n del background */
 
     if ( graph )
     {
@@ -300,7 +300,7 @@ void scroll_update( int n )
         if ( !( scrolls[n].flags & BACK_VWRAP ) ) data->y1 = MAX( 0, MIN( data->y1, ( int )back->height - h ) ) ;
     }
 
-    /* Actualiza la posición del scroll según las variables globales */
+    /* Actualiza la posiciÃ³n del scroll segÃºn las variables globales */
 
     scrolls[n].posx0 = data->x0 ;
     scrolls[n].posy0 = data->y0 ;

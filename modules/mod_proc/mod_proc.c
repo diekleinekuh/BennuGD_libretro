@@ -1,7 +1,7 @@
 /*
- *  Copyright � 2006-2017 SplinterGU (Fenix/Bennugd)
- *  Copyright � 2002-2006 Fenix Team (Fenix)
- *  Copyright � 1999-2002 Jos� Luis Cebri�n Pag�e (Fenix)
+ *  Copyright © 2006-2017 SplinterGU (Fenix/Bennugd)
+ *  Copyright © 2002-2006 Fenix Team (Fenix)
+ *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -58,7 +58,7 @@ enum
 /* (usada en tiempo de ejecucion)                                    */
 DLVARFIXUP __bgdexport( mod_proc, locals_fixup )[]  =
 {
-    /* Nombre de variable local, offset al dato, tama�o del elemento, cantidad de elementos */
+    /* Nombre de variable local, offset al dato, tamaï¿½o del elemento, cantidad de elementos */
     { "id", NULL, -1, -1 },
     { "reserved.process_type", NULL, -1, -1 },
     { "reserved.status", NULL, -1, -1 },
@@ -79,7 +79,7 @@ void __bgdexport( mod_proc, instance_pre_execute_hook )( INSTANCE * r )
 }
 
 /* ----------------------------------------------------------------- */
-/* Interacci�n entre procesos */
+/* Interacciï¿½n entre procesos */
 
 static void _modproc_kill_all()
 {

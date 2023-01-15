@@ -1,6 +1,6 @@
 /* ******************************************** */
 /* File Name: dict-test.c                       */
-/* Author: (C) 2008-2009 - Juan José Ponteprino */
+/* Author: (C) 2008-2009 - Juan JosÃ© Ponteprino */
 /* Description: Dictionary API Headers          */
 /* License: This code is licenced as LGPL       */
 /* ******************************************** */

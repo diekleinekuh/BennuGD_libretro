@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 JosÈ Luis Cebri·n Pag¸e (Fenix)
+ *  Copyright ¬© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright ¬© 2002-2006 Fenix Team (Fenix)
+ *  Copyright ¬© 1999-2002 Jos√© Luis Cebri√°n Pag√ºe (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -96,7 +96,7 @@ static int gr_read_lib( file * fp )
         ARRANGE_DWORD( &chunk.height ) ;
         ARRANGE_DWORD( &chunk.flags ) ;
 
-        /* Cabecera del gr·fico */
+        /* Cabecera del gr√°fico */
 
         gr = bitmap_new( chunk.code, chunk.width, chunk.height, bpp ) ;
         if ( !gr )
@@ -135,7 +135,7 @@ static int gr_read_lib( file * fp )
         } else
             gr->cpoints = 0 ;
 
-        /* Datos del gr·fico */
+        /* Datos del gr√°fico */
 
         for ( y = 0 ; y < gr->height ; y++ ) {
             uint8_t * line = ( uint8_t * )gr->data + gr->pitch * y;

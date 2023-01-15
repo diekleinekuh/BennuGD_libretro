@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -65,7 +65,7 @@ enum {
 /* (usada en tiempo de ejecucion)                                    */
 DLVARFIXUP  __bgdexport( mod_cd, globals_fixup )[] =
 {
-    /* Nombre de variable global, puntero al dato, tamaño del elemento, cantidad de elementos */
+    /* Nombre de variable global, puntero al dato, tamaÃ±o del elemento, cantidad de elementos */
     { "cdinfo.current_track", NULL, -1, -1 },
     { "cdinfo.current_frame", NULL, -1, -1 },
     { "cdinfo.tracks", NULL, -1, -1 },

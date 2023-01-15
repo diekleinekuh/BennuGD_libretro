@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -1031,7 +1031,7 @@ void draw_line( GRAPH * dest, REGION * clip, int x, int y, int w, int h )
     w1 = ABS( w );
     h1 = ABS( h );
 
-    /* Clipping de la línea - INCORRECTO pero funcional */
+    /* Clipping de la lÃ­nea - INCORRECTO pero funcional */
 
     /* TODO: SE NECESITA CORREGIR CLIPPING EN LINE */
 
@@ -1093,7 +1093,7 @@ void draw_line( GRAPH * dest, REGION * clip, int x, int y, int w, int h )
 
     if ( dest->format->depth > 8 ) vinc /= dest->format->depthb;
 
-    /* Aquí va una implementación deprisa y corriendo de Bresenham */
+    /* AquÃ­ va una implementaciÃ³n deprisa y corriendo de Bresenham */
 
     w = ABS( w );
     h = ABS( h );

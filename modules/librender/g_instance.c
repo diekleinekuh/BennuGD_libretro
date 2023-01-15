@@ -1,7 +1,7 @@
 /*
- *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright © 2002-2006 Fenix Team (Fenix)
- *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
+ *  Copyright Â© 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright Â© 2002-2006 Fenix Team (Fenix)
+ *  Copyright Â© 1999-2002 JosÃ© Luis CebriÃ¡n PagÃ¼e (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -185,7 +185,7 @@ void draw_instance_at( INSTANCE * i, REGION * region, int x, int y, GRAPH * dest
 }
 
 /* --------------------------------------------------------------------------- */
-/* Rutinas gráficas de alto nivel */
+/* Rutinas grÃ¡ficas de alto nivel */
 
 void draw_instance( INSTANCE * i, REGION * clip )
 {
