@@ -1377,7 +1377,7 @@ main_loop_instance_go:
             /* Fixed-length strings operations*/
 
             case MN_A2STR:
-                str = *( char ** )( &r->stack_ptr[-ptr[1] - 1] );
+                str = ( char * )( r->stack_ptr[-ptr[1] - 1] );
                 n = string_new( str );
                 string_use( n );
                 r->stack_ptr[-ptr[1] - 1] = n;
@@ -1386,7 +1386,7 @@ main_loop_instance_go:
 
             case MN_STR2A:
                 n = r->stack_ptr[-1];
-                strncpy( *( char ** )( &r->stack_ptr[-2] ), string_get( n ), ptr[1] );
+                strncpy( ( char * )( r->stack_ptr[-2] ), string_get( n ), ptr[1] );
                 (( char * )( r->stack_ptr[-2] ) )[ptr[1]] = 0;
                 r->stack_ptr[-2] = r->stack_ptr[-1];
                 r->stack_ptr--;
@@ -1395,7 +1395,7 @@ main_loop_instance_go:
 
             case MN_STRACAT:
                 n = r->stack_ptr[-1];
-                strncat( *( char ** )( &r->stack_ptr[-2] ), string_get( n ), (ptr[1]-1) - strlen( *( char ** )( &r->stack_ptr[-2] ) ) );
+                strncat( ( char * )( r->stack_ptr[-2] ), string_get( n ), (ptr[1]-1) - strlen( ( char * )( r->stack_ptr[-2] ) ) );
                 (( char * )( r->stack_ptr[-2] ) )[ptr[1]-1] = 0;
                 r->stack_ptr[-2] = r->stack_ptr[-1];
                 r->stack_ptr--;
