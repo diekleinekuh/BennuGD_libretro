@@ -1,0 +1,1 @@
+add_mod("grbase;${SDL_LIBRARY}")

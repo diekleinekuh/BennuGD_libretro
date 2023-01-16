@@ -1,0 +1,6 @@
+if (NOT WIN32)
+    find_package("X11")
+    add_mod("video;${SDL_LIBRARY};X11::X11")
+else()
+    add_mod("video;${SDL_LIBRARY}")
+endif()
