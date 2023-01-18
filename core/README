@@ -25,8 +25,8 @@ smpeg-0.4.3.tar.gz
 zlib-1.2.3.tar.gz
 
 NOTAS:
-    Si bien estas son las versiones utilizadas en esta compilación,
-cualquier versión de estos paquetes debería funcionar correctamente.
+    Si bien estas son las versiones utilizadas en esta compilaciÃ³n,
+cualquier versiÃ³n de estos paquetes deberÃ­a funcionar correctamente.
 
 Pasos a seguir para compilar:
 
@@ -35,7 +35,7 @@ Pasos a seguir para compilar:
 
 NOTAS WIN32:
     Si tenemos instalado MSVC, en la consola MSYS aseguranos de eliminar
-el seteo de las variables de compilación del MSVC (INCLUDE, LIB, etc.).
+el seteo de las variables de compilaciÃ³n del MSVC (INCLUDE, LIB, etc.).
 Copiar la SDL.dll en el directorio raiz del proyecto antes de correr configure.
 
 Linux
