@@ -2304,10 +2304,12 @@ void gr_rotated_blit(
     /* The texture coordinates of each corner point are displaced
        to the center of the texel to sidestep precision errors */
 
-    half_texel_size_x = 50.0 / ( float ) scalex;
-    half_texel_size_y = 50.0 / ( float ) scaley;
+//    half_texel_size_x = 50.0 / ( float ) scalex;
+//    half_texel_size_y = 50.0 / ( float ) scaley;
 //    half_texel_size_x = 0.5 / ( float ) scalex;
 //    half_texel_size_y = 0.5 / ( float ) scaley;
+    half_texel_size_x=0.5f;
+    half_texel_size_y=0.5f;
 
     /* Fill the vertex array with the four obtained points */
 
