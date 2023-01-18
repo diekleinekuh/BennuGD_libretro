@@ -271,13 +271,13 @@ int gr_set_mode( int width, int height, int depth )
 
     if ( scale_resolution_table_w )
     {
-        free( scale_resolution_table_w );
+        bgd_free( scale_resolution_table_w );
         scale_resolution_table_w = NULL;
     }
 
     if ( scale_resolution_table_h )
     {
-        free( scale_resolution_table_h );
+        bgd_free( scale_resolution_table_h );
         scale_resolution_table_h = NULL;
     }
 
@@ -429,8 +429,8 @@ int gr_set_mode( int width, int height, int depth )
             }
         }
 
-        if ( !( scale_resolution_table_w = malloc( scale_screen->w * sizeof( int ) ) ) ) return -1;
-        if ( !( scale_resolution_table_h = malloc( scale_screen->h * sizeof( int ) ) ) ) return -1;
+        if ( !( scale_resolution_table_w = bgd_malloc( scale_screen->w * sizeof( int ) ) ) ) return -1;
+        if ( !( scale_resolution_table_h = bgd_malloc( scale_screen->h * sizeof( int ) ) ) ) return -1;
 
         for ( w = 0; w < scale_screen->w; w++ )
         {
@@ -474,7 +474,7 @@ int gr_set_mode( int width, int height, int depth )
     {
         PALETTE * p = sys_pixel_format->palette;
 
-        free( sys_pixel_format );
+        bgd_free( sys_pixel_format );
         sys_pixel_format = bitmap_create_format( depth );
 
         if ( p )

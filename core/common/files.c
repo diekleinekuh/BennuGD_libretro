@@ -1,7 +1,7 @@
 /*
- *  Copyright ï¿½ 2006-2019 SplinterGU (Fenix/Bennugd)
- *  Copyright ï¿½ 2002-2006 Fenix Team (Fenix)
- *  Copyright ï¿½ 1999-2002 Josï¿½ Luis Cebriï¿½n Pagï¿½e (Fenix)
+ *  Copyright © 2006-2019 SplinterGU (Fenix/Bennugd)
+ *  Copyright © 2002-2006 Fenix Team (Fenix)
+ *  Copyright © 1999-2002 José Luis Cebrián Pagüe (Fenix)
  *
  *  This file is part of Bennu - Game Development
  *
@@ -73,7 +73,7 @@ int x_files_count = 0 ;
 
 void xfile_init( int maxfiles )
 {
-    x_file = ( XFILE * ) calloc( sizeof( XFILE ), maxfiles );
+    x_file = ( XFILE * ) bgd_calloc( sizeof( XFILE ), maxfiles );
     max_x_files = maxfiles;
 }
 
@@ -84,11 +84,11 @@ void file_add_xfile( file * fp, const char * stubname, long offset, char * name,
     assert( x_files_count < max_x_files ) ;
     assert( fp->type == F_FILE ) ;
 
-    x_file[x_files_count].stubname = strdup( stubname );
+    x_file[x_files_count].stubname = bgd_strdup( stubname );
     x_file[x_files_count].fp = fp->fp ;
     x_file[x_files_count].offset = offset ;
     x_file[x_files_count].size = size ;
-    x_file[x_files_count].name = strdup( name ) ;
+    x_file[x_files_count].name = bgd_strdup( name ) ;
 
     ptr = x_file[x_files_count].name;
     while ( *ptr )
@@ -680,7 +680,7 @@ file * file_open( const char * filename, char * mode )
 
     file * f ;
 
-    f = ( file * ) calloc( 1, sizeof( file ) ) ;
+    f = ( file * ) bgd_calloc( 1, sizeof( file ) ) ;
     assert( f ) ;
 
     p = f->name;
@@ -757,7 +757,7 @@ file * file_open( const char * filename, char * mode )
         }
     }
 
-    free( f ) ;
+    bgd_free( f ) ;
     return 0 ;
 }
 
@@ -772,7 +772,7 @@ void file_close( file * fp )
     if ( fp->type == F_GZFILE ) gzclose( fp->gz ) ;
 #endif
     opened_files--;
-    free( fp ) ;
+    bgd_free( fp ) ;
 }
 
 /* Add a new dir to PATH */
@@ -791,7 +791,7 @@ void file_addp( const char * path )
 
     for ( n = 0 ; n < MAX_POSSIBLE_PATHS - 1 && possible_paths[n] ; n++ ) ;
 
-    possible_paths[n] = strdup( truepath ) ;
+    possible_paths[n] = bgd_strdup( truepath ) ;
     possible_paths[n+1] = NULL ;
 }
 
@@ -867,20 +867,20 @@ char * getfullpath( char *rel_path )
     char * fpath = NULL;
     DWORD sz = GetFullPathName( rel_path, sizeof( fullpath ), fullpath, NULL );
     if ( sz > sizeof( fullpath ) ) {
-        fpath = malloc( sz + 1 );
+        fpath = bgd_malloc( sz + 1 );
         if ( fpath ) {
             if ( GetFullPathName( rel_path, sz, fpath, NULL ) ) return fpath;
-            free( fpath );
+            bgd_free( fpath );
         }
         return NULL;
     }
-    if ( sz ) return strdup( fullpath );
+    if ( sz ) return bgd_strdup( fullpath );
     return NULL;
 #else
     char * r = realpath( rel_path, fullpath );
     (void) &r; // avoid compiler warning
     if ( !*fullpath ) return NULL;
-    return strdup( fullpath );
+    return bgd_strdup( fullpath );
 #endif
 }
 
@@ -906,7 +906,7 @@ char * whereis( char *file )
 
         if ( !stat( fullname, &st ) && S_ISREG( st.st_mode ) )
         {
-            pact = strdup( pact );
+            pact = bgd_strdup( pact );
             if ( p ) *p = ENV_PATH_SEP;
             return ( pact );
         }

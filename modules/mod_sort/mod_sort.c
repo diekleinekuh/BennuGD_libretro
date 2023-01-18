@@ -559,7 +559,7 @@ static void QuickSort( uint8_t *Data, int inf, int sup, int *params )
 {
     register int left, rigth;
     double middle;
-    uint8_t* x = ( uint8_t* )malloc( params[1] );
+    uint8_t* x = ( uint8_t* )bgd_malloc( params[1] );
     left = inf;
     rigth = sup;
     middle = GetData( Data, ( left + rigth ) >> 1, params );

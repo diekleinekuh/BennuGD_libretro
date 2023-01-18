@@ -441,7 +441,7 @@ void scroll_draw( int n, REGION * clipping )
             if ( proclist_count == proclist_reserved )
             {
                 proclist_reserved += 16 ;
-                proclist = ( INSTANCE ** ) realloc( proclist, sizeof( INSTANCE * ) * proclist_reserved ) ;
+                proclist = ( INSTANCE ** ) bgd_realloc( proclist, sizeof( INSTANCE * ) * proclist_reserved ) ;
             }
 
             proclist[proclist_count++] = i ;

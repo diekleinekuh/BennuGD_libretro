@@ -47,7 +47,7 @@ static FILE * __log_file_roll( log_be_file_t * _privData )
     struct tm Now ;
 
     FILE  * filelog;
-    char * nfilename = malloc( strlen( _privData->fullpathname ) + 16 );
+    char * nfilename = bgd_malloc( strlen( _privData->fullpathname ) + 16 );
 
 #if WIN32
     struct tm * _Now = localtime( &Moment );
@@ -63,7 +63,7 @@ static FILE * __log_file_roll( log_be_file_t * _privData )
     sprintf( nfilename, "%s.%s", _privData->fullpathname, MomentStr );
 
     rename( _privData->fullpathname, nfilename );
-    free( nfilename );
+    bgd_free( nfilename );
 
     filelog = _privData->handle = fopen( _privData->fullpathname, "a" );
     if ( !filelog )
@@ -78,7 +78,7 @@ static FILE * __log_file_roll( log_be_file_t * _privData )
 
 log_t * log_file_be_create()
 {
-    log_t * lt = malloc( sizeof( log_t ) );
+    log_t * lt = bgd_malloc( sizeof( log_t ) );
 
     if ( !lt )
     {
@@ -99,7 +99,7 @@ void * log_file_open( char * name, int flags )
 {
     char * p;
 
-    log_be_file_t * privData = ( log_be_file_t * ) malloc( sizeof( log_be_file_t ) );
+    log_be_file_t * privData = ( log_be_file_t * ) bgd_malloc( sizeof( log_be_file_t ) );
     if ( !privData )
     {
         return NULL;
@@ -107,10 +107,10 @@ void * log_file_open( char * name, int flags )
 
     privData->flags = flags;
 
-    privData->fullpathname = strdup( name );
+    privData->fullpathname = bgd_strdup( name );
     if ( !privData->fullpathname )
     {
-        free( privData );
+        bgd_free( privData );
         return NULL;
     }
 
@@ -127,8 +127,8 @@ void * log_file_open( char * name, int flags )
     privData->handle = fopen( name, "a" );
     if ( !privData->handle )
     {
-        free( privData->fullpathname );
-        free( privData );
+        bgd_free( privData->fullpathname );
+        bgd_free( privData );
         return NULL;
     }
 
@@ -141,9 +141,9 @@ void log_file_close( void * privData )
 {
     if ( privData && (( log_be_file_t * ) privData )->handle )
     {
-        free((( log_be_file_t * ) privData )->fullpathname );
+        bgd_free((( log_be_file_t * ) privData )->fullpathname );
         fclose((( log_be_file_t * ) privData )->handle );
-        free( privData );
+        bgd_free( privData );
     }
 }
 
@@ -249,7 +249,7 @@ int log_open( log_t * backend, char * name, int flags )
         return 0;
     }
 
-    backend->internalBuffer = malloc( LOG_INIT_INTERNAL_BUFFER_SIZE );
+    backend->internalBuffer = bgd_malloc( LOG_INIT_INTERNAL_BUFFER_SIZE );
     if ( !backend->internalBuffer )
     {
         return 0;
@@ -258,7 +258,7 @@ int log_open( log_t * backend, char * name, int flags )
     backend->privData = backend->log_open( name, flags );
     if ( !backend->privData )
     {
-        free( backend->internalBuffer ) ;
+        bgd_free( backend->internalBuffer ) ;
         return 0;
     }
 
@@ -274,7 +274,7 @@ void log_close( log_t * backend )
         backend->log_close( backend->privData );
         if ( backend->internalBuffer )
         {
-            free( backend->internalBuffer ) ;
+            bgd_free( backend->internalBuffer ) ;
         }
     }
 }
@@ -303,7 +303,7 @@ void log_write( log_t * backend, int priority, char * format, ... )
     {
         int size = LOG_INIT_INTERNAL_BUFFER_SIZE * 2;
         char * p, * p1;
-        if (( p = malloc( size ) ) == NULL )
+        if (( p = bgd_malloc( size ) ) == NULL )
         {
             return;
         }
@@ -331,16 +331,16 @@ void log_write( log_t * backend, int priority, char * format, ... )
                 size *= 2;  /* el doble del tamaño anterior*/
             }
 
-            if (( p1 = realloc( p, size ) ) == NULL )
+            if (( p1 = bgd_realloc( p, size ) ) == NULL )
             {
-                free( p );
+                bgd_free( p );
                 return;
             }
             p = p1;
         }
 
         backend->log_write( backend->privData, priority, p );
-        free( p );
+        bgd_free( p );
     }
     else
     {

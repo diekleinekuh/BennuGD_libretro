@@ -221,7 +221,7 @@ static void add_key_equiv( int equiv, int keyconst )
 
     if ( curr->sdlk_equiv != 0 )
     {
-        curr->next = malloc( sizeof( key_equiv ) ) ;
+        curr->next = bgd_malloc( sizeof( key_equiv ) ) ;
         curr = curr->next ;
         curr->next = NULL ;
     }
@@ -236,7 +236,7 @@ void hotkey_add( int mod, int sym, HOTKEY_CALLBACK callback )
     if ( hotkey_count >= hotkey_allocated )
     {
         hotkey_allocated = hotkey_count + 5;
-        hotkey_list = realloc( hotkey_list, hotkey_allocated * sizeof( hotkey_list[0] ) );
+        hotkey_list = bgd_realloc( hotkey_list, hotkey_allocated * sizeof( hotkey_list[0] ) );
     }
 
     if ( !hotkey_list )
@@ -460,9 +460,9 @@ void __bgdexport( libkey, module_finalize )()
             {
                 aux = curr ;
                 curr = curr->next;
-                free( aux ) ;
+                bgd_free( aux ) ;
             }
-            free( curr ) ;
+            bgd_free( curr ) ;
         }
     }
 

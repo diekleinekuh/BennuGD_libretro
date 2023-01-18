@@ -63,12 +63,12 @@ int config_read() {
     int line = 0, n;
     file * fp;
     char * section = NULL, * key = NULL, * value = NULL, * p;
-    char * buffer = malloc(INI_MAX_LINE);
+    char * buffer = bgd_malloc(INI_MAX_LINE);
     if ( !buffer ) return -1;
 
     fp = file_open( configfile, "r0" ) ;
     if ( !fp ) {
-        free( buffer );
+        bgd_free( buffer );
         return -1;
     }
 
@@ -79,8 +79,8 @@ int config_read() {
         if ( ( *p == '\0' ) || ( *p == '#' ) || ( *p == ';' ) ) continue;
 
         if ( *p == '[' ) {
-            if ( section ) free( section );
-            section = strdup( p + 1 );
+            if ( section ) bgd_free( section );
+            section = bgd_strdup( p + 1 );
             p = strchr( section, ']');
             if ( p ) *p = '\0';
             continue;
@@ -108,7 +108,7 @@ int config_read() {
 
 
     file_close( fp );
-    free( section );
+    bgd_free( section );
 
     return 0;
 }

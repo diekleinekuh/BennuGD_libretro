@@ -86,7 +86,7 @@ void DICT_Exit()
 
 DICT_T * DICT_Create( char * id )
 {
-    DICT_T * dict = calloc( 1, sizeof( DICT_T ) );
+    DICT_T * dict = bgd_calloc( 1, sizeof( DICT_T ) );
 
     if ( dict )
     {
@@ -94,7 +94,7 @@ DICT_T * DICT_Create( char * id )
 
         /* Fill struct */
 
-        dict->id = strdup( id );
+        dict->id = bgd_strdup( id );
         dict->hash = hash;
 
         /* Insert dict in table */
@@ -144,9 +144,9 @@ int DICT_Destroy( DICT_T * dict )
 
         /* Free data  */
 
-        free( dict->id );
+        bgd_free( dict->id );
 
-        free( dict );
+        bgd_free( dict );
     }
 
     return ( 0 );
@@ -176,7 +176,7 @@ static inline DICT_ENTRY_T * __DICT_FINDENTRY( DICT_T * dict, char * key, int ha
     } \
     else \
     { \
-        entry->val = malloc( len ); \
+        entry->val = bgd_malloc( len ); \
         memmove( entry->val, value, len ); \
     } \
     \
@@ -195,7 +195,7 @@ int DICT_AddEntry( DICT_T * dict, char * key, void * value, int len, int flags )
 
         if ( ( entry = __DICT_FINDENTRY( dict, key, hash ) ) )
         {
-            if ( !( entry->flags & DICT_ENTRY_FLAG_DONT_ALLOC ) && entry->val ) free( entry->val );
+            if ( !( entry->flags & DICT_ENTRY_FLAG_DONT_ALLOC ) && entry->val ) bgd_free( entry->val );
 
             __DICT_SET_DATA;
 
@@ -203,7 +203,7 @@ int DICT_AddEntry( DICT_T * dict, char * key, void * value, int len, int flags )
         }
         else
         {
-            if ( ( entry = malloc( sizeof( DICT_ENTRY_T ) ) ) )
+            if ( ( entry = bgd_malloc( sizeof( DICT_ENTRY_T ) ) ) )
             {
                 if ( flags & DICT_ENTRY_FLAG_DONT_ALLOC )
                 {
@@ -211,9 +211,9 @@ int DICT_AddEntry( DICT_T * dict, char * key, void * value, int len, int flags )
                 }
                 else
                 {
-                    if ( !( entry->key = strdup( key ) ) )
+                    if ( !( entry->key = bgd_strdup( key ) ) )
                     {
-                        free( entry );
+                        bgd_free( entry );
                         return -1;
                     }
                 }
@@ -270,7 +270,7 @@ void DICT_DelEntry( DICT_T * dict, char * key )
 
     if ( !entry ) return ;
 
-    if ( !( entry->flags & DICT_ENTRY_FLAG_DONT_ALLOC ) && entry->val ) free( entry->val );
+    if ( !( entry->flags & DICT_ENTRY_FLAG_DONT_ALLOC ) && entry->val ) bgd_free( entry->val );
 
     /* Remove entry from table */
 
@@ -284,8 +284,8 @@ void DICT_DelEntry( DICT_T * dict, char * key )
     if ( entry->prev_hashed ) entry->prev_hashed->next_hashed = entry->next_hashed ;
     else dict->entries_hashed[ hash ] = entry->next_hashed ; /* No prev */
 
-    free( entry->key );
-    free( entry );
+    bgd_free( entry->key );
+    bgd_free( entry );
 }
 
 /* --------------------------------------------------------------------------- */

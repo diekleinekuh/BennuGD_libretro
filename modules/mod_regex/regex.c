@@ -41,6 +41,8 @@
   #pragma alloca
 #endif
 
+#include "allocator.h"
+
 #define _GNU_SOURCE
 
 /* We need this for `regex.h', and perhaps for the Emacs include files.  */
@@ -83,8 +85,8 @@
 #ifdef STDC_HEADERS
 #include <stdlib.h>
 #else
-char *malloc ();
-char *realloc ();
+char *bgd_malloc ();
+char *bgd_realloc ();
 #endif
 
 
@@ -186,11 +188,11 @@ init_syntax_once ()
 #define SIGN_EXTEND_CHAR(c) ((((unsigned char) (c)) ^ 128) - 128)
 #endif
 
-/* Should we use malloc or alloca?  If REGEX_MALLOC is not defined, we
-   use `alloca' instead of `malloc'.  This is because using malloc in
+/* Should we use bgd_malloc or alloca?  If REGEX_MALLOC is not defined, we
+   use `alloca' instead of `bgd_malloc'.  This is because using bgd_malloc in
    re_search* or re_match* could cause memory leaks when C-g is used in
-   Emacs; also, malloc is slower and causes storage fragmentation.  On
-   the other hand, malloc is more portable, and easier to debug.
+   Emacs; also, bgd_malloc is slower and causes storage fragmentation.  On
+   the other hand, bgd_malloc is more portable, and easier to debug.
 
    Because we sometimes use alloca, some routines have to be macros,
    not functions -- `alloca'-allocated space disappears at the end of the
@@ -198,8 +200,8 @@ init_syntax_once ()
 
 #ifdef REGEX_MALLOC
 
-#define REGEX_ALLOCATE malloc
-#define REGEX_REALLOCATE(source, osize, nsize) realloc (source, nsize)
+#define REGEX_ALLOCATE bgd_malloc
+#define REGEX_REALLOCATE(source, osize, nsize) bgd_realloc (source, nsize)
 
 #else /* not REGEX_MALLOC  */
 
@@ -238,9 +240,9 @@ char *alloca ();
 #define FIRST_STRING_P(ptr)                     \
   (size1 && string1 <= (ptr) && (ptr) <= string1 + size1)
 
-/* (Re)Allocate N items of type T using malloc, or fail.  */
-#define TALLOC(n, t) ((t *) malloc ((n) * sizeof (t)))
-#define RETALLOC(addr, n, t) ((addr) = (t *) realloc (addr, (n) * sizeof (t)))
+/* (Re)Allocate N items of type T using bgd_malloc, or fail.  */
+#define TALLOC(n, t) ((t *) bgd_malloc ((n) * sizeof (t)))
+#define RETALLOC(addr, n, t) ((addr) = (t *) bgd_realloc (addr, (n) * sizeof (t)))
 #define REGEX_TALLOC(n, t) ((t *) REGEX_ALLOCATE ((n) * sizeof (t)))
 
 #define BYTEWIDTH 8 /* In bits.  */
@@ -951,7 +953,7 @@ static reg_errcode_t compile_range ();
 #define MAX_BUF_SIZE (1L << 16)
 
 
-/* Extend the buffer by twice its current size via realloc and
+/* Extend the buffer by twice its current size via bgd_realloc and
    reset the pointers that pointed into the old block to point to the
    correct places in the new one.  If extending the buffer results in it
    being larger than MAX_BUF_SIZE, then flag memory exhausted.  */
@@ -963,7 +965,7 @@ static reg_errcode_t compile_range ();
     bufp->allocated <<= 1;                      \
     if (bufp->allocated > MAX_BUF_SIZE)                 \
       bufp->allocated = MAX_BUF_SIZE;                   \
-    bufp->buffer = (unsigned char *) realloc (bufp->buffer, bufp->allocated);\
+    bufp->buffer = (unsigned char *) bgd_realloc (bufp->buffer, bufp->allocated);\
     if (bufp->buffer == NULL)                       \
       return REG_ESPACE;                        \
     /* If the buffer moved, move all the pointers into it.  */      \
@@ -1172,7 +1174,7 @@ regex_compile (pattern, size, syntax, bufp)
   if (bufp->allocated == 0)
     {
       if (bufp->buffer)
-    { /* If zero allocated, but buffer is non-null, try to realloc
+    { /* If zero allocated, but buffer is non-null, try to bgd_realloc
              enough space.  This loses if buffer's address is bogus, but
              that is the user's responsibility.  */
           RETALLOC (bufp->buffer, INIT_BUF_SIZE, unsigned char);
@@ -1606,7 +1608,7 @@ regex_compile (pattern, size, syntax, bufp)
 
               /* These are the values to restore when we hit end of this
                  group.  They are all relative offsets, so that if the
-                 whole pattern moves because of realloc, they will still
+                 whole pattern moves because of bgd_realloc, they will still
                  be valid.  */
               COMPILE_STACK_TOP.begalt_offset = begalt - bufp->buffer;
               COMPILE_STACK_TOP.fixup_alt_jump
@@ -2058,7 +2060,7 @@ regex_compile (pattern, size, syntax, bufp)
   if (!COMPILE_STACK_EMPTY)
     return REG_EPAREN;
 
-  free (compile_stack.stack);
+  bgd_free (compile_stack.stack);
 
   /* We have succeeded; set the length of the buffer.  */
   bufp->used = b - bufp->buffer;
@@ -2822,7 +2824,7 @@ re_compile_fastmap (bufp)
 /* Set REGS to hold NUM_REGS registers, storing them in STARTS and
    ENDS.  Subsequent matches using PATTERN_BUFFER and REGS will use
    this memory for recording register information.  STARTS and ENDS
-   must be allocated using the malloc library routine, and must each
+   must be allocated using the bgd_malloc library routine, and must each
    be at least NUM_REGS * sizeof (regoff_t) bytes long.
 
    If NUM_REGS == 0, then subsequent matches should allocate their own
@@ -3114,9 +3116,9 @@ typedef union
    || WORDCHAR_P (d - 1) != WORDCHAR_P (d))
 
 
-/* Free everything we malloc.  */
+/* Free everything we bgd_malloc.  */
 #ifdef REGEX_MALLOC
-#define FREE_VAR(var) if (var) free (var); var = NULL
+#define FREE_VAR(var) if (var) bgd_free (var); var = NULL
 #define FREE_VARIABLES()                        \
   do {                                  \
     FREE_VAR (fail_stack.stack);                    \
@@ -3131,7 +3133,7 @@ typedef union
     FREE_VAR (reg_info_dummy);                      \
   } while (0)
 #else /* not REGEX_MALLOC */
-/* Some MIPS systems (at least) want this to free alloca'd storage.  */
+/* Some MIPS systems (at least) want this to bgd_free alloca'd storage.  */
 #define FREE_VARIABLES() alloca (0)
 #endif /* not REGEX_MALLOC */
 
@@ -3312,7 +3314,7 @@ re_match_2 (bufp, string1, size1, string2, size2, pos, regs, stop)
   else
     {
       /* We must initialize all our variables to NULL, so that
-         `FREE_VARIABLES' doesn't try to free them.  */
+         `FREE_VARIABLES' doesn't try to bgd_free them.  */
       regstart = regend = old_regstart = old_regend = best_regstart
         = best_regend = reg_dummy = NULL;
       reg_info = reg_info_dummy = (register_info_type *) NULL;
@@ -3458,7 +3460,7 @@ re_match_2 (bufp, string1, size1, string2, size2, pos, regs, stop)
         {
               /* Have the register data arrays been allocated?  */
               if (bufp->regs_allocated == REGS_UNALLOCATED)
-                { /* No.  So allocate them with malloc.  We need one
+                { /* No.  So allocate them with bgd_malloc.  We need one
                      extra element beyond `num_regs' for the `-1' marker
                      GNU code uses.  */
                   regs->num_regs = MAX (RE_NREGS, num_regs + 1);
@@ -4680,12 +4682,12 @@ re_comp (s)
 
   if (!re_comp_buf.buffer)
     {
-      re_comp_buf.buffer = (unsigned char *) malloc (200);
+      re_comp_buf.buffer = (unsigned char *) bgd_malloc (200);
       if (re_comp_buf.buffer == NULL)
         return "Memory exhausted";
       re_comp_buf.allocated = 200;
 
-      re_comp_buf.fastmap = (char *) malloc (1 << BYTEWIDTH);
+      re_comp_buf.fastmap = (char *) bgd_malloc (1 << BYTEWIDTH);
       if (re_comp_buf.fastmap == NULL)
     return "Memory exhausted";
     }
@@ -4776,7 +4778,7 @@ regcomp (preg, pattern, cflags)
     {
       unsigned i;
 
-      preg->translate = (char *) malloc (CHAR_SET_SIZE);
+      preg->translate = (char *) bgd_malloc (CHAR_SET_SIZE);
       if (preg->translate == NULL)
         return (int) REG_ESPACE;
 
@@ -4878,9 +4880,9 @@ regexec (preg, string, nmatch, pmatch, eflags)
             }
         }
 
-      /* If we needed the temporary register info, free the space now.  */
-      free (regs.start);
-      free (regs.end);
+      /* If we needed the temporary register info, bgd_free the space now.  */
+      bgd_free (regs.start);
+      bgd_free (regs.end);
     }
 
   /* We want zero return to mean success, unlike `re_search'.  */
@@ -4940,19 +4942,19 @@ regfree (preg)
     regex_t *preg;
 {
   if (preg->buffer != NULL)
-    free (preg->buffer);
+    bgd_free (preg->buffer);
   preg->buffer = NULL;
 
   preg->allocated = 0;
   preg->used = 0;
 
   if (preg->fastmap != NULL)
-    free (preg->fastmap);
+    bgd_free (preg->fastmap);
   preg->fastmap = NULL;
   preg->fastmap_accurate = 0;
 
   if (preg->translate != NULL)
-    free (preg->translate);
+    bgd_free (preg->translate);
   preg->translate = NULL;
 }
 

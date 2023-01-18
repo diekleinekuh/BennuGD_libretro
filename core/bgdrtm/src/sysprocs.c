@@ -93,7 +93,7 @@ int module_config_count = 0 ;
     { \
         if ((hook_count) >= (hook_allocated)) { \
             (hook_allocated) = (hook_count) + 5; \
-            (hook_list) = realloc (hook_list, (hook_allocated) * sizeof((hook_list)[0])); \
+            (hook_list) = bgd_realloc (hook_list, (hook_allocated) * sizeof((hook_list)[0])); \
         } \
         \
         if (!(hook_list)) { \
@@ -546,7 +546,7 @@ void sysproc_init()
         proc++ ;
     }
 
-    sysproc_tab = calloc( maxcode + 1 , sizeof( SYSPROC * ) );
+    sysproc_tab = bgd_calloc( maxcode + 1 , sizeof( SYSPROC * ) );
 
     proc = sysprocs ;
     while ( proc->func )

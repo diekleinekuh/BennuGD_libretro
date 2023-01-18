@@ -77,7 +77,7 @@ static GRAPH * gr_read_map( file * fp )
 
     if ( gr->ncpoints )
     {
-        gr->cpoints = ( CPOINT * ) malloc( c * sizeof( CPOINT ) ) ;
+        gr->cpoints = ( CPOINT * ) bgd_malloc( c * sizeof( CPOINT ) ) ;
         if ( !gr->cpoints )
         {
             bitmap_destroy( gr );

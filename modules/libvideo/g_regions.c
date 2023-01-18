@@ -153,7 +153,7 @@ int region_is_out( REGION * a, REGION * b )
 
 REGION * region_new( int x, int y, int width, int height )
 {
-    REGION * region = malloc( sizeof( REGION ) ) ;
+    REGION * region = bgd_malloc( sizeof( REGION ) ) ;
 #if 1
     region->x = x ;
     region->y = y ;
@@ -205,7 +205,7 @@ REGION * region_get( int n )
 
 void region_destroy( REGION * region )
 {
-    free( region );
+    bgd_free( region );
 }
 
 /* --------------------------------------------------------------------------- */

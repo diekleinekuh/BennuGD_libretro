@@ -86,13 +86,13 @@ int main( int argc, char *argv[] )
 #ifdef _WIN32
     if ( strlen( argv[0] ) < 4 || strncmpi( &argv[0][strlen( argv[0] ) - 4], ".exe", 4 ) )
     {
-        arg0 = malloc( strlen( argv[0] ) + 5 );
+        arg0 = bgd_malloc( strlen( argv[0] ) + 5 );
         sprintf( arg0, "%s.exe", argv[0] );
     }
     else
     {
 #endif
-        arg0 = strdup( argv[0] );
+        arg0 = bgd_strdup( argv[0] );
 #ifdef _WIN32
     }
 #endif
@@ -100,7 +100,7 @@ int main( int argc, char *argv[] )
     ptr = arg0 + strlen( arg0 );
     while ( ptr > arg0 && ptr[-1] != '\\' && ptr[-1] != '/' ) ptr-- ;
 
-    appexename = strdup( ptr );
+    appexename = bgd_strdup( ptr );
 
     /* get executable full pathname  */
     fp = NULL;
@@ -113,18 +113,18 @@ int main( int argc, char *argv[] )
             char *p = whereis( appexename );
             if ( p )
             {
-                char * tmp = calloc( 1, strlen( p ) + strlen( appexename ) + 2 );
-                free( appexefullpath );
+                char * tmp = bgd_calloc( 1, strlen( p ) + strlen( appexename ) + 2 );
+                bgd_free( appexefullpath );
                 sprintf( tmp, "%s/%s", p, appexename );
                 appexefullpath = getfullpath( tmp );
-                free( tmp );
+                bgd_free( tmp );
             }
         }
     }
 
     /* get pathname of executable */
     ptr = strstr( appexefullpath, appexename );
-    appexepath = calloc( 1, ptr - appexefullpath + 1 );
+    appexepath = bgd_calloc( 1, ptr - appexefullpath + 1 );
     strncpy( appexepath, appexefullpath, ptr - appexefullpath );
 
     standalone = ( strncmpi( appexename, "bgdi", 4 ) == 0 ) ;
@@ -243,7 +243,7 @@ int main( int argc, char *argv[] )
     ptr = filename + strlen( filename );
     while ( ptr > filename && ptr[-1] != '\\' && ptr[-1] != '/' ) ptr-- ;
 
-    appname = strdup( ptr ) ;
+    appname = bgd_strdup( ptr ) ;
     if ( strlen( appname ) > 3 )
     {
         char ** dcbext = dcb_exts, *ext = &appname[ strlen( appname ) - 4 ];
@@ -310,7 +310,7 @@ fflush(stdout);
 
     /* config file name */
 
-    configfile = calloc( 1, strlen( appname ) + 4 + 1 );
+    configfile = bgd_calloc( 1, strlen( appname ) + 4 + 1 );
     sprintf( configfile, "%s.ini", appname );
 
     sysproc_init() ;
@@ -333,11 +333,11 @@ fflush(stdout);
 
     bgdrtm_exit( ret );
 
-    free( configfile        );
-    free( appexename        );
-    free( appexepath        );
-    free( appexefullpath    );
-    free( appname           );
+    bgd_free( configfile        );
+    bgd_free( appexename        );
+    bgd_free( appexepath        );
+    bgd_free( appexefullpath    );
+    bgd_free( appname           );
 
     return ret;
 }

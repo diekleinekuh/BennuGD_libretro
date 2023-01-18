@@ -82,9 +82,9 @@ static int modregex_regex (INSTANCE * my, int * params)
 
     memset (&pb, 0, sizeof(pb));
     memset (&re, 0, sizeof(re));
-    pb.buffer = malloc(4096);
+    pb.buffer = bgd_malloc(4096);
     pb.allocated = 4096;
-    pb.fastmap = malloc(256);
+    pb.fastmap = bgd_malloc(256);
     pb.regs_allocated = REGS_FIXED;
     re.num_regs = 16;
     re.start = start;
@@ -112,8 +112,8 @@ static int modregex_regex (INSTANCE * my, int * params)
     }
 
     /* Free the resources */
-    free (pb.buffer);
-    free (pb.fastmap);
+    bgd_free (pb.buffer);
+    bgd_free (pb.fastmap);
     string_discard(params[0]);
     string_discard(params[1]);
 
@@ -159,7 +159,7 @@ static int modregex_regex_replace (INSTANCE * my, int * params)
 
     /* Alloc a buffer for the resulting string */
 
-    result = malloc(128);
+    result = bgd_malloc(128);
     result_allocated = 128;
     *result = 0;
 
@@ -167,10 +167,10 @@ static int modregex_regex_replace (INSTANCE * my, int * params)
 
     memset (&pb, 0, sizeof(pb));
     memset (&re, 0, sizeof(re));
-    pb.buffer = malloc(4096);
+    pb.buffer = bgd_malloc(4096);
     pb.allocated = 4096;
     pb.used = 0;
-    pb.fastmap = malloc(256);
+    pb.fastmap = bgd_malloc(256);
     pb.translate = NULL;
     pb.fastmap_accurate = 0;
     pb.regs_allocated = REGS_FIXED;
@@ -225,7 +225,7 @@ static int modregex_regex_replace (INSTANCE * my, int * params)
 
                 /* Fill the replacement string */
 
-                replacement = calloc (total_length+1, 1);
+                replacement = bgd_calloc (total_length+1, 1);
 
                 bptr = rep;
                 ptr = strchr(rep, '\\');
@@ -253,13 +253,13 @@ static int modregex_regex_replace (INSTANCE * my, int * params)
             if (result_allocated < strlen(result)+(nextpos-startpos)+1+replacement_len)
             {
                 result_allocated += ((nextpos-startpos+1+replacement_len) & ~127) + 128;
-                result = realloc(result, result_allocated);
+                result = bgd_realloc(result, result_allocated);
             }
             result[strlen(result)+(nextpos-startpos)] = 0;
             memcpy (result + strlen(result), str+startpos, nextpos-startpos);
             strcat (result, replacement);
 
-            if (fixed_replacement == 0) free (replacement);
+            if (fixed_replacement == 0) bgd_free (replacement);
 
             /* Continue the search */
 
@@ -275,15 +275,15 @@ static int modregex_regex_replace (INSTANCE * my, int * params)
     if (result_allocated < strlen(result)+(nextpos-startpos)+1)
     {
         result_allocated += ((nextpos-startpos+1) & ~127) + 128;
-        result = realloc(result, result_allocated);
+        result = bgd_realloc(result, result_allocated);
     }
     result[strlen(result)+(nextpos-startpos)] = 0;
     memcpy (result + strlen(result), str+startpos, nextpos-startpos);
 
     /* Free resources */
 
-    free (pb.buffer);
-    free (pb.fastmap);
+    bgd_free (pb.buffer);
+    bgd_free (pb.fastmap);
     string_discard(params[0]);
     string_discard(params[1]);
     string_discard(params[2]);
@@ -292,7 +292,7 @@ static int modregex_regex_replace (INSTANCE * my, int * params)
 
     result_string = string_new(result);
     string_use(result_string);
-    free(result);
+    bgd_free(result);
 
     return result_string;
 }
@@ -322,9 +322,9 @@ static int modregex_split (INSTANCE * my, int * params)
 
     memset (&pb, 0, sizeof(pb));
     memset (&re, 0, sizeof(re));
-    pb.buffer = malloc(4096);
+    pb.buffer = bgd_malloc(4096);
     pb.allocated = 4096;
-    pb.fastmap = malloc(256);
+    pb.fastmap = bgd_malloc(256);
     pb.regs_allocated = REGS_FIXED;
     re.num_regs = 16;
     re.start = start;
@@ -359,8 +359,8 @@ static int modregex_split (INSTANCE * my, int * params)
     }
 
     /* Free the resources */
-    free (pb.buffer);
-    free (pb.fastmap);
+    bgd_free (pb.buffer);
+    bgd_free (pb.fastmap);
     string_discard(params[0]);
     string_discard(params[1]);
 
@@ -390,7 +390,7 @@ static int modregex_join (INSTANCE * my, int * params)
         if (n < count-1) total_length += sep_len;
     }
 
-    buffer = malloc(total_length+1);
+    buffer = bgd_malloc(total_length+1);
     ptr = buffer;
 
     for (n = 0 ; n < count ; n++)
@@ -405,7 +405,7 @@ static int modregex_join (INSTANCE * my, int * params)
     }
     *ptr = 0;
     result = string_new(buffer);
-    free(buffer);
+    bgd_free(buffer);
     string_use(result);
     return result;
 }

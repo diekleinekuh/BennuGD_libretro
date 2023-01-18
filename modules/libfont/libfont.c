@@ -325,13 +325,13 @@ static int get_bitmap_char_width( unsigned char *data, int width, int height, in
 
 int gr_font_new( int charset, uint32_t bpp )
 {
-    FONT * f = ( FONT * )malloc( sizeof( FONT ) );
+    FONT * f = ( FONT * )bgd_malloc( sizeof( FONT ) );
 
     if ( f == NULL ) return -1; // No memory
 
     if ( font_count == MAX_FONTS - 1 ) // Too much fonts
     {
-        free( f );
+        bgd_free( f );
         return -1;
     }
 
@@ -690,7 +690,7 @@ void gr_font_destroy( int fontid )
             if ( fonts[fontid]->glyph[n].bitmap )
                 bitmap_destroy( fonts[fontid]->glyph[n].bitmap ) ;
 
-        free( fonts[fontid] ) ;
+        bgd_free( fonts[fontid] ) ;
         fonts[fontid] = NULL ;
         while ( font_count > 0 && fonts[font_count-1] == 0 ) font_count-- ;
     }

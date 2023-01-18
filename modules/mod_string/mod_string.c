@@ -327,7 +327,7 @@ static int modstring_get_buffer( INSTANCE * my, int * params )
 
 static int modstring_string_alloc( INSTANCE * my, int * params )
 {
-    return ( int ) calloc( 1, sizeof( int ) ) ;
+    return ( int ) bgd_calloc( 1, sizeof( int ) ) ;
 }
 
 
@@ -337,7 +337,7 @@ static int modstring_string_alloc( INSTANCE * my, int * params )
 
 static int modstring_string_alloc2( INSTANCE * my, int * params )
 {
-    int * r = malloc( sizeof( int ) ) ;
+    int * r = bgd_malloc( sizeof( int ) ) ;
     if ( !r ) {
         string_discard( params[0] ) ;
         return ( int ) NULL ;
@@ -354,7 +354,7 @@ static int modstring_string_release( INSTANCE * my, int * params )
     int ** ppstr = ( int ** ) params[0] ;
     if ( !ppstr ) return 0 ;
     if ( *ppstr ) string_discard( **ppstr ) ;
-    free( *ppstr ) ;
+    bgd_free( *ppstr ) ;
     *ppstr = NULL ;
     return 1 ;
 }

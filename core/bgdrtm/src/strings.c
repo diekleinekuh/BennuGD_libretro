@@ -64,7 +64,7 @@ static char     * string_mem = NULL ;
 
 static int      string_reserved = 0;        /* Last fixed string */
 
-static char     ** string_ptr = NULL ;      /* Pointers to each string's text. Every string is allocated using strdup() or malloc().
+static char     ** string_ptr = NULL ;      /* Pointers to each string's text. Every string is allocated using bgd_strdup() or bgd_malloc().
                                                A pointer of a unused slot is 0.
                                                Exception: "fixed" strings are stored in a separate memory block and should not be freed */
 static uint32_t * string_uct = NULL ;       /* Usage count for each string. An unused slot has a count of 0 */
@@ -174,9 +174,9 @@ static void string_alloc( int count )
 
     string_allocated += count ;
 
-    string_ptr = ( char ** ) realloc( string_ptr, string_allocated * sizeof( char * ) ) ;
-    string_uct = ( uint32_t * ) realloc( string_uct, string_allocated * sizeof( uint32_t ) ) ;
-    string_bmp = ( uint32_t * ) realloc( string_bmp, ( string_allocated >> 5 ) * sizeof( uint32_t ) );
+    string_ptr = ( char ** ) bgd_realloc( string_ptr, string_allocated * sizeof( char * ) ) ;
+    string_uct = ( uint32_t * ) bgd_realloc( string_uct, string_allocated * sizeof( uint32_t ) ) ;
+    string_bmp = ( uint32_t * ) bgd_realloc( string_bmp, ( string_allocated >> 5 ) * sizeof( uint32_t ) );
 
     if ( !string_ptr || !string_uct || !string_bmp )
     {
@@ -232,7 +232,7 @@ void string_dump( void ( *wlog )( const char *fmt, ... ) )
             {
                 if ( i >= string_reserved )
                 {
-                    free( string_ptr[i] ) ;
+                    bgd_free( string_ptr[i] ) ;
                     string_ptr[i] = NULL ;
                     bit_clr( string_bmp, i );
                 }
@@ -288,10 +288,10 @@ void string_load( void * fp, int ostroffs, int ostrdata, int nstrings, int total
     uint32_t * string_offset;
     int n;
 
-    string_mem = malloc( totalsize );
+    string_mem = bgd_malloc( totalsize );
     assert( string_mem );
 
-    string_offset = ( uint32_t * ) malloc( sizeof( uint32_t ) * nstrings ) ;
+    string_offset = ( uint32_t * ) bgd_malloc( sizeof( uint32_t ) * nstrings ) ;
     assert( string_offset );
 
     file_seek(( file * )fp, ostroffs, SEEK_SET ) ;
@@ -317,7 +317,7 @@ void string_load( void * fp, int ostroffs, int ostrdata, int nstrings, int total
     string_reserved = string_last_id ;
     string_bmp_start = string_last_id >> 5;
 
-    free( string_offset ) ;
+    bgd_free( string_offset ) ;
 }
 
 /****************************************************************************/
@@ -358,7 +358,7 @@ void string_discard( int code )
     {
         if ( code >= string_reserved )
         {
-            free( string_ptr[code] ) ;
+            bgd_free( string_ptr[code] ) ;
             string_ptr[code] = NULL ;
             bit_clr( string_bmp, code );
         }
@@ -428,13 +428,13 @@ static int string_getid()
 /****************************************************************************/
 /* FUNCTION : string_new                                                    */
 /****************************************************************************/
-/* Create a new string. It returns its ID. Note that it uses strdup()       */
+/* Create a new string. It returns its ID. Note that it uses bgd_strdup()       */
 /* TODO: do something if no memory available                                */
 /****************************************************************************/
 
 int string_new( const char * ptr )
 {
-    char * str = strdup( ptr ) ;
+    char * str = bgd_strdup( ptr ) ;
     int    id ;
 
     assert( str ) ;
@@ -462,7 +462,7 @@ int string_new( const char * ptr )
 
 int string_newa( const char * ptr, unsigned count )
 {
-    char * str = malloc( count + 1 );
+    char * str = bgd_malloc( count + 1 );
     int    id ;
 
     assert( str ) ;
@@ -496,7 +496,7 @@ int string_concat( int code1, char * str2 )
     len1 = strlen( str1 ) ;
     len2 = strlen( str2 ) + 1 ;
 
-    str1 = ( char * ) realloc( str1, len1 + len2 ) ;
+    str1 = ( char * ) bgd_realloc( str1, len1 + len2 ) ;
     assert( str1 ) ;
 
     memmove( str1 + len1, str2, len2 ) ;
@@ -527,7 +527,7 @@ int string_add( int code1, int code2 )
     len1 = strlen( str1 ) ;
     len2 = strlen( str2 ) + 1;
 
-    str3 = ( char * ) malloc( len1 + len2 ) ;
+    str3 = ( char * ) bgd_malloc( len1 + len2 ) ;
     assert( str3 ) ;
 
     memmove( str3, str1, len1 ) ;
@@ -552,7 +552,7 @@ int string_ptoa( void * n )
     char * str ;
     int id ;
 
-    str = ( char * ) malloc( 10 ) ;
+    str = ( char * ) bgd_malloc( 10 ) ;
     assert( str )  ;
 
     _string_ptoa( str, n ) ;
@@ -572,7 +572,7 @@ int string_ptoa( void * n )
 
 int string_ftoa( float n )
 {
-    char * str = ( char * ) malloc( 32 ), * ptr = str;
+    char * str = ( char * ) bgd_malloc( 32 ), * ptr = str;
     int id ;
 
     assert( str )  ;
@@ -609,7 +609,7 @@ int string_itoa( int n )
     char * str ;
     int id ;
 
-    str = ( char * ) malloc( 16 ) ;
+    str = ( char * ) bgd_malloc( 16 ) ;
     assert( str )  ;
 
     _string_ntoa( str, n ) ;
@@ -632,7 +632,7 @@ int string_uitoa( unsigned int n )
     char * str ;
     int id ;
 
-    str = ( char * ) malloc( 16 ) ;
+    str = ( char * ) bgd_malloc( 16 ) ;
     assert( str )  ;
 
     _string_utoa( str, n ) ;
@@ -718,7 +718,7 @@ int string_substr( int code, int first, int len )
 
     if (( first + len ) > rlen ) len = ( rlen - first ) ;
 
-    ptr = ( char * )malloc( len + 1 ) ;
+    ptr = ( char * )bgd_malloc( len + 1 ) ;
     memcpy( ptr, str + first, len ) ;
     ptr[len] = '\0' ;
 
@@ -807,7 +807,7 @@ int string_ucase( int code )
 
     assert( str ) ;
 
-    base = ( char * )malloc( strlen( str ) + 1 ) ;
+    base = ( char * )bgd_malloc( strlen( str ) + 1 ) ;
     assert( base ) ;
 
     for ( ptr = base; *str ; ptr++, str++ ) *ptr = TOUPPER( *str ) ;
@@ -841,7 +841,7 @@ int string_lcase( int code )
 
     assert( str ) ;
 
-    base = ( char * )malloc( strlen( str ) + 1 ) ;
+    base = ( char * )bgd_malloc( strlen( str ) + 1 ) ;
     assert( base ) ;
 
     for ( ptr = base; *str ; ptr++, str++ ) *ptr = TOLOWER( *str ) ;
@@ -899,7 +899,7 @@ int string_strip( int code )
 
 int string_format( double number, int dec, char point, char thousands )
 {
-    char * str = malloc( 128 );
+    char * str = bgd_malloc( 128 );
     char * s = str, * t, * p = NULL;
     int c, id, neg ;
 
@@ -1014,7 +1014,7 @@ int string_pad( int code, int total, int align )
 
     if ( !spaces ) return string_new( ptr ) ;
 
-    str = malloc( total + 1 );
+    str = bgd_malloc( total + 1 );
     assert( str );
 
     if ( !align )

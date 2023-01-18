@@ -781,7 +781,7 @@ static void draw_mode7( int n, REGION * clip )
             if ( proclist_count == proclist_reserved )
             {
                 proclist_reserved += 16 ;
-                proclist = ( INSTANCE ** ) realloc( proclist, sizeof( INSTANCE * ) * proclist_reserved ) ;
+                proclist = ( INSTANCE ** ) bgd_realloc( proclist, sizeof( INSTANCE * ) * proclist_reserved ) ;
             }
 
             /* Averigua la distancia a la cámara */

@@ -132,7 +132,7 @@ static __sound_handle * sound_handle_alloc( file * fp ) {
     
     if ( !fp ) return NULL;
 
-    __sound_handle * h = malloc( sizeof( __sound_handle ) );
+    __sound_handle * h = bgd_malloc( sizeof( __sound_handle ) );
     if ( !h ) return NULL;
 
     h->rwops = SDL_RWFromBGDFP( fp );
@@ -144,7 +144,7 @@ static __sound_handle * sound_handle_alloc( file * fp ) {
 static void sound_handle_free( __sound_handle * h ) {
     if ( h ) {
         if ( h->rwops ) SDL_FreeRW( h->rwops );
-        free( h );
+        bgd_free( h );
     }
 }
 

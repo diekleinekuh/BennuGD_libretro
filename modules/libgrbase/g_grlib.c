@@ -96,10 +96,10 @@ int grlib_newid()
        256 new maps available for alloc */
 
     libs_allocated += 256 ;
-    libs_bmp = ( uint32_t * ) realloc( libs_bmp, sizeof( uint32_t ) * ( libs_allocated >> 5 ) );
+    libs_bmp = ( uint32_t * ) bgd_realloc( libs_bmp, sizeof( uint32_t ) * ( libs_allocated >> 5 ) );
     memset( &libs_bmp[( libs_last >> 5 )], 0, 32 );  /* 256 >> 5 = 8 * sizeof ( uint32_t ) = 8 * 4 = 32 */
 
-    libs = ( GRLIB ** ) realloc( libs, sizeof( GRLIB * ) * libs_allocated );
+    libs = ( GRLIB ** ) bgd_realloc( libs, sizeof( GRLIB * ) * libs_allocated );
     memset( &libs[ libs_last ], 0, sizeof( GRLIB * ) * 256 );
 
     /* Devuelvo libs_last e incremento en 1, ya que ahora tengo BLOCK_INCR mas que antes */
@@ -141,13 +141,13 @@ static GRLIB * grlib_create()
 {
     GRLIB * lib ;
 
-    lib = ( GRLIB * ) malloc( sizeof( GRLIB ) ) ;
+    lib = ( GRLIB * ) bgd_malloc( sizeof( GRLIB ) ) ;
     if ( !lib ) return 0 ;
 
-    lib->maps = ( GRAPH ** ) calloc( 32, sizeof( GRAPH * ) ) ;
+    lib->maps = ( GRAPH ** ) bgd_calloc( 32, sizeof( GRAPH * ) ) ;
     if ( !lib->maps )
     {
-        free( lib );
+        bgd_free( lib );
         return 0 ;
     }
 
@@ -199,8 +199,8 @@ void grlib_destroy( int libid )
 
     for ( i = 0; i < lib->map_reserved; i++ ) bitmap_destroy( lib->maps[ i ] ) ;
 
-    free( lib->maps ) ;
-    free( lib ) ;
+    bgd_free( lib->maps ) ;
+    bgd_free( lib ) ;
 
     bit_clr( libs_bmp, libid );
 }
@@ -273,7 +273,7 @@ int grlib_add_map( int libid, GRAPH * map )
         GRAPH ** lmaps;
         int new_reserved = ( map->code & ~0x001F ) + 32 ;
 
-        lmaps = ( GRAPH ** ) realloc( lib->maps, sizeof( GRAPH* ) * new_reserved ) ;
+        lmaps = ( GRAPH ** ) bgd_realloc( lib->maps, sizeof( GRAPH* ) * new_reserved ) ;
         if ( !lmaps ) return -1; // No memory
         lib->maps = lmaps;
 

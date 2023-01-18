@@ -154,15 +154,15 @@ static void flic_destroy( FLIC * flic )
     file_close( flic->fp ) ;
     if ( flic->objid ) gr_destroy_object( flic->objid );
     if ( flic->bitmap ) bitmap_destroy( flic->bitmap ) ;
-    if ( flic->frame ) free( flic->frame ) ;
-    free( flic ) ;
+    if ( flic->frame ) bgd_free( flic->frame ) ;
+    bgd_free( flic ) ;
 }
 
 static FLIC * flic_open( const char * filename )
 {
     FLIC * flic ;
 
-    flic = ( FLIC * ) malloc( sizeof( FLIC ) ) ;
+    flic = ( FLIC * ) bgd_malloc( sizeof( FLIC ) ) ;
     if ( !flic ) return 0 ;
 
     flic->objid = 0;
@@ -170,11 +170,11 @@ static FLIC * flic_open( const char * filename )
     flic->fp = file_open( filename, "rb" ) ;
     if ( !flic->fp )
     {
-        free( flic ) ;
+        bgd_free( flic ) ;
         return 0 ;
     }
     flic->frame_reserved = 8192 ;
-    flic->frame = ( FLIC_FRAME * ) malloc( 8192 ) ;
+    flic->frame = ( FLIC_FRAME * ) bgd_malloc( 8192 ) ;
     if ( !flic->frame )
     {
         flic_destroy( flic ) ;
@@ -524,7 +524,7 @@ static FLIC * flic_do_frame( FLIC * flic )
         if ( flic->frame_reserved < flic->frame->size )
         {
             flic->frame_reserved = flic->frame->size ;
-            flic->frame = ( FLIC_FRAME * ) realloc( flic->frame, flic->frame_reserved ) ;
+            flic->frame = ( FLIC_FRAME * ) bgd_realloc( flic->frame, flic->frame_reserved ) ;
 
             /* Error: sin memoria */
             if ( !flic->frame ) return 0 ;

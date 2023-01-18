@@ -166,7 +166,7 @@ DLVARFIXUP __bgdexport( mod_debug, globals_fixup )[] = {
     "\25405ALT+CURSORS     \25407  Console window size\n"                              \
     "\25405SHIFT+CURSORS   \25407  List window scroll\n"                               \
     "\n"                                                                         \
-    "You can evaluate free expressions in the console, and you can see/change\n" \
+    "You can evaluate bgd_free expressions in the console, and you can see/change\n" \
     "local, public and private vars using the '.' operator\n"                    \
     "(pe: 65535.X, MAIN.X, etc.)\n\n"
 
@@ -297,8 +297,8 @@ static void console_putline( char * text ) {
         console_initialized = 1 ;
     }
 
-    if ( console[console_tail] ) free( console[console_tail] ) ;
-    console[console_tail] = strdup( text ) ;
+    if ( console[console_tail] ) bgd_free( console[console_tail] ) ;
+    console[console_tail] = bgd_strdup( text ) ;
 
     console_tail++ ;
     if ( console_tail == CONSOLE_HISTORY ) console_tail = 0 ;
@@ -359,8 +359,8 @@ static void console_putcommand( const char * commandline ) {
         command_initialized = 1;
     }
 
-    if ( command[command_tail] ) free( command[command_tail] );
-    command[command_tail++] = strdup( commandline );
+    if ( command[command_tail] ) bgd_free( command[command_tail] );
+    command[command_tail++] = bgd_strdup( commandline );
     if ( command_tail == COMMAND_HISTORY ) command_tail = 0;
     if ( command_tail == command_head ) {
         if ( ++command_head == COMMAND_HISTORY ) command_head = 0;
@@ -518,7 +518,7 @@ static char * show_value( DCB_TYPEDEF type, void * data ) {
             type = reduce_type( type ) ;
             subsize = type_size( type ) ;
             if ( type.BaseType[0] == TYPE_STRUCT ) return "" ;
-            newbuffer = ( char * ) malloc( 512 ) ;
+            newbuffer = ( char * ) bgd_malloc( 512 ) ;
             strcpy( newbuffer, "= (" ) ;
             for ( n = 0 ; n < count ; n++ ) {
                 if ( n ) strcat( newbuffer, ", " ) ;
@@ -532,7 +532,7 @@ static char * show_value( DCB_TYPEDEF type, void * data ) {
             }
             strcat( newbuffer, ")" ) ;
             strcpy( buffer, newbuffer ) ;
-            free( newbuffer ) ;
+            bgd_free( newbuffer ) ;
             return buffer ;
 
         case TYPE_STRUCT:
@@ -1223,11 +1223,11 @@ static char * eval_expression( const char * here, int interactive ) {
     }
 
     if ( token.name[0] == ',' ) {
-        char * temporary = strdup( buffer );
+        char * temporary = bgd_strdup( buffer );
         int    size = strlen( temporary );
 
         if ( eval_expression( token_ptr, interactive ) == 0 ) {
-            free( temporary );
+            bgd_free( temporary );
             return 0;
         }
         if ( strlen( buffer ) + size < 1020 && !interactive ) {
@@ -1235,7 +1235,7 @@ static char * eval_expression( const char * here, int interactive ) {
             memcpy( buffer, temporary, size );
             memcpy( buffer + size, ", ", 2 );
         }
-        free( temporary );
+        bgd_free( temporary );
         return buffer;
     }
 
@@ -1819,7 +1819,7 @@ static void console_do( const char * command ) {
 
             for ( n = 0; n < MAX_EXPRESSIONS; n++ ) {
                 if ( !show_expression[n] ) {
-                    show_expression[n] = strdup( ptr );
+                    show_expression[n] = bgd_strdup( ptr );
                     show_expression_count++;
                     console_printf( "\25407OK" );
                     return;
@@ -1852,7 +1852,7 @@ static void console_do( const char * command ) {
             if ( ISNUM( *ptr ) ) {
                 int pos = atol( ptr ) - 1;
                 if ( pos >= 0 && pos < MAX_EXPRESSIONS && show_expression[pos] ) {
-                    free( show_expression[pos] );
+                    bgd_free( show_expression[pos] );
                     show_expression[pos] = NULL;
                     show_expression_count--;
                     console_printf( "\25407OK" );
@@ -1869,7 +1869,7 @@ static void console_do( const char * command ) {
     if ( strcmp( action, "SHOWDELALL" ) == 0 ) {
         for ( n = 0; n < MAX_EXPRESSIONS; n++ ) {
             if ( show_expression[n] ) {
-                free( show_expression[n] );
+                bgd_free( show_expression[n] );
                 show_expression[n] = NULL;
                 show_expression_count--;
             }
@@ -1973,7 +1973,7 @@ static void console_do( const char * command ) {
         strcmp( action, "FREEZEALL" ) == 0 ) {
         char    act = *action;
         int     found = 0;
-        char    * oaction = strdup( action );
+        char    * oaction = bgd_strdup( action );
         char    * optr = ptr;
 
         i = NULL;
@@ -2000,7 +2000,7 @@ static void console_do( const char * command ) {
             ptr = optr;
         }
 
-        if ( oaction ) free( oaction );
+        if ( oaction ) bgd_free( oaction );
         if ( found ) console_printf( "\25407OK" );
         return ;
     }
@@ -2314,7 +2314,7 @@ static void console_draw( INSTANCE * i, REGION * clip ) {
             char * res = eval_expression( show_expression[count], 0 );
 
             if ( !res || result.type == T_ERROR ) {
-                free( show_expression[count] );
+                bgd_free( show_expression[count] );
                 show_expression[count] = NULL;
                 show_expression_count--;
             } else {
@@ -2445,7 +2445,7 @@ static int console_info( INSTANCE * i, REGION * clip, int * z, int * drawme ) {
                 char * res = eval_expression( show_expression[count], 0 );
 
                 if ( !res ) {
-                    free( show_expression[count] );
+                    bgd_free( show_expression[count] );
                     show_expression[count] = NULL;
                     show_expression_count--;
                 } else {

@@ -149,7 +149,7 @@ static int load_file( const char * filename, int n )
         return 0 ;
     }
 
-    lines = ( char ** ) calloc( 16, sizeof( char* ) ) ;
+    lines = ( char ** ) bgd_calloc( 16, sizeof( char* ) ) ;
 
     while ( !file_eof( fp ) )
     {
@@ -158,13 +158,13 @@ static int load_file( const char * filename, int n )
         if ( allocated == count )
         {
             allocated += 16 ;
-            lines = realloc( lines, sizeof( char* ) * allocated ) ;
+            lines = bgd_realloc( lines, sizeof( char* ) * allocated ) ;
         }
-        lines[count++] = strdup( line ) ;
+        lines[count++] = bgd_strdup( line ) ;
     }
     file_close( fp ) ;
 
-    dcb.sourcefiles[n] = ( uint8_t * ) strdup( filename );
+    dcb.sourcefiles[n] = ( uint8_t * ) bgd_strdup( filename );
     dcb.sourcelines[n] = ( uint8_t ** ) lines ;
     dcb.sourcecount[n] = count ;
     return 1 ;
@@ -194,7 +194,7 @@ int dcb_load( const char * filename )
 DCB_VAR * read_and_arrange_varspace( file * fp, int count )
 {
     int n, n1;
-    DCB_VAR * vars = ( DCB_VAR * ) calloc( count, sizeof( DCB_VAR ) ) ;
+    DCB_VAR * vars = ( DCB_VAR * ) bgd_calloc( count, sizeof( DCB_VAR ) ) ;
 
     for ( n = 0; n < count; n++ )
     {
@@ -257,11 +257,11 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( memcmp( dcb.data.Header, DCB_MAGIC, sizeof( DCB_MAGIC ) - 1 ) != 0 || dcb.data.Version < 0x0700 ) return 0 ;
 
-    globaldata = calloc( dcb.data.SGlobal + 4, 1 ) ;
-    localdata  = calloc( dcb.data.SLocal + 4, 1 ) ;
-    localstr   = ( int * ) calloc( dcb.data.NLocStrings + 4, sizeof( int ) ) ;
-    dcb.proc   = ( DCB_PROC * ) calloc(( 1 + dcb.data.NProcs ), sizeof( DCB_PROC ) ) ;
-    procs      = ( PROCDEF * ) calloc(( 1 + dcb.data.NProcs ), sizeof( PROCDEF ) ) ;
+    globaldata = bgd_calloc( dcb.data.SGlobal + 4, 1 ) ;
+    localdata  = bgd_calloc( dcb.data.SLocal + 4, 1 ) ;
+    localstr   = ( int * ) bgd_calloc( dcb.data.NLocStrings + 4, sizeof( int ) ) ;
+    dcb.proc   = ( DCB_PROC * ) bgd_calloc(( 1 + dcb.data.NProcs ), sizeof( DCB_PROC ) ) ;
+    procs      = ( PROCDEF * ) bgd_calloc(( 1 + dcb.data.NProcs ), sizeof( PROCDEF ) ) ;
 
     procdef_count = dcb.data.NProcs ;
     local_size    = dcb.data.SLocal ;
@@ -352,7 +352,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( dcb.data.NImports )
     {
-        dcb.imports = ( uint32_t * )calloc( dcb.data.NImports, sizeof( uint32_t ) ) ;
+        dcb.imports = ( uint32_t * )bgd_calloc( dcb.data.NImports, sizeof( uint32_t ) ) ;
         file_seek( fp, offset + dcb.data.OImports, SEEK_SET ) ;
         file_readUint32A( fp, dcb.imports, dcb.data.NImports ) ;
     }
@@ -361,7 +361,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( dcb.data.NID )
     {
-        dcb.id = ( DCB_ID * ) calloc( dcb.data.NID, sizeof( DCB_ID ) ) ;
+        dcb.id = ( DCB_ID * ) bgd_calloc( dcb.data.NID, sizeof( DCB_ID ) ) ;
         file_seek( fp, offset + dcb.data.OID, SEEK_SET ) ;
 
         for ( n = 0; n < dcb.data.NID; n++ )
@@ -385,8 +385,8 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( dcb.data.NVarSpaces )
     {
-        dcb.varspace = ( DCB_VARSPACE * ) calloc( dcb.data.NVarSpaces, sizeof( DCB_VARSPACE ) ) ;
-        dcb.varspace_vars = ( DCB_VAR ** ) calloc( dcb.data.NVarSpaces, sizeof( DCB_VAR * ) ) ;
+        dcb.varspace = ( DCB_VARSPACE * ) bgd_calloc( dcb.data.NVarSpaces, sizeof( DCB_VARSPACE ) ) ;
+        dcb.varspace_vars = ( DCB_VAR ** ) bgd_calloc( dcb.data.NVarSpaces, sizeof( DCB_VAR * ) ) ;
         file_seek( fp, offset + dcb.data.OVarSpaces, SEEK_SET ) ;
 
         for ( n = 0; n < dcb.data.NVarSpaces; n++ )
@@ -409,9 +409,9 @@ int dcb_load_from( file * fp, const char * filename, int offset )
     {
         char fname[__MAX_PATH] ;
 
-        dcb.sourcecount = ( uint32_t * ) calloc( dcb.data.NSourceFiles, sizeof( uint32_t ) ) ;
-        dcb.sourcelines = ( uint8_t *** ) calloc( dcb.data.NSourceFiles, sizeof( char ** ) ) ;
-        dcb.sourcefiles = ( uint8_t ** ) calloc( dcb.data.NSourceFiles, sizeof( char * ) ) ;
+        dcb.sourcecount = ( uint32_t * ) bgd_calloc( dcb.data.NSourceFiles, sizeof( uint32_t ) ) ;
+        dcb.sourcelines = ( uint8_t *** ) bgd_calloc( dcb.data.NSourceFiles, sizeof( char ** ) ) ;
+        dcb.sourcefiles = ( uint8_t ** ) bgd_calloc( dcb.data.NSourceFiles, sizeof( char * ) ) ;
         file_seek( fp, offset + dcb.data.OSourceFiles, SEEK_SET ) ;
         for ( n = 0; n < dcb.data.NSourceFiles; n++ )
         {
@@ -441,21 +441,21 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
         if ( dcb.proc[n].data.SPrivate )
         {
-            procs[n].pridata = ( int * )calloc( dcb.proc[n].data.SPrivate, sizeof( char ) ) ; /* El size ya esta calculado en bytes */
+            procs[n].pridata = ( int * )bgd_calloc( dcb.proc[n].data.SPrivate, sizeof( char ) ) ; /* El size ya esta calculado en bytes */
             file_seek( fp, offset + dcb.proc[n].data.OPrivate, SEEK_SET ) ;
             file_read( fp, procs[n].pridata, dcb.proc[n].data.SPrivate ) ;      /* *** */
         }
 
         if ( dcb.proc[n].data.SPublic )
         {
-            procs[n].pubdata = ( int * )calloc( dcb.proc[n].data.SPublic, sizeof( char ) ) ; /* El size ya esta calculado en bytes */
+            procs[n].pubdata = ( int * )bgd_calloc( dcb.proc[n].data.SPublic, sizeof( char ) ) ; /* El size ya esta calculado en bytes */
             file_seek( fp, offset + dcb.proc[n].data.OPublic, SEEK_SET ) ;
             file_read( fp, procs[n].pubdata, dcb.proc[n].data.SPublic ) ;       /* *** */
         }
 
         if ( dcb.proc[n].data.SCode )
         {
-            procs[n].code = ( int * ) calloc( dcb.proc[n].data.SCode, sizeof( char ) ) ; /* El size ya esta calculado en bytes */
+            procs[n].code = ( int * ) bgd_calloc( dcb.proc[n].data.SCode, sizeof( char ) ) ; /* El size ya esta calculado en bytes */
             file_seek( fp, offset + dcb.proc[n].data.OCode, SEEK_SET ) ;
             file_readUint32A( fp, (uint32_t *)procs[n].code, dcb.proc[n].data.SCode / sizeof(uint32_t) ) ;
 
@@ -472,14 +472,14 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
         if ( dcb.proc[n].data.NPriStrings )
         {
-            procs[n].strings = ( int * )calloc( dcb.proc[n].data.NPriStrings, sizeof( int ) ) ;
+            procs[n].strings = ( int * )bgd_calloc( dcb.proc[n].data.NPriStrings, sizeof( int ) ) ;
             file_seek( fp, offset + dcb.proc[n].data.OPriStrings, SEEK_SET ) ;
             file_readUint32A( fp, (uint32_t *)procs[n].strings, dcb.proc[n].data.NPriStrings ) ;
         }
 
         if ( dcb.proc[n].data.NPubStrings )
         {
-            procs[n].pubstrings = ( int * )calloc( dcb.proc[n].data.NPubStrings, sizeof( int ) ) ;
+            procs[n].pubstrings = ( int * )bgd_calloc( dcb.proc[n].data.NPubStrings, sizeof( int ) ) ;
             file_seek( fp, offset + dcb.proc[n].data.OPubStrings, SEEK_SET ) ;
             file_readUint32A( fp, (uint32_t *)procs[n].pubstrings, dcb.proc[n].data.NPubStrings ) ;
         }
@@ -499,7 +499,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     /* Recupero tabla de fixup de sysprocs */
 
-    sysproc_code_ref = calloc( dcb.data.NSysProcsCodes, sizeof( DCB_SYSPROC_CODE2 ) ) ;
+    sysproc_code_ref = bgd_calloc( dcb.data.NSysProcsCodes, sizeof( DCB_SYSPROC_CODE2 ) ) ;
     file_seek( fp, offset + dcb.data.OSysProcsCodes, SEEK_SET ) ;
     for ( n = 0; n < dcb.data.NSysProcsCodes; n++ )
     {
@@ -515,7 +515,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
         sysproc_code_ref[n].Type = sdcb.Type ;
         sysproc_code_ref[n].Params = sdcb.Params ;
         sysproc_code_ref[n].Code = sdcb.Code ;
-        sysproc_code_ref[n].ParamTypes = ( uint8_t * ) calloc( sdcb.Params + 1, sizeof( char ) );
+        sysproc_code_ref[n].ParamTypes = ( uint8_t * ) bgd_calloc( sdcb.Params + 1, sizeof( char ) );
         if ( sdcb.Params ) file_read( fp, sysproc_code_ref[n].ParamTypes, sdcb.Params ) ;
     }
 

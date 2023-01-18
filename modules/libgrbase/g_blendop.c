@@ -115,7 +115,7 @@ void blend_init( int16_t * blend )
 
 int16_t * blend_create( void )
 {
-    int16_t * blend = malloc( 65536 * 2 * sizeof( int16_t ) );
+    int16_t * blend = bgd_malloc( 65536 * 2 * sizeof( int16_t ) );
     if ( !blend ) return NULL;
 
     blend_init( blend );
@@ -204,7 +204,7 @@ void blend_assign( GRAPH * graph, int16_t * blend )
 void blend_free( int16_t * blend )
 {
     if ( !blend ) return ;
-    free( blend );
+    bgd_free( blend );
 }
 
 /* --------------------------------------------------------------------------- */

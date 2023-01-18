@@ -65,7 +65,7 @@ CONTAINER * get_container( int key )
         if ( ctr && ctr->key == key ) return ctr;
     }
 
-    new_ctr = ( CONTAINER * ) malloc( sizeof( CONTAINER ) );
+    new_ctr = ( CONTAINER * ) bgd_malloc( sizeof( CONTAINER ) );
     if ( !new_ctr ) return NULL;
 
     new_ctr->key = key;
@@ -112,7 +112,7 @@ void destroy_container( CONTAINER * ctr )
     if ( ctr->prev ) ctr->prev->next = ctr->next;
     if ( ctr == sorted_object_list ) sorted_object_list = ctr->next ;
 
-    free( ctr );
+    bgd_free( ctr );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -141,14 +141,14 @@ void destroy_container( CONTAINER * ctr )
 int gr_new_object( int z, OBJ_INFO * info, OBJ_DRAW * draw, void * what )
 {
     CONTAINER * ctr ;
-    OBJECT * object = ( OBJECT * ) malloc( sizeof( OBJECT ) );
+    OBJECT * object = ( OBJECT * ) bgd_malloc( sizeof( OBJECT ) );
 
     if ( !object ) return 0;
 
     ctr = get_container( z );
     if ( !ctr )
     {
-        free( object );
+        bgd_free( object );
         return 0;
     }
 
@@ -215,7 +215,7 @@ void gr_destroy_object( int id )
     if ( object->bbox.x >= 0 || object->bbox.y >= 0 || object->bbox.x2 >= 0 || object->bbox.y2 >= 0 )
         gr_mark_rect( object->bbox.x, object->bbox.y, object->bbox.x2 - object->bbox.x + 1, object->bbox.y2 - object->bbox.y + 1 );
 
-    free( object );
+    bgd_free( object );
 }
 
 /* --------------------------------------------------------------------------- */

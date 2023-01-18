@@ -31,12 +31,13 @@
 #include <string.h>
 
 #include "b_crypt.h"
+#include "allocator.h"
 
 /* ------------------------------------------------------------------------- */
 
 crypt_handle * crypt_create( int method, char * key )
 {
-    crypt_handle * ch = calloc( sizeof( crypt_handle ), 1 );
+    crypt_handle * ch = bgd_calloc( sizeof( crypt_handle ), 1 );
     if ( !ch ) return NULL;
 
     ch->method = method;
@@ -53,18 +54,18 @@ crypt_handle * crypt_create( int method, char * key )
 
         case    CRYPT_3DES :
 #ifdef USE_LIBDES
-                if (  DES_key_sched( ( DES_cblock * )          key, ch->ks[KEY0] ) ) { free( ch ); return NULL; }
-                if (  DES_key_sched( ( DES_cblock * ) ( 8  + key ), ch->ks[KEY1] ) ) { free( ch ); return NULL; }
+                if (  DES_key_sched( ( DES_cblock * )          key, ch->ks[KEY0] ) ) { bgd_free( ch ); return NULL; }
+                if (  DES_key_sched( ( DES_cblock * ) ( 8  + key ), ch->ks[KEY1] ) ) { bgd_free( ch ); return NULL; }
                 if ( !DES_key_sched( ( DES_cblock * ) ( 16 + key ), ch->ks[KEY2] ) ) return ch;
 #else
-                if (  DES_key_sched( ( DES_cblock * )          key, &ch->ks[KEY0] ) ) { free( ch ); return NULL; }
-                if (  DES_key_sched( ( DES_cblock * ) ( 8  + key ), &ch->ks[KEY1] ) ) { free( ch ); return NULL; }
+                if (  DES_key_sched( ( DES_cblock * )          key, &ch->ks[KEY0] ) ) { bgd_free( ch ); return NULL; }
+                if (  DES_key_sched( ( DES_cblock * ) ( 8  + key ), &ch->ks[KEY1] ) ) { bgd_free( ch ); return NULL; }
                 if ( !DES_key_sched( ( DES_cblock * ) ( 16 + key ), &ch->ks[KEY2] ) ) return ch;
 #endif
                 break;
     }
 
-    free( ch );
+    bgd_free( ch );
     return NULL;
 }
 
@@ -72,7 +73,7 @@ crypt_handle * crypt_create( int method, char * key )
 
 void crypt_destroy( crypt_handle * ch )
 {
-    if ( ch ) free( ch );
+    if ( ch ) bgd_free( ch );
 }
 
 /* ------------------------------------------------------------------------- */

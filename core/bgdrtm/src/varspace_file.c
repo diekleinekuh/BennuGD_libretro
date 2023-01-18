@@ -314,7 +314,7 @@ int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                     {
                         string_discard( *( uint32_t* )data );
                         file_readUint32( fp, (uint32_t *)&len );
-                        str = malloc( len + 1 );
+                        str = bgd_malloc( len + 1 );
                         if ( !str )
                         {
                             fprintf( stderr, "loadtype: out of memory\n" ) ;
@@ -325,7 +325,7 @@ int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                         str[len] = 0;
                         *( uint32_t* )data = string_new( str );
                         string_use( *( uint32_t* )data );
-                        free( str );
+                        bgd_free( str );
                         data = ( uint8_t* )data + sizeof( uint32_t );
                         result += sizeof( uint32_t );
                     }

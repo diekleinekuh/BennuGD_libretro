@@ -294,7 +294,7 @@ static void _moddraw_object_destroy( int id )
 
         if ( drawing_objects == dr ) drawing_objects = dr->next;
 
-        free( dr );
+        bgd_free( dr );
 
         if ( !destroyall ) break;
 
@@ -405,7 +405,7 @@ static int moddraw_box( INSTANCE * my, int * params )
 {
     if ( !drawing_graph )
     {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        DRAWING_OBJECT * dr = bgd_malloc( sizeof( DRAWING_OBJECT ) );
 
         dr->type = DRAWOBJ_BOX;
         dr->x1 = params[ 0 ];
@@ -425,7 +425,7 @@ static int moddraw_rect( INSTANCE * my, int * params )
 {
     if ( !drawing_graph )
     {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        DRAWING_OBJECT * dr = bgd_malloc( sizeof( DRAWING_OBJECT ) );
 
         dr->type = DRAWOBJ_RECT;
         dr->x1 = params[ 0 ];
@@ -445,7 +445,7 @@ static int moddraw_line( INSTANCE * my, int * params )
 {
     if ( !drawing_graph )
     {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        DRAWING_OBJECT * dr = bgd_malloc( sizeof( DRAWING_OBJECT ) );
 
         dr->type = DRAWOBJ_LINE;
         dr->x1 = params[ 0 ];
@@ -465,7 +465,7 @@ static int moddraw_circle( INSTANCE * my, int * params )
 {
     if ( !drawing_graph )
     {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        DRAWING_OBJECT * dr = bgd_malloc( sizeof( DRAWING_OBJECT ) );
 
         dr->type = DRAWOBJ_CIRCLE;
         dr->x1 = params[ 0 ];
@@ -484,7 +484,7 @@ static int moddraw_fcircle( INSTANCE * my, int * params )
 {
     if ( !drawing_graph )
     {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        DRAWING_OBJECT * dr = bgd_malloc( sizeof( DRAWING_OBJECT ) );
 
         dr->type = DRAWOBJ_FCIRCLE;
         dr->x1 = params[ 0 ];
@@ -503,7 +503,7 @@ static int moddraw_bezier( INSTANCE * my, int * params )
 {
     if ( !drawing_graph )
     {
-        DRAWING_OBJECT * dr = malloc( sizeof( DRAWING_OBJECT ) );
+        DRAWING_OBJECT * dr = bgd_malloc( sizeof( DRAWING_OBJECT ) );
 
         dr->type = DRAWOBJ_CURVE;
         dr->x1 = params[ 0 ];

@@ -141,7 +141,7 @@ static int modvideo_list_modes( INSTANCE * my, int * params )
     n = 0;
     for ( i = 0; modes[i]; ++i ) ++n ;
 
-    available_modes = realloc( available_modes, ( 1 + n ) * sizeof( int ) * 2 );
+    available_modes = bgd_realloc( available_modes, ( 1 + n ) * sizeof( int ) * 2 );
     if ( !available_modes ) return -2;
 
     for ( i = 0; modes[i]; ++i )

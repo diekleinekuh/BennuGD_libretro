@@ -461,7 +461,7 @@ extern int re_match_2
 /* Set REGS to hold NUM_REGS registers, storing them in STARTS and
    ENDS.  Subsequent matches using BUFFER and REGS will use this memory
    for recording register information.  STARTS and ENDS must be
-   allocated with malloc, and must each be at least `NUM_REGS * sizeof
+   allocated with bgd_malloc, and must each be at least `NUM_REGS * sizeof
    (regoff_t)' bytes long.
 
    If NUM_REGS == 0, then subsequent matches should allocate their own

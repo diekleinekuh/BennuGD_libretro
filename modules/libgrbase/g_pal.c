@@ -466,7 +466,7 @@ int pal_discard( PALETTE * pal )
 
 PALETTE * pal_new( PALETTE * basepal )
 {
-    PALETTE * pal = calloc( 1, sizeof( PALETTE ) );
+    PALETTE * pal = bgd_calloc( 1, sizeof( PALETTE ) );
     if ( !pal ) return NULL ;
 
     if ( basepal )
@@ -501,7 +501,7 @@ PALETTE * pal_new_rgb( unsigned char * datapal )
 {
     if ( !datapal ) return NULL ;
 
-    PALETTE * pal = malloc( sizeof( PALETTE ) );
+    PALETTE * pal = bgd_malloc( sizeof( PALETTE ) );
     if ( !pal ) return NULL ;
 
     memmove( pal->rgb, datapal, sizeof( pal->rgb ) );
@@ -529,7 +529,7 @@ void pal_destroy( PALETTE * pal )
 
     if ( pal == first_palette ) first_palette = pal->next ;
 
-    free( pal );
+    bgd_free( pal );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -686,7 +686,7 @@ int gr_rgb_depth( int depth, int r, int g, int b )
     int color ;
     PIXEL_FORMAT * pf = bitmap_create_format( depth );
     color = _rgb( pf, r, g, b );
-    free( pf );
+    bgd_free( pf );
     if ( !color && depth == 16 ) return 1 ;
     return color ;
 }
@@ -699,7 +699,7 @@ int gr_rgba_depth( int depth, int r, int g, int b, int a )
     int color ;
     PIXEL_FORMAT * pf = bitmap_create_format( depth );
     color = _rgba( pf, r, g, b, a );
-    free( pf );
+    bgd_free( pf );
     if ( !color && depth == 16 ) return 1 ;
     return color ;
 }
@@ -710,7 +710,7 @@ void gr_get_rgb_depth( int depth, int color, int *r, int *g, int *b )
 {
     PIXEL_FORMAT * pf = bitmap_create_format( depth );
     _get_rgb( pf, color, r, g, b );
-    free( pf );
+    bgd_free( pf );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -719,7 +719,7 @@ void gr_get_rgba_depth( int depth, int color, int *r, int *g, int *b, int *a )
 {
     PIXEL_FORMAT * pf = bitmap_create_format( depth );
     _get_rgba( pf, color, r, g, b, a );
-    free( pf );
+    bgd_free( pf );
 }
 
 /* --------------------------------------------------------------------------- */

@@ -100,7 +100,7 @@ GRAPH * gr_read_png( const char * filename )
     png_read_info( png_ptr, info_ptr ) ;
     png_get_IHDR( png_ptr, info_ptr, &width, &height, &depth, &color, 0, 0, 0 ) ;
 
-    row = malloc( sizeof( uint32_t ) * width );
+    row = bgd_malloc( sizeof( uint32_t ) * width );
     if ( !row )
     {
         png_destroy_read_struct( &png_ptr, &info_ptr, &end_info ) ;
@@ -108,11 +108,11 @@ GRAPH * gr_read_png( const char * filename )
         return NULL;
     }
 
-    rowpointers = malloc( sizeof( png_bytep ) * height );
+    rowpointers = bgd_malloc( sizeof( png_bytep ) * height );
     if ( !rowpointers )
     {
         png_destroy_read_struct( &png_ptr, &info_ptr, &end_info ) ;
-        free( row ) ;
+        bgd_free( row ) ;
         file_close( png ) ;
         return NULL;
     }
@@ -138,8 +138,8 @@ GRAPH * gr_read_png( const char * filename )
     if ( !bitmap )
     {
         png_destroy_read_struct( &png_ptr, &info_ptr, &end_info ) ;
-        free( rowpointers ) ;
-        free( row ) ;
+        bgd_free( rowpointers ) ;
+        bgd_free( row ) ;
         file_close( png ) ;
         return NULL;
     }
@@ -176,8 +176,8 @@ GRAPH * gr_read_png( const char * filename )
         {
             bitmap_destroy( bitmap );
             png_destroy_read_struct( &png_ptr, &info_ptr, &end_info ) ;
-            free( rowpointers ) ;
-            free( row ) ;
+            bgd_free( rowpointers ) ;
+            bgd_free( row ) ;
             file_close( png ) ;
             return NULL;
         }
@@ -374,8 +374,8 @@ GRAPH * gr_read_png( const char * filename )
 
     png_destroy_read_struct( &png_ptr, &info_ptr, &end_info ) ;
 
-    free( rowpointers ) ;
-    free( row ) ;
+    bgd_free( rowpointers ) ;
+    bgd_free( row ) ;
     file_close( png ) ;
 
     return bitmap ;
@@ -413,7 +413,7 @@ int gr_save_png( GRAPH * gr, const char * filename )
 
     if ( !file ) return( 0 ) ;
 
-    rowpointers = malloc( sizeof( png_bytep ) * gr->height );
+    rowpointers = bgd_malloc( sizeof( png_bytep ) * gr->height );
     if ( !rowpointers )
     {
         fclose( file ) ;
@@ -423,7 +423,7 @@ int gr_save_png( GRAPH * gr, const char * filename )
     png_ptr  = png_create_write_struct( PNG_LIBPNG_VER_STRING, 0, 0, 0 ) ;
     if ( !png_ptr )
     {
-        free( rowpointers ) ;
+        bgd_free( rowpointers ) ;
         fclose( file ) ;
         return( 0 ) ;
     }
@@ -432,7 +432,7 @@ int gr_save_png( GRAPH * gr, const char * filename )
     if ( !info_ptr )
     {
         png_destroy_write_struct( &png_ptr, NULL ) ;
-        free( rowpointers ) ;
+        bgd_free( rowpointers ) ;
         fclose( file ) ;
         return( 0 ) ;
     }
@@ -446,7 +446,7 @@ int gr_save_png( GRAPH * gr, const char * filename )
 #endif
     {
         png_destroy_write_struct( &png_ptr, NULL ) ;
-        free( rowpointers ) ;
+        bgd_free( rowpointers ) ;
         fclose( file ) ;
         return( 0 ) ;
     }
@@ -506,7 +506,7 @@ int gr_save_png( GRAPH * gr, const char * filename )
         if ( !pal )
         {
             png_destroy_write_struct( &png_ptr, NULL ) ;
-            free( rowpointers ) ;
+            bgd_free( rowpointers ) ;
             fclose( file ) ;
             return( 0 ) ;
         }
@@ -546,11 +546,11 @@ int gr_save_png( GRAPH * gr, const char * filename )
 
         png_write_info( png_ptr, info_ptr ) ;
 
-        data = malloc( gr->width * gr->height * 4 ) ;
+        data = bgd_malloc( gr->width * gr->height * 4 ) ;
         if ( !data )
         {
             png_destroy_write_struct( &png_ptr, NULL ) ;
-            free( rowpointers ) ;
+            bgd_free( rowpointers ) ;
             fclose( file ) ;
             return( 0 ) ;
         }
@@ -605,12 +605,12 @@ int gr_save_png( GRAPH * gr, const char * filename )
             }
         }
         png_write_image( png_ptr, rowpointers ) ;
-        free( data ) ;
+        bgd_free( data ) ;
     }
 
     png_write_end( png_ptr, info_ptr ) ;
     png_destroy_write_struct( &png_ptr, NULL ) ;
-    free( rowpointers ) ;
+    bgd_free( rowpointers ) ;
     fclose( file ) ;
     return ( 1 ) ;
 }

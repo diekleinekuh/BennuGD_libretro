@@ -65,6 +65,7 @@
 
 #include <commons_defs.h>
 
+#include "allocator.h"
 /* --------------------------------------------------------------------------- */
 
 typedef struct

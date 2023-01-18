@@ -161,7 +161,7 @@ static void node_reset( node * list )
     while ( list )
     {
         next = list->next ;
-        free( list ) ;
+        bgd_free( list ) ;
         list = next ;
     }
 }
@@ -172,7 +172,7 @@ static node * node_new( node * parent, int x, int y, int cost_inc )
 {
     node * curr ;
 
-    curr = ( node * ) malloc( sizeof( node ) ) ;
+    curr = ( node * ) bgd_malloc( sizeof( node ) ) ;
     if ( !curr ) return NULL ;
 
     curr->x = x ;
@@ -195,22 +195,22 @@ static void node_push_succesor( node * parent, int ix, int iy, int cost )
     curr = node_new( parent, parent->x + ix, parent->y + iy, cost ) ;
     if ( curr->h > 131072 )
     {
-        free( curr ); return ;
+        bgd_free( curr ); return ;
     }
 
     f_cl = node_find( pf_closed, curr->x, curr->y ) ;
     if ( f_cl )
     {
-        free( curr ); return ;
+        bgd_free( curr ); return ;
     }
 
     f_op = node_find( pf_open, curr->x, curr->y ) ;
     if ( f_op && f_op->f <= curr->f )
     {
-        free( curr ); return ;
+        bgd_free( curr ); return ;
     }
 
-    /* Add to general list (used for free resources)*/
+    /* Add to general list (used for bgd_free resources)*/
     curr->inext = pf_all; pf_all = curr;
 
     if ( f_op ) { pf_open = node_remove( pf_open, f_op ); } /* this node is removed but childs that referent this node as parent will be wrong */
@@ -261,7 +261,7 @@ static int path_find( GRAPH * bitmap, int sx, int sy, int dx, int dy, int option
     while ( curr )
     {
         inext = curr->inext ;
-        free( curr ) ;
+        bgd_free( curr ) ;
         curr = inext ;
     }
     pf_all = NULL;
@@ -269,12 +269,12 @@ static int path_find( GRAPH * bitmap, int sx, int sy, int dx, int dy, int option
     pf_open = NULL;
     pf_closed = NULL;
 
-    if ( path_result ) { free ( path_result ); path_result = NULL; }
+    if ( path_result ) { bgd_free ( path_result ); path_result = NULL; }
     path_result_pointer = NULL;
 
     curr = node_new( NULL, startup_x, startup_y, 0 ) ;
 
-    /* Add to general list (used for free resources)*/
+    /* Add to general list (used for bgd_free resources)*/
     curr->inext = pf_all; pf_all = curr;
 
     curr->f = curr->h = 1 ;
@@ -296,7 +296,7 @@ static int path_find( GRAPH * bitmap, int sx, int sy, int dx, int dy, int option
                 curr = curr->parent ;
             }
 
-            path_result = malloc( sizeof( int ) * 2 * ( count + 4 ) ) ;
+            path_result = bgd_malloc( sizeof( int ) * 2 * ( count + 4 ) ) ;
             if ( !( options & PF_REVERSE ) )
             {
                 path_result_pointer = path_result + count * 2 + 1;

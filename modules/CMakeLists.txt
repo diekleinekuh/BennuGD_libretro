@@ -13,7 +13,6 @@ function(add_mod deps)
     if(NOT ${DIR_NAME} EQUAL ${LIB_NAME})
         target_include_directories(${LIB_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
     endif()
-    target_precompile_headers(${LIB_NAME} REUSE_FROM core)
 endfunction()
 
 file(GLOB LIBS "*")

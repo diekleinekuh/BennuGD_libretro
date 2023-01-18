@@ -45,7 +45,7 @@
 #endif
 
 #include <stdio.h>
-
+#include "allocator.h"
 /*******************************************************************************
  * COMMON                                                                      *
  *******************************************************************************/
@@ -85,8 +85,8 @@ static int dlibclose( void * _handle )
 {
     dlibhandle * handle = ( dlibhandle * ) _handle;
     dlclose( handle->hnd );
-    free( handle->fname );
-    free( handle );
+    bgd_free( handle->fname );
+    bgd_free( handle );
 
     return 0;
 }
@@ -114,7 +114,7 @@ static void * dlibopen( const char * fname )
 
         if ( strncmp( f, "lib", 3 ) )
         {
-            if ( ( _fname = malloc( strlen( fname ) + 4 ) ) )
+            if ( ( _fname = bgd_malloc( strlen( fname ) + 4 ) ) )
             {
                 sprintf( _fname, "%.*slib%s", ( int ) ( f - fname ), fname, f );
 #ifdef _WIN32
@@ -133,34 +133,34 @@ static void * dlibopen( const char * fname )
 #else
         __dliberr = dlerror() ;
 #endif
-        if ( _fname ) free( _fname );
+        if ( _fname ) bgd_free( _fname );
         return NULL;
     }
 
-    dlibhandle * dlib = (dlibhandle*) malloc( sizeof( dlibhandle ) );
+    dlibhandle * dlib = (dlibhandle*) bgd_malloc( sizeof( dlibhandle ) );
     if ( !dlib )
     {
         __dliberr = "Could not load library." ;
         dlclose( hnd );
-        if ( _fname ) free( _fname );
+        if ( _fname ) bgd_free( _fname );
         return NULL;
     }
 
     f = ( char * ) fname + strlen( fname );
     while ( f > fname && f[-1] != '\\' && f[-1] != '/' ) f-- ;
-    dlib->fname = strdup( f );
+    dlib->fname = bgd_strdup( f );
     if ( !dlib->fname )
     {
         __dliberr = "Could not load library." ;
-        free( dlib );
+        bgd_free( dlib );
         dlclose( hnd );
-        if ( _fname ) free( _fname );
+        if ( _fname ) bgd_free( _fname );
         return NULL;
     }
 
     dlib->hnd = hnd;
 
-    if ( _fname ) free( _fname );
+    if ( _fname ) bgd_free( _fname );
 
     return ( ( void * ) dlib );
 }
@@ -226,7 +226,7 @@ static void * _dlibaddr( void * _handle, const char * symbol )
 {
     dlibhandle * handle = ( dlibhandle * ) _handle;
     char * ptr, * f;
-    char * sym = (char*)malloc( strlen( handle->fname ) + strlen( symbol ) + 2 );
+    char * sym = (char*)bgd_malloc( strlen( handle->fname ) + strlen( symbol ) + 2 );
     if ( !sym )
     {
         __dliberr = "Can't load symbol." ;
@@ -246,7 +246,7 @@ static void * _dlibaddr( void * _handle, const char * symbol )
 
     {
         void * addr = dlibaddr( handle, sym );
-        free( sym );
+        bgd_free( sym );
         return addr;
     }
 }

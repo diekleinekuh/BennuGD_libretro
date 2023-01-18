@@ -35,6 +35,8 @@
 
 #include "files_st.h"
 
+#include "allocator.h"
+
 /* Funciones de acceso a ficheros */
 /* ------------------------------ */
 

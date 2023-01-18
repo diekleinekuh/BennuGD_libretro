@@ -47,7 +47,7 @@ PIXEL_FORMAT * bitmap_create_format( int bpp )
     PIXEL_FORMAT *format;
 
     /* Allocate an empty pixel format structure */
-    format = malloc( sizeof( *format ) );
+    format = bgd_malloc( sizeof( *format ) );
     if ( !format ) return( NULL );
 
     /* Set up the format */
@@ -122,7 +122,7 @@ GRAPH * bitmap_new_ex( int code, int w, int h, int depth, void * data, int pitch
 
     /* Create and fill the struct */
 
-    gr = ( GRAPH * ) malloc( sizeof( GRAPH ) ) ;
+    gr = ( GRAPH * ) bgd_malloc( sizeof( GRAPH ) ) ;
     if ( !gr ) return NULL; // sin memoria
 
     /* Calculate the row size (dword-aligned) */
@@ -167,7 +167,7 @@ GRAPH * bitmap_new( int code, int w, int h, int depth )
 
     /* Create and fill the struct */
 
-    gr = ( GRAPH * ) malloc( sizeof( GRAPH ) ) ;
+    gr = ( GRAPH * ) bgd_malloc( sizeof( GRAPH ) ) ;
     if ( !gr ) return NULL; // sin memoria
 
     /* Calculate the row size (dword-aligned) */
@@ -178,10 +178,10 @@ GRAPH * bitmap_new( int code, int w, int h, int depth )
     bytesPerRow = wb;
     if ( bytesPerRow & 0x03 ) bytesPerRow = ( bytesPerRow & ~3 ) + 4;
 
-    gr->data = ( char * ) malloc( h * bytesPerRow ) ;
+    gr->data = ( char * ) bgd_malloc( h * bytesPerRow ) ;
     if ( !gr->data )   // Sin memoria
     {
-        free( gr );
+        bgd_free( gr );
         return NULL;
     }
 
@@ -224,7 +224,7 @@ GRAPH * bitmap_clone( GRAPH * map )
 
     if ( map->cpoints )
     {
-        gr->cpoints = malloc( sizeof( CPOINT ) * map->ncpoints ) ;
+        gr->cpoints = bgd_malloc( sizeof( CPOINT ) * map->ncpoints ) ;
         memcpy( gr->cpoints, map->cpoints, sizeof( CPOINT ) * map->ncpoints ) ;
         gr->ncpoints = map->ncpoints ;
     }
@@ -244,7 +244,7 @@ GRAPH * bitmap_clone( GRAPH * map )
 
 void bitmap_add_cpoint( GRAPH * map, int x, int y )
 {
-    map->cpoints = ( CPOINT * ) realloc( map->cpoints, ( map->ncpoints + 1 ) * sizeof( CPOINT ) ) ;
+    map->cpoints = ( CPOINT * ) bgd_realloc( map->cpoints, ( map->ncpoints + 1 ) * sizeof( CPOINT ) ) ;
     map->cpoints[ map->ncpoints ].x = x ;
     map->cpoints[ map->ncpoints ].y = y ;
     map->ncpoints++;
@@ -277,7 +277,7 @@ void bitmap_set_cpoint( GRAPH * map, uint32_t point, int x, int y )
 
     if ( map->ncpoints <= point )
     {
-        map->cpoints = ( CPOINT * ) realloc( map->cpoints, ( point + 1 ) * sizeof( CPOINT ) ) ;
+        map->cpoints = ( CPOINT * ) bgd_realloc( map->cpoints, ( point + 1 ) * sizeof( CPOINT ) ) ;
         for ( n = map->ncpoints; n < point; n++ )
         {
             map->cpoints[ n ].x = CPOINT_UNDEFINED;
@@ -295,19 +295,19 @@ void bitmap_destroy( GRAPH * map )
 {
     if ( !map ) return ;
 
-    if ( map->cpoints ) free( map->cpoints ) ;
+    if ( map->cpoints ) bgd_free( map->cpoints ) ;
 
     if ( map->code > 999 ) bit_clr( map_code_bmp, map->code - 1000 );
 
-    if ( map->data && !( map->info_flags & GI_EXTERNAL_DATA ) ) free( map->data ) ;
+    if ( map->data && !( map->info_flags & GI_EXTERNAL_DATA ) ) bgd_free( map->data ) ;
 
     if ( map->format )
     {
         if ( map->format->palette ) pal_destroy( map->format->palette ) ;
-        free ( map->format );
+        bgd_free ( map->format );
     }
 
-    free( map ) ;
+    bgd_free( map ) ;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -384,7 +384,7 @@ void bitmap_analize( GRAPH * bitmap )
 
 /* --------------------------------------------------------------------------- */
 /* Returns the code of a new system library graph (1000+). Searchs
-   for free slots if the program creates too many system maps */
+   for bgd_free slots if the program creates too many system maps */
 
 int bitmap_next_code()
 {
@@ -433,7 +433,7 @@ int bitmap_next_code()
     // 256 new maps available for alloc
 
     map_code_allocated += 256 ;
-    map_code_bmp = ( uint32_t * ) realloc( map_code_bmp, sizeof( uint32_t ) * ( map_code_allocated >> 5 ) );
+    map_code_bmp = ( uint32_t * ) bgd_realloc( map_code_bmp, sizeof( uint32_t ) * ( map_code_allocated >> 5 ) );
 
     memset( &map_code_bmp[( map_code_last >> 5 )], 0, 32 );  /* 256 >> 5 = 8 * sizeof ( uint32_t ) = 8 * 4 = 32 */
 

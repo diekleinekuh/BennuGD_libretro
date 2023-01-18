@@ -43,6 +43,7 @@
 #include "g_region.h"
 #include "g_blendop.h"
 #include "g_conversion.h"
+#include "allocator.h"
 
 /* --------------------------------------------------------------------------- */
 

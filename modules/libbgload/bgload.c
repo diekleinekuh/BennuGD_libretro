@@ -46,8 +46,8 @@
 
 static bgdata *prep( int *params )
 {
-    bgdata *t = ( bgdata* )malloc( sizeof( bgdata ) );
-    t->file = strdup(( char * )string_get( params[0] ));
+    bgdata *t = ( bgdata* )bgd_malloc( sizeof( bgdata ) );
+    t->file = bgd_strdup(( char * )string_get( params[0] ));
     t->id = ( int* )params[1];
     *( t->id ) = -2 ; // WAIT STATUS
     string_discard( params[0] );
@@ -64,8 +64,8 @@ int bgDoLoad( void *d )
 {
     bgdata *t = ( bgdata* )d;
     *( t->id ) = ( *t->fn )( t->file );
-    free( t->file );
-    free( t );
+    bgd_free( t->file );
+    bgd_free( t );
     return 0;
 }
 

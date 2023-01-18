@@ -25,7 +25,6 @@ if (WIN32)
     target_compile_definitions(core PUBLIC _WIN32)
 else()
     target_compile_definitions(core PUBLIC TARGET_LINUX)
-    #target_compile_options(core PRIVATE -finput-charset=ansi)
     target_link_libraries(core m dl)
 endif()
 
@@ -37,14 +36,6 @@ target_include_directories(core PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/bgdrtm/include"
 )
-
-target_precompile_headers(core PRIVATE
-     [["memoverride.h"]]
- )
-
 target_link_libraries(core ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARIES})
 
 add_subdirectory("bgdi")
-target_precompile_headers(bgdi PRIVATE
-     [["memoverride.h"]]
- )

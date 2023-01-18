@@ -106,7 +106,7 @@ static void init_alpha16_tables( int count )
             if ( alpha16[ i ] != table16 )
             {
                 table16 = alpha16[ i ];
-                free( table16 );
+                bgd_free( table16 );
             }
             alpha16[ i ] = NULL;
         }
@@ -118,7 +118,7 @@ static void init_alpha16_tables( int count )
     {
         if ( i == next )
         {
-            table16 = malloc( 131072 );
+            table16 = bgd_malloc( 131072 );
             factor = next + inc / 2;
             next += inc;
             if ( factor > 255 ) factor = 256;
@@ -180,7 +180,7 @@ static void init_alpha8_tables( int count )
             if ( alpha8[ i ] != table8 )
             {
                 table8 = alpha8[ i ];
-                free( table8 );
+                bgd_free( table8 );
             }
             alpha8[ i ] = NULL;
         }
@@ -197,7 +197,7 @@ static void init_alpha8_tables( int count )
     {
         if ( i == next )
         {
-            table8 = malloc( 65536 );
+            table8 = bgd_malloc( 65536 );
             factor = next + inc / 2;
             next += inc;
             if ( factor > 255 ) factor = 255;
@@ -242,13 +242,13 @@ static void init_conversion_tables()
 
     /* Alloc space for the lookup tables */
 
-    convert565ToScreen = ( uint16_t * ) malloc( sizeof( uint16_t ) * 65536 );
+    convert565ToScreen = ( uint16_t * ) bgd_malloc( sizeof( uint16_t ) * 65536 );
     if ( !convert565ToScreen ) return ;
 
-    convertScreenTo565 = ( uint16_t * ) malloc( sizeof( uint16_t ) * 65536 );
+    convertScreenTo565 = ( uint16_t * ) bgd_malloc( sizeof( uint16_t ) * 65536 );
     if ( !convertScreenTo565 )  // No memory
     {
-        free( convert565ToScreen );
+        bgd_free( convert565ToScreen );
         return ;
     }
 

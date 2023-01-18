@@ -60,7 +60,7 @@ char * dir_path_convert( const char * dir )
 {
     char *c, *p ;
 
-    p = strdup( dir ) ;
+    p = bgd_strdup( dir ) ;
     if ( !p ) return NULL;
 
     c = p ;
@@ -112,7 +112,7 @@ int dir_change( const char * dir )
     char *c = dir_path_convert( dir ) ;
     if ( !c ) return 0;
     int r = chdir( c ) ;
-    free( c ) ;
+    bgd_free( c ) ;
     return r ;
 }
 
@@ -140,7 +140,7 @@ int dir_create( const char * dir )
 #else
     int r = mkdir( c, 0777 ) ;
 #endif
-    free( c ) ;
+    bgd_free( c ) ;
     return r ;
 }
 
@@ -164,7 +164,7 @@ int dir_delete( const char * dir )
     char *c = dir_path_convert( dir ) ;
     if ( !c ) return 0;
     int r = rmdir( c ) ;
-    free( c ) ;
+    bgd_free( c ) ;
     return r ;
 }
 
@@ -188,7 +188,7 @@ int dir_deletefile( const char * filename )
     char *c = dir_path_convert( filename ) ;
     if ( !c ) return 0;
     int r = unlink( c ) ;
-    free( c ) ;
+    bgd_free( c ) ;
     return ( r == -1 ) ? 0 : 1 ;
 }
 
@@ -196,13 +196,13 @@ int dir_deletefile( const char * filename )
 
 __DIR_ST * dir_open( const char * path )
 {
-    __DIR_ST * hDir = malloc( sizeof( __DIR_ST ) );
+    __DIR_ST * hDir = bgd_malloc( sizeof( __DIR_ST ) );
     if ( !hDir ) return NULL;
 
-    hDir->path = strdup( path );
+    hDir->path = bgd_strdup( path );
     if ( !hDir->path )
     {
-        free ( hDir );
+        bgd_free ( hDir );
         return NULL;
     }
 
@@ -212,8 +212,8 @@ __DIR_ST * dir_open( const char * path )
 
     if ( !hDir->handle )
     {
-        free( hDir->path );
-        free( hDir );
+        bgd_free( hDir->path );
+        bgd_free( hDir );
         return NULL;
     }
 #else
@@ -221,11 +221,11 @@ __DIR_ST * dir_open( const char * path )
     char * fptr;
     int r;
 
-    hDir->pattern = malloc( strlen( path ) * 4 );
+    hDir->pattern = bgd_malloc( strlen( path ) * 4 );
     if ( !hDir->pattern )
     {
-        free ( hDir->path );
-        free ( hDir );
+        bgd_free ( hDir->path );
+        bgd_free ( hDir );
         return NULL;
     }
 
@@ -269,9 +269,9 @@ __DIR_ST * dir_open( const char * path )
 
     if ( r )
     {
-        free( hDir->pattern );
-        free( hDir->path );
-        free( hDir );
+        bgd_free( hDir->pattern );
+        bgd_free( hDir->path );
+        bgd_free( hDir );
         return NULL;
     }
 
@@ -285,16 +285,16 @@ __DIR_ST * dir_open( const char * path )
 
 void dir_close ( __DIR_ST * hDir )
 {
-    free ( hDir->path );
+    bgd_free ( hDir->path );
 
 #ifdef _WIN32
     FindClose( hDir->handle );
 #else
     globfree( &hDir->globd );
-    free( hDir->pattern );
+    bgd_free( hDir->pattern );
 #endif
 
-    free ( hDir );
+    bgd_free ( hDir );
 }
 
 /* ------------------------------------------------------------------------------------ */

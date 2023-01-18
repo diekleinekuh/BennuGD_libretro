@@ -2519,9 +2519,9 @@ void InitLUT()
     int color;
 
     // Allocate the YUV/LUT buffers on the fly if needed.
-    if ( RGBtoYUV == 0 ) RGBtoYUV = ( uint32_t * )malloc( 65536 * sizeof( uint32_t ) );
+    if ( RGBtoYUV == 0 ) RGBtoYUV = ( uint32_t * )bgd_malloc( 65536 * sizeof( uint32_t ) );
 
-    if ( LUT16to32 == 0 ) LUT16to32 = ( uint32_t * )malloc( 65536 * sizeof( uint32_t ) );
+    if ( LUT16to32 == 0 ) LUT16to32 = ( uint32_t * )bgd_malloc( 65536 * sizeof( uint32_t ) );
 
     for ( color = 0; color < 65536; ++color )
     {

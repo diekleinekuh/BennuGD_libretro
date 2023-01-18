@@ -84,7 +84,7 @@ static int instance_max_actual_prio = INSTANCE_MIN_PRIORITY ;
 
 void instance_add_to_list_by_id( INSTANCE * r, uint32_t id )
 {
-    if ( !hashed_by_id ) hashed_by_id = calloc( HASH_SIZE, sizeof( INSTANCE * ) );
+    if ( !hashed_by_id ) hashed_by_id = bgd_calloc( HASH_SIZE, sizeof( INSTANCE * ) );
     hashed_by_id[HASH( id )] = r;
 }
 
@@ -103,7 +103,7 @@ void instance_add_to_list_by_instance( INSTANCE * r )
 {
     unsigned int hash = HASH_INSTANCE( r );
 
-    if ( !hashed_by_instance ) hashed_by_instance = calloc( HASH_SIZE, sizeof( INSTANCE * ) );
+    if ( !hashed_by_instance ) hashed_by_instance = bgd_calloc( HASH_SIZE, sizeof( INSTANCE * ) );
 
     r->prev_by_instance = NULL ;
     r->next_by_instance = hashed_by_instance[hash];
@@ -131,7 +131,7 @@ void instance_add_to_list_by_type( INSTANCE * r, uint32_t type )
 {
     unsigned int hash = HASH( type );
 
-    if ( !hashed_by_type ) hashed_by_type = calloc( HASH_SIZE, sizeof( INSTANCE * ) );
+    if ( !hashed_by_type ) hashed_by_type = bgd_calloc( HASH_SIZE, sizeof( INSTANCE * ) );
 
     r->prev_by_type = NULL ;
     r->next_by_type = hashed_by_type[hash];
@@ -164,7 +164,7 @@ void instance_add_to_list_by_priority( INSTANCE * r, int32_t priority )
 
     hash = HASH_PRIORITY( priority );
 
-    if ( !hashed_by_priority ) hashed_by_priority = calloc( HASH_SIZE, sizeof( INSTANCE * ) );
+    if ( !hashed_by_priority ) hashed_by_priority = bgd_calloc( HASH_SIZE, sizeof( INSTANCE * ) );
 
     r->prev_by_priority = NULL ;
     r->next_by_priority = hashed_by_priority[hash];
@@ -253,7 +253,7 @@ INSTANCE * instance_get( int id )
 /*
  *  FUNCTION : instance_getid
  *
- *  Allocate and return a free instance identifier code.
+ *  Allocate and return a bgd_free instance identifier code.
  *
  *  PARAMS :
  *      None
@@ -267,7 +267,7 @@ int instance_getid()
 {
     int id = instance_maxid++ ;
 
-    if ( !hashed_by_id ) hashed_by_id = calloc( HASH_SIZE, sizeof( INSTANCE * ) );
+    if ( !hashed_by_id ) hashed_by_id = bgd_calloc( HASH_SIZE, sizeof( INSTANCE * ) );
 
     if ( id <= LAST_INSTANCE_ID && !hashed_by_id[ HASH( id ) ] ) return id;
 
@@ -320,12 +320,12 @@ INSTANCE * instance_duplicate( INSTANCE * father )
 
     if ( ( pid = instance_getid() ) == -1 ) return NULL;
 
-    r = ( INSTANCE * ) calloc( 1, sizeof( INSTANCE ) ) ;
+    r = ( INSTANCE * ) bgd_calloc( 1, sizeof( INSTANCE ) ) ;
     assert( r ) ;
 
-    r->pridata          = ( int * ) malloc( father->private_size + 4 ) ;
-    r->pubdata          = ( int * ) malloc( father->public_size + 4 ) ;
-    r->locdata          = ( int * ) malloc( local_size + 4 ) ;
+    r->pridata          = ( int * ) bgd_malloc( father->private_size + 4 ) ;
+    r->pubdata          = ( int * ) bgd_malloc( father->public_size + 4 ) ;
+    r->locdata          = ( int * ) bgd_malloc( local_size + 4 ) ;
     r->code             = father->code ;
     r->codeptr          = father->codeptr ;
     r->exitcode         = father->exitcode ;
@@ -390,7 +390,7 @@ INSTANCE * instance_duplicate( INSTANCE * father )
 
     r->called_by = NULL;
 
-    r->stack = malloc( father->stack[0] );
+    r->stack = bgd_malloc( father->stack[0] );
     memmove(r->stack, father->stack, (int)father->stack_ptr - (int)father->stack);
     r->stack_ptr = &r->stack[1];
 
@@ -430,12 +430,12 @@ INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father )
 
     if ( ( pid = instance_getid() ) == -1 ) return NULL;
 
-    r = ( INSTANCE * ) calloc( 1, sizeof( INSTANCE ) ) ;
+    r = ( INSTANCE * ) bgd_calloc( 1, sizeof( INSTANCE ) ) ;
     assert( r ) ;
 
-    r->pridata          = ( int * ) malloc( proc->private_size + 4 ) ;
-    r->pubdata          = ( int * ) malloc( proc->public_size + 4 ) ;
-    r->locdata          = ( int * ) malloc( local_size + 4 ) ;
+    r->pridata          = ( int * ) bgd_malloc( proc->private_size + 4 ) ;
+    r->pubdata          = ( int * ) bgd_malloc( proc->public_size + 4 ) ;
+    r->locdata          = ( int * ) bgd_malloc( local_size + 4 ) ;
     r->code             = proc->code ;
     r->codeptr          = proc->code ;
     r->exitcode         = proc->exitcode ;
@@ -506,7 +506,7 @@ INSTANCE * instance_new( PROCDEF * proc, INSTANCE * father )
 
     r->called_by = NULL;
 
-    r->stack = malloc( STACK_SIZE );
+    r->stack = bgd_malloc( STACK_SIZE );
     r->stack_ptr = &r->stack[1];
     r->stack[0] = STACK_SIZE;
 
@@ -637,12 +637,12 @@ void instance_destroy( INSTANCE * r )
     instance_remove_from_list_by_type( r, LOCDWORD( r, PROCESS_TYPE ) );
     instance_remove_from_list_by_priority( r );
 
-    if ( r->stack ) free( r->stack ) ;
+    if ( r->stack ) bgd_free( r->stack ) ;
 
-    if ( r->locdata ) free( r->locdata ) ;
-    if ( r->pubdata ) free( r->pubdata ) ;
-    if ( r->pridata ) free( r->pridata ) ;
-    free( r ) ;
+    if ( r->locdata ) bgd_free( r->locdata ) ;
+    if ( r->pubdata ) bgd_free( r->pubdata ) ;
+    if ( r->pridata ) bgd_free( r->pridata ) ;
+    bgd_free( r ) ;
 }
 
 /* ---------------------------------------------------------------------- */

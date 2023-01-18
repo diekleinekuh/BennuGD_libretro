@@ -138,7 +138,7 @@ void init_cos_tables()
 {
     int i ;
 
-    if ( !cos_table ) cos_table = ( fixed * ) malloc( 90001 * sizeof( fixed ) );
+    if ( !cos_table ) cos_table = ( fixed * ) bgd_malloc( 90001 * sizeof( fixed ) );
 
     for ( i = 0 ; i <= 90000 ; i++ )
     {

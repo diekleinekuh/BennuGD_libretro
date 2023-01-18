@@ -100,7 +100,7 @@ static int moddir_cd( INSTANCE * my, int * params )
     char * d = dir_current() ;
     int r = string_new( d ) ;
     string_use( r ) ;
-    if ( d ) free( d ) ;
+    if ( d ) bgd_free( d ) ;
     return r ;
 }
 

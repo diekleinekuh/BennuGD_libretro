@@ -114,7 +114,7 @@ static int gr_read_lib( file * fp )
         /* Puntos de control */
 
         if ( gr->ncpoints ) {
-            gr->cpoints = ( CPOINT * ) malloc( gr->ncpoints * sizeof( CPOINT ) ) ;
+            gr->cpoints = ( CPOINT * ) bgd_malloc( gr->ncpoints * sizeof( CPOINT ) ) ;
             if ( !gr->cpoints ) {
                 bitmap_destroy( gr ) ;
                 grlib_destroy( libid ) ;

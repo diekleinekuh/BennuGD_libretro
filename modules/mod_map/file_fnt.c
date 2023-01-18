@@ -307,7 +307,7 @@ int gr_font_save( int fontid, const char * filename )
             if ( !palette_saved && font->bpp == 8 )
             {
                 uint8_t   colors[256][3];
-                uint8_t * block = calloc( 576, 1 ) ;
+                uint8_t * block = bgd_calloc( 576, 1 ) ;
                 rgb_component * gpal = NULL;
                 int k;
 
@@ -328,7 +328,7 @@ int gr_font_save( int fontid, const char * filename )
 
                 file_write( file, &colors, sizeof(colors) ) ;
                 file_write( file, block, 576 ) ;
-                free( block ) ;
+                bgd_free( block ) ;
                 palette_saved = 1;
             }
 
@@ -372,7 +372,7 @@ int gr_font_save( int fontid, const char * filename )
 
             if ( gr->format->depth > 8 )
             {
-                if (( block = malloc( gr->widthb ) ) == NULL )
+                if (( block = bgd_malloc( gr->widthb ) ) == NULL )
                 {
                     file_close( file );
                     return 0;
@@ -403,7 +403,7 @@ int gr_font_save( int fontid, const char * filename )
                 }
             }
 
-            if ( gr->format->depth > 8 ) free( block );
+            if ( gr->format->depth > 8 ) bgd_free( block );
         }
     }
 

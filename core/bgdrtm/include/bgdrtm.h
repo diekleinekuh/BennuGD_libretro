@@ -32,7 +32,7 @@
 #include <stdint.h>
 
 #include <commons_defs.h>
-
+#include "allocator.h"
 #include "arrange.h"
 #include "i_procdef.h"
 #include "files.h"

@@ -37,6 +37,8 @@
 #ifndef __XSTRINGS_H
 #define __XSTRINGS_H
 
+#include "allocator.h"
+
 extern void _string_ptoa( char *t, void * p );
 extern void _string_ntoa( char *p, unsigned long n );
 extern void _string_utoa( char *p, unsigned long n );

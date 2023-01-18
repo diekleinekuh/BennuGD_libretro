@@ -431,7 +431,7 @@ int gr_text_new2( int fontid, int x, int y, int z, int alignment, const char * t
     texts[textid].y = y ;
     texts[textid].z = z ;
     texts[textid].alignment = alignment ;
-    texts[textid].text = text ? strdup( text ) : 0 ;
+    texts[textid].text = text ? bgd_strdup( text ) : 0 ;
     texts[textid].color8 = fntcolor8 ;
     texts[textid].color16 = fntcolor16 ;
     texts[textid].color32 = fntcolor32 ;
@@ -520,7 +520,7 @@ void gr_text_destroy( int textid )
             if ( texts[textid].on )
             {
                 gr_destroy_object( texts[textid].objectid );
-                if ( texts[textid].text ) free( texts[textid].text ) ;
+                if ( texts[textid].text ) bgd_free( texts[textid].text ) ;
                 texts[textid].on = 0 ;
             }
         }
@@ -533,7 +533,7 @@ void gr_text_destroy( int textid )
         if ( !texts[textid].on ) return ;
 
         gr_destroy_object( texts[textid].objectid );
-        if ( texts[textid].text ) free( texts[textid].text ) ;
+        if ( texts[textid].text ) bgd_free( texts[textid].text ) ;
         texts[textid].on = 0 ;
         if ( textid == text_nextid - 1 )
         {

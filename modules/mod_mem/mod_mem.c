@@ -116,7 +116,7 @@ static int kernel_version_type( void )
 #endif
 
 /* MEMORY_FREE()
- *  Returns the number of free bytes (physycal memory only)
+ *  Returns the number of bgd_free bytes (physycal memory only)
  *  This value is intended only for informational purposes
  *  and may or may not be an approximation.
  */
@@ -238,22 +238,22 @@ static int modmem_memseti( INSTANCE * my, int * params )
 
 static int modmem_calloc( INSTANCE * my, int * params )
 {
-    return (( int ) calloc( params[0], params[1] ) ) ;
+    return (( int ) bgd_calloc( params[0], params[1] ) ) ;
 }
 
 static int modmem_alloc( INSTANCE * my, int * params )
 {
-    return (( int ) malloc( params[0] ) ) ;
+    return (( int ) bgd_malloc( params[0] ) ) ;
 }
 
 static int modmem_realloc( INSTANCE * my, int * params )
 {
-    return (( int )realloc(( void * )params[0], params[1] ) ) ;
+    return (( int )bgd_realloc(( void * )params[0], params[1] ) ) ;
 }
 
 static int modmem_free( INSTANCE * my, int * params )
 {
-    free(( void * )params[0] ) ;
+    bgd_free(( void * )params[0] ) ;
     return 1 ;
 }
 

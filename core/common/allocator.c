@@ -1,8 +1,4 @@
-#ifndef __MEMOVERRIDE_H__
-#define __MEMOVERRIDE_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE 1
-#endif
+#include "allocator.h"
 #include <sys/mman.h>
 #include <stddef.h>
 #include <string.h>
@@ -13,7 +9,7 @@ struct Header
     size_t used_size;
 };
 
-static inline void* bgdi_malloc( size_t size )
+void* bgd_malloc( size_t size )
 {
     //void* desired_addres = (void*)(4*1024*1024);
     void* desired_addres = NULL;
@@ -34,14 +30,14 @@ static inline void* bgdi_malloc( size_t size )
     return ++header;
 }
 
-static inline void *bgdi_calloc( size_t num, size_t size )
+void *bgd_calloc( size_t num, size_t size )
 {
-    return bgdi_malloc(num*size);
+    return bgd_malloc(num*size);
 }
 
-static inline void *bgdi_realloc( void *p, size_t new_size )
+void *bgd_realloc( void *p, size_t new_size )
 {
-    void* new_ptr = bgdi_malloc(new_size);
+    void* new_ptr = bgd_malloc(new_size);
     if (p)
     {
         struct Header* header = p;
@@ -53,7 +49,7 @@ static inline void *bgdi_realloc( void *p, size_t new_size )
     return new_ptr;
 }
 
-static inline void bgdi_free( void *p )
+void bgd_free( void *p )
 {
     if (!p)
     {
@@ -66,18 +62,11 @@ static inline void bgdi_free( void *p )
     munmap(header, header->allocated_size);
 }
 
-static inline const char* bgdi_strdup(const char* s)
+char* bgd_strdup(const char* s)
 {
     size_t size = strlen(s)+1;
-    const char * result = (const char*)bgdi_malloc(size);
+    char * result = (char*)bgd_malloc(size);
     memcpy(result, s, size);
     return result;
 }
 
-#define malloc(a) bgdi_malloc(a)
-#define calloc(a,b) bgdi_calloc( a, b)
-#define realloc(a,b) bgdi_realloc(a,b)
-#define free(a) bgdi_free(a)
-#define strdup(a) bgdi_strdup(a)
-
-#endif

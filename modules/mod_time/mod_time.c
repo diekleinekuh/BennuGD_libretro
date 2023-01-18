@@ -86,7 +86,7 @@ static int modtime_ftime( INSTANCE * my, int * params )
     unsigned char pos ;
 #endif
 
-    format = base = strdup( string_get( params[0] ) ) ;
+    format = base = bgd_strdup( string_get( params[0] ) ) ;
     string_discard( params[0] ) ;
 
 #ifdef _WIN32
@@ -207,7 +207,7 @@ static int modtime_ftime( INSTANCE * my, int * params )
     ret = string_new( buffer ) ;
     string_use( ret ) ;
 
-    free( base ) ;
+    bgd_free( base ) ;
 
     return ret ;
 }
