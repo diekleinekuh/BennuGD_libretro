@@ -2852,10 +2852,10 @@ re_set_registers (bufp, regs, num_regs, starts, ends)
     {
       bufp->regs_allocated = REGS_UNALLOCATED;
       regs->num_regs = 0;
-      regs->start = regs->end = (regoff_t) 0;
+      regs->start = regs->end = (regoff_t*) 0;
     }
 }
-
+
 /* Searching routines.  */
 
 /* Like re_search_2, below, but only one string is specified, and

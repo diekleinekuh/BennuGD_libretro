@@ -187,7 +187,7 @@ int instance_go( INSTANCE * r ) {
     if ( debug > 0 ) {
         printf( "\n>>> Instance:%s ProcID:%d StackUsed:%d/%d\n", r->proc->name,
                                                                  LOCDWORD( r, PROCESS_ID ),
-                                                                 ( r->stack_ptr - r->stack ) / sizeof( r->stack[0] ),
+                                                                 (int)( r->stack_ptr - r->stack ) / (int)sizeof( r->stack[0] ),
                                                                  ( r->stack[0] & ~STACK_RETURN_VALUE )
               );
     }
@@ -235,9 +235,9 @@ main_loop_instance_go:
             if ( debug > 2 )
             {
                 int c = 45 - stack_dump( r ) * 9;
-                if ( debug > 1 ) printf( "%*.*s[%4u] ", c, c, "", ( ptr - r->code ) );
+                if ( debug > 1 ) printf( "%*.*s[%4u] ", c, c, "", (int)( ptr - r->code ) );
             }
-            else if ( debug > 1 ) printf( "[%4u] ", ( ptr - r->code ) );
+            else if ( debug > 1 ) printf( "[%4u] ", (int)( ptr - r->code ) );
             mnemonic_dump( *ptr, ptr[1] );
             fflush(stdout);
         }

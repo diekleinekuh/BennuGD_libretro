@@ -220,7 +220,7 @@ void mnemonic_dump( int i, int param )
     }
 #endif
 
-    if ( mnemonics_sorted[ n ].name )
+    if ( *(mnemonics_sorted[ n ].name) )
     {
 #ifdef __BGDRTM__
         if ( debug > 1 )

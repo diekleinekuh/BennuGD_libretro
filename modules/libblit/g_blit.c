@@ -194,8 +194,10 @@ static int additive_blend32( int A, int B )
 /* --------------------------------------------------------------------------- */
 
 /* Routine to sort vertexes in y, x order */
-static int compare_vertex_y( const VERTEX * a, const VERTEX * b )
+static int compare_vertex_y( const void* left, const void* right )
 {
+    const VERTEX * a=(const VERTEX *)left;
+    const VERTEX * b=(const VERTEX *)right;
     return ( a->y == b->y ) ? a->x - b->x : a->y - b->y;
 }
 
