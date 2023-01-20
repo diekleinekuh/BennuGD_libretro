@@ -57,7 +57,7 @@ typedef struct _palette
     struct _palette     * prev ;
 }
 #ifdef __GNUC__
-__attribute__ ((packed))
+//__attribute__ ((packed)) // commented to not have unaligned pointer access. Seems to not be serialized as binary. 
 #endif
 PALETTE ;
 
