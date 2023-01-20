@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 project(bennugd_libretro)
 
 string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-deprecated-declarations")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
