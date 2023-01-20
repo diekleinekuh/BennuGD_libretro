@@ -11,7 +11,6 @@ struct Header
 
 void* bgd_malloc( size_t size )
 {
-    //void* desired_addres = (void*)(4*1024*1024);
     void* desired_addres = NULL;
 
     size_t allocated_size = size+sizeof(struct Header);
