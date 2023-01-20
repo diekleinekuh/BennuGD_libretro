@@ -1265,9 +1265,9 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
         sprintf( buffer, "%s", ( proc->type == 0 ) ? "MAIN" : "PROC" ) ;
 
     line[0] = 0 ;
-    for ( n = 0 ; n < indent - 1; n++ ) strcat( line, " \x03 " );
+    for ( n = 0 ; n < indent - 1; n++ ) strncat( line, " \x03 ", sizeof(line) - strlen(line) -1 );
 
-    sprintf( line + strlen( line ), " \x01\x02 %-12s ", buffer ) ;
+    snprintf( line + strlen( line ), sizeof(line) -strlen(line) , " \x01\x02 %-12.124s ", buffer ) ;
 
     n = strlen( line ) % 4 ;
     while ( n && ( n++ < 4 ) ) strcat( line, " " ) ;
@@ -1306,9 +1306,9 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
             }
 
             line[0] = 0 ;
-            for ( n = 0 ; n < indent; n++ ) strcat( line, " \x03 " );
+            for ( n = 0 ; n < indent; n++ ) strncat( line, " \x03 ", sizeof(line) - strlen(line) -1 );
 
-            sprintf( line + strlen( line ), " \x01\x02 %-12s ", buffer ) ;
+            snprintf( line + strlen( line ), sizeof(line) -strlen(line), " \x01\x02 %-12s ", buffer ) ;
 
             n = strlen( line ) % 4 ;
             while ( n && ( n++ < 4 ) ) strcat( line, " " ) ;
