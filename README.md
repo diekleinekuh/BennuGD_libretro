@@ -1,2 +1,2 @@
 # BennuGD_libretro
-A wrapper around bBennuGD to turn it into a libretro core.
+A wrapper around BennuGD to turn it into a libretro core.
