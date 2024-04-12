@@ -637,6 +637,10 @@ void file_rewind( file * fp )
 
 static int open_raw( file * f, const char * filename, const char * mode )
 {
+#if LIBRETRO_CORE
+    extern const char* libretro_adjustpath(const char*);
+    filename = libretro_adjustpath(filename);
+#endif
     char    _mode[5];
     char    *p;
 

@@ -1,0 +1,6 @@
+[submodule "libretro/libretro-common"]
+	path = libretro/libretro-common
+	url = https://github.com/libretro/libretro-common.git
+[submodule "libretro/sdl-libretro"]
+	path = libretro/sdl-libretro
+	url = https://github.com/libretro/sdl-libretro.git

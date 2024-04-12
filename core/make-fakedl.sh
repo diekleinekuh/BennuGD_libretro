@@ -180,7 +180,8 @@ make_fake_dl()
 }
 
 # without mathi
-SCOPE=$(tail -n $(expr $(wc -l $MODULES_PATH/Makefile.am|cut -f1 -d " ") - $(grep -n SUBDIRS $MODULES_PATH/Makefile.am | cut -f1 -d ":" )) $MODULES_PATH/Makefile.am | sed 's/\\//g' | grep -v mathi)
+#SCOPE=$(tail -n $(expr $(wc -l $MODULES_PATH/Makefile.am|cut -f1 -d " ") - $(grep -n SUBDIRS $MODULES_PATH/Makefile.am | cut -f1 -d ":" )) $MODULES_PATH/Makefile.am | sed 's/\\//g' | grep -v mathi)
+SCOPE=$(cd $MODULES_PATH && ls -1 */CMakeLists.txt | xargs dirname)
 export SCOPE
 
 credits                                                            $FAKE_DL_FNAME

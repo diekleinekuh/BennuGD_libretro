@@ -518,6 +518,11 @@ void gr_unlock_screen()
             }
         }
     }
+
+#if LIBRETRO_CORE
+extern void suspend_bgd();
+    suspend_bgd();
+#endif
 }
 
 /* --------------------------------------------------------------------------- */

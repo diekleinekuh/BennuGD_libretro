@@ -82,6 +82,12 @@ static int stack_dump( INSTANCE * r ) {
 /* ---------------------------------------------------------------------- */
 
 int instance_go_all() {
+
+#if LIBRETRO_CORE
+extern void suspend_bgd();
+    suspend_bgd();
+#endif
+
     INSTANCE * i = NULL;
     int n, status, i_count;
 

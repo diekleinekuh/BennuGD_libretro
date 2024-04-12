@@ -313,7 +313,12 @@ void bgdrtm_exit( int exit_value )
     close( __bgdrtm_memdev ); __bgdrtm_memdev = -1;
 #endif
 
+#if LIBRETRO_CORE
+    extern void exit_bgd();
+    exit_bgd();
+#else
     exit( exit_value ) ;
+#endif
 }
 
 /* --------------------------------------------------------------------------- */

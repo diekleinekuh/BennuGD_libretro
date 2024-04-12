@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_executable(bgdi "src/main.c")
+if(libretro_core)
+    add_library(bgdi "src/main.c")
+else()
+    add_executable(bgdi "src/main.c")
+endif()
 
 target_compile_definitions(bgdi 
     PRIVATE VERSION="1.0.0"
@@ -8,7 +12,6 @@ target_compile_definitions(bgdi
 
 target_include_directories(bgdi PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/bgdrtm/include"
 )
 
-target_link_libraries(bgdi core)
+target_link_libraries(bgdi core ${BGD_MODULES} )

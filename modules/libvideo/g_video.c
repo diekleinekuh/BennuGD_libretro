@@ -221,6 +221,10 @@ int gr_set_icon( GRAPH * map )
 
 int gr_set_mode( int width, int height, int depth )
 {
+#if LIBRETRO_CORE
+extern int libretro_depth;
+    depth=libretro_depth;
+#endif
     int n ;
     int sdl_flags = 0;
     int surface_width = width;
@@ -543,7 +547,6 @@ int gr_set_mode( int width, int height, int depth )
     if ( background ) background->modified = 1;
 
 //    gr_rects_clear();
-
     return 0;
 }
 
@@ -561,6 +564,13 @@ void __bgdexport( libvideo, module_initialize )()
     if ( !directdraw ) init_dx();
 #endif
     apptitle = appname;
+
+#if LIBRETRO_CORE
+extern int libretro_width;
+extern int libretro_height;
+    video_config.width=libretro_width;
+    video_config.height=libretro_height;
+#endif
 
     if ( ( e = getenv( "SCALE_RESOLUTION"             ) ) ) video_config.scale_resolution = atol( e );
     if ( ( e = getenv( "SCALE_RESOLUTION_ASPECTRATIO" ) ) ) video_config.scale_resolution_aspectratio = atol( e );
