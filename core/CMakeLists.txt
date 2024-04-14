@@ -34,5 +34,5 @@ target_include_directories(core PUBLIC
 
 target_include_directories(core PRIVATE ${LIBRETRO_INCLUDE_DIR} ${SDL_INCLUDE_DIR})
 
-target_link_libraries(core ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARIES} ${SDL_LIBRARY})
+target_link_libraries(core ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARIES} ${SDL_LIBRARIES})
 
