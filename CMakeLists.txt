@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.24)
 project(bennugd_libretro)
 
-option(libretro_core "build libretro_core instead of standalone version" true)
+option(libretro_core "build libretro_core instead of standalone version" ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -17,6 +17,52 @@ endif()
 string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined -Wl,-Bsymbolic-functions")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-deprecated-declarations")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
+
+
+include(FetchContent)
+
+# turn off building shared libraries for dependencies
+set(BUILD_SHARED_LIBS_backup "$CACHE{BUILD_SHARED_LIBS}")
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
+
+# libressl
+set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
+set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
+FetchContent_Declare( libressl 
+    URL https://github.com/libressl/portable/releases/download/v3.9.1/libressl-3.9.1.tar.gz
+)
+FetchContent_MakeAvailable(libressl)
+set(OPENSSL_CRYPTO_LIBRARY crypto)
+
+# zlib
+set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "Build test binaries")
+set(ZLIB_COMPAT ON CACHE BOOL "Compile with zlib compatible API" FORCE)
+FetchContent_Declare(zlib-ng
+    GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
+    GIT_TAG        2.1.6
+    GIT_SHALLOW TRUE    
+)
+FetchContent_MakeAvailable(zlib-ng)
+
+# libpng
+set(PNG_SHARED OFF CACHE BOOL "Build libpng as a shared library" FORCE)
+set(PNG_TESTS OFF CACHE BOOL "Build the libpng tests" FORCE)
+set(PNG_TOOLS OFF CACHE BOOL "" FORCE)
+set(ZLIB_LIBRARY ZLIB::ZLIB CACHE STRING "Path to zlib library" FORCE)
+set(ZLIB_INCLUDE_DIR ${zlib-ng_BINARY_DIR} CACHE STRING "Include directory for zlib" FORCE)
+add_library(ZLIB::ZLIB ALIAS zlib)
+
+FetchContent_Declare( libpng 
+    GIT_REPOSITORY https://github.com/pnggroup/libpng.git
+    GIT_TAG v1.6.43
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(libpng)
+set (PNG_LIBRARIES png_static)
+
+# restore state of BUILD_SHARED_LIBS
+set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_backup} CACHE INTERNAL "" FORCE)
 
 if(libretro_core)
     add_compile_definitions(LIBRETRO_CORE=1)

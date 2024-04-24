@@ -9,9 +9,15 @@
 #include "files_st.h"
 #include <stdatomic.h>
 
+
 static char* content_path;
 static char* content_dir;
 static size_t content_dir_length;
+static retro_usec_t frametime_usec;
+static bool use_audio_callback;
+static void* audio_mixbuf;
+static const size_t audio_frame_size=2*sizeof(int16_t);
+static const size_t audio_mixbuf_frames=1024;
 
 /**
  * find_last_slash:
@@ -122,10 +128,8 @@ static cothread_t main_thread;
 static cothread_t bgd_thread;
 
 static retro_video_refresh_t video_cb;
-static retro_environment_t environ_cb;
 static retro_audio_sample_batch_t audio_batch_cb;
-retro_audio_sample_t audio_cb;
-static retro_audio_sample_t local_audio_cb;
+static retro_environment_t environ_cb;
 static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
 
@@ -136,29 +140,26 @@ static char* retro_save_directory;
 
 int libretro_width=320;
 int libretro_height=200;
-int libretro_depth=32;
+int libretro_depth=16;
 char* libretro_base_dir;
 
 static struct retro_system_av_info last_av_info;
+static bool bgd_finished = false;
+static bool game_unloading = false;
+extern int fps_value;
 
 void suspend_bgd()
 {
     co_switch(main_thread);
 }
 
-void exit_bgd()
+void request_exit_bgd()
 {
-    environ_cb(RETRO_ENVIRONMENT_SHUTDOWN, NULL);
-}
-
-static void RETRO_CALLCONV libretro_audio_callback(int16_t left, int16_t right)
-{
-    local_audio_cb(left, right);
-}
-
-static void RETRO_CALLCONV dummy_audio_callback(int16_t left, int16_t right)
-{
-
+    if (!game_unloading)
+    {
+        environ_cb(RETRO_ENVIRONMENT_SHUTDOWN, NULL);
+        co_switch(main_thread);
+    }
 }
 
 short int libretro_input_state_cb(unsigned port,unsigned device,unsigned index,unsigned id)
@@ -171,9 +172,53 @@ short int libretro_input_state_cb(unsigned port,unsigned device,unsigned index,u
     return 0;
 }
 
+extern int sdl_libretro_get_sample_rate();
+extern void sdl_libretro_init_audio();
+extern void sdl_libretro_cleanup_audio();
+extern void sdl_libretro_runaudio(void* mixbuf, size_t mixbuf_size);
+static void RETRO_CALLCONV retro_audio_callback(void)
+{   
+    sdl_libretro_runaudio(audio_mixbuf, audio_mixbuf_frames*audio_frame_size);
+    audio_batch_cb((int16_t*)audio_mixbuf, audio_mixbuf_frames);
+}
+
+void RETRO_CALLCONV retro_frame_time_callback(retro_usec_t usec)
+{
+    frametime_usec = usec;
+}
+
+static void RETRO_CALLCONV retro_upload_audio()
+{
+    uint64_t sample_rate = last_av_info.timing.sample_rate;
+    size_t frames = (frametime_usec * sample_rate)/ 1000000;
+
+    while(frames)
+    {
+        size_t chunk = frames;
+        if (chunk>audio_mixbuf_frames)
+        {
+            chunk = audio_mixbuf_frames;
+        }
+
+        sdl_libretro_runaudio(audio_mixbuf, chunk*audio_frame_size);
+        audio_batch_cb((int16_t*)audio_mixbuf, chunk);
+        frames -= chunk;
+    }
+}
+
+void RETRO_CALLCONV retro_audio_set_state_callback(bool enabled)
+{
+    if (use_audio_callback==enabled)
+    {
+        return;
+    }
+
+    use_audio_callback = enabled;
+}
+
 void retro_set_video_refresh(retro_video_refresh_t cb) { video_cb = cb; }
-void retro_set_audio_sample(retro_audio_sample_t cb) { local_audio_cb  =cb; }
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb) { audio_batch_cb = cb; }
+void retro_set_audio_sample(retro_audio_sample_t cb) {  }
 void retro_set_input_poll(retro_input_poll_t cb) { input_poll_cb = cb; }
 void retro_set_input_state(retro_input_state_t cb) { input_state_cb = cb; }
 
@@ -191,15 +236,6 @@ void retro_set_environment(retro_environment_t cb)
     {
         log_cb = default_log;
     }   
-
-    // struct retro_variable variables[] = {
-    //     {
-    //         "tsdl_analog","Use Analog; OFF|ON",
-    //     },
-    //     { NULL, NULL },
-    // };
-
-    //environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
 }
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
@@ -257,6 +293,8 @@ static void run_bennugd()
     char *argv[2]={ "bgdi", content_path};
     bgdi_main(sizeof(argv)/sizeof(*argv), argv);
 
+    bgd_finished = true;
+
     while(true)
     {
         co_switch(main_thread);
@@ -265,14 +303,13 @@ static void run_bennugd()
 
 void retro_init(void)
 {
-    float aspect                = 0.0f;
-    float sampling_rate         = 30000.0f;
-
     last_av_info.geometry.base_width   = libretro_width;
     last_av_info.geometry.base_height  = libretro_height;
     last_av_info.geometry.max_width    = libretro_width;
     last_av_info.geometry.max_height   = libretro_height;
-    last_av_info.geometry.aspect_ratio = aspect;
+    last_av_info.geometry.aspect_ratio = 0.0f;
+    last_av_info.timing.sample_rate = 44100;
+    last_av_info.timing.fps = 25; // default value in bgd
 
     const char *system_dir = NULL;
 
@@ -300,7 +337,7 @@ void retro_init(void)
     }
 
     enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
-    if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
+    //if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
     {
         log_cb(RETRO_LOG_WARN, "RETRO_PIXEL_FORMAT_XRGB8888 not supported.\n");
         fmt = RETRO_PIXEL_FORMAT_RGB565;
@@ -315,30 +352,34 @@ void retro_init(void)
         }
     }
 
-    struct retro_input_descriptor input_descriptors[] = 
-    {
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "A" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "B" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "X" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Y" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Select" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "L" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2, "L2" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3" },
-        { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3" }
-    };
-    environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, &input_descriptors);
+    // struct retro_input_descriptor input_descriptors[] = 
+    // {
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "A" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "B" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "X" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Y" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Select" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "L" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2, "L2" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3" },
+    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3" }
+    // };
+    // environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, &input_descriptors);
+    
+    audio_mixbuf = malloc(audio_mixbuf_frames*audio_frame_size);
+    sdl_libretro_init_audio();
 
-
-    audio_cb=&libretro_audio_callback;
-    local_audio_cb=&dummy_audio_callback;
+    environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &(struct retro_audio_callback){ 
+        &retro_audio_callback, 
+        &retro_audio_set_state_callback
+        } );
 
     if (!main_thread)
     {
@@ -363,7 +404,12 @@ bool retro_load_game(const struct retro_game_info *info)
         content_dir=strndup( content_path, content_dir_length);
     }
 
-    co_switch(bgd_thread);
+    environ_cb(RETRO_ENVIRONMENT_SET_FRAME_TIME_CALLBACK, &(struct retro_frame_time_callback) 
+    {
+        &retro_frame_time_callback
+    });
+
+    co_switch(bgd_thread);    
     return true;
 }
 
@@ -374,12 +420,15 @@ bool retro_load_game_special(unsigned type, const struct retro_game_info *info, 
 
 void retro_unload_game(void)
 {
-    //extern void SDL_Quit(void);
-    //SDL_Quit();
+    // This notifies bgd that the main loop should quit
     extern int must_exit;
     must_exit = 1;
-    co_switch(bgd_thread);
-    SDL_Quit();
+    game_unloading = true;
+    while (bgd_finished==false)
+    {
+        co_switch(bgd_thread);
+    }
+    game_unloading = false;
 
     if (content_path)
     {
@@ -405,21 +454,22 @@ void retro_run(void)
     SDL_Surface* s = SDL_GetVideoSurface();
     if (video_cb && s)
     {
-        if (s->w != last_av_info.geometry.base_width ||  s->h != last_av_info.geometry.base_height )
+        int sample_rate = sdl_libretro_get_sample_rate();
+
+        if (s->w != last_av_info.geometry.base_width ||  s->h != last_av_info.geometry.base_height || fps_value!=last_av_info.timing.fps || 
+            last_av_info.timing.sample_rate != sample_rate)
         {
             last_av_info.geometry.base_width = s->w;
-            last_av_info.geometry.base_height = s->h;
+            last_av_info.geometry.base_height = s->h;            
 
-            if (s->w > last_av_info.geometry.max_width || s->h > last_av_info.geometry.max_height)
+            if (s->w > last_av_info.geometry.max_width || s->h > last_av_info.geometry.max_height || fps_value!=last_av_info.timing.fps ||
+                last_av_info.timing.sample_rate != sample_rate)
             {
                 last_av_info.geometry.max_width = s->w;
                 last_av_info.geometry.max_height = s->h;
-                retro_audio_sample_t temp=local_audio_cb;
-                local_audio_cb=&dummy_audio_callback;
-                atomic_thread_fence(memory_order_seq_cst);
+                last_av_info.timing.fps = fps_value;
+                last_av_info.timing.sample_rate = sample_rate;
                 environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &last_av_info);
-                local_audio_cb=temp;
-                atomic_thread_fence(memory_order_seq_cst);
             }
             else
             {
@@ -429,10 +479,17 @@ void retro_run(void)
 
         video_cb(s->pixels, s->w, s->h, s->pitch);
     }
+
+    if (!use_audio_callback)
+    {
+        retro_upload_audio();
+    }
 }
 
 void retro_deinit(void)
 {
+    sdl_libretro_cleanup_audio();
+    free(audio_mixbuf);
     free(retro_system_directory);
     free(retro_content_directory);
     free(retro_save_directory);

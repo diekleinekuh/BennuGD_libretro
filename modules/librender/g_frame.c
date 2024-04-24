@@ -138,7 +138,7 @@ void gr_wait_frame()
     FPS_count++ ;
 
     /* -------------- */
-
+//#if !LIBRETRO_CORE
     if ( fps_value )
     {
         FPS_count_sync++ ;
@@ -191,7 +191,7 @@ void gr_wait_frame()
             }
         }
     }
-
+//#endif // #if !LIBRETRO_CORE
     /* Si paso 1 segundo o mas desde la ultima lectura */
     if ( frame_ticks - FPS_init >= 1000 )
     {

@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 include(CMakePrintHelpers)
 
-find_package(OpenSSL REQUIRED)
-find_package(ZLIB)
-
 file(GLOB COMMON_SRC
     "common/*.c"
 )
@@ -34,5 +31,8 @@ target_include_directories(core PUBLIC
 
 target_include_directories(core PRIVATE ${LIBRETRO_INCLUDE_DIR} ${SDL_INCLUDE_DIR})
 
-target_link_libraries(core ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARIES} ${SDL_LIBRARIES})
+target_link_libraries(core
+    ${OPENSSL_CRYPTO_LIBRARY}
+    ${ZLIB_LIBRARIES}
+    ${SDL_LIBRARIES})
 

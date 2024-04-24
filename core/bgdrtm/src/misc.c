@@ -300,6 +300,11 @@ void bgdrtm_entry( int argc, char * argv[] )
 
 void bgdrtm_exit( int exit_value )
 {
+#if LIBRETRO_CORE
+extern void request_exit_bgd();
+    request_exit_bgd();
+#endif
+
     int n;
     /* Finalize all modules */
     if ( module_finalize_count )
@@ -313,10 +318,7 @@ void bgdrtm_exit( int exit_value )
     close( __bgdrtm_memdev ); __bgdrtm_memdev = -1;
 #endif
 
-#if LIBRETRO_CORE
-    extern void exit_bgd();
-    exit_bgd();
-#else
+#if !(LIBRETRO_CORE)
     exit( exit_value ) ;
 #endif
 }
