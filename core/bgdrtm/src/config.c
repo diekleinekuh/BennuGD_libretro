@@ -66,7 +66,7 @@ int config_read() {
     char * buffer = bgd_malloc(INI_MAX_LINE);
     if ( !buffer ) return -1;
 
-    fp = file_open( configfile, "r0" ) ;
+    fp = file_open( configfile, "rb0" ) ;
     if ( !fp ) {
         bgd_free( buffer );
         return -1;
