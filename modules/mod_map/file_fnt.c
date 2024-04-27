@@ -475,7 +475,7 @@ int gr_load_bdf( const char * filename )
 
     /* Open the file and create the font */
 
-    fp = file_open( filename, "r" );
+    fp = file_open( filename, "rb" );
     if ( !fp ) return -1;
 
     id = gr_font_new( CHARSET_ISO8859, 1 );
@@ -490,6 +490,7 @@ int gr_load_bdf( const char * filename )
     {
         if ( !( len = file_gets( fp, line, 2047 ) ) ) break;
         if ( line[len-1] == '\n' ) line[len-1] = '\0';
+        if ( len>1 && line[len-2] == '\r' ) line[len-2] = '\0';
 
         /* Handle global-level commands */
 
@@ -564,6 +565,8 @@ int gr_load_bdf( const char * filename )
                 {
                     if ( !( len = file_gets( fp, line, 2047 ) ) ) break;
                     if ( line[len-1] == '\n' ) line[len-1] = '\0';
+                    if ( len>1 && line[len-2] == '\r' ) line[len-2] = '\0';
+                    
                     ptr  = ( uint8_t * ) line;
                     optr = ( uint8_t * ) font->glyph[encoding].bitmap->data + font->glyph[encoding].bitmap->pitch * y;
 
