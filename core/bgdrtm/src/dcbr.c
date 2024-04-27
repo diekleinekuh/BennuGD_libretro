@@ -140,7 +140,7 @@ static int load_file( const char * filename, int n )
     char ** lines ;
     file * fp ;
 
-    fp = file_open( filename, "r0" ) ;
+    fp = file_open( filename, "rb0" ) ;
     if ( !fp )
     {
         dcb.sourcefiles[n] = 0 ;
