@@ -76,6 +76,7 @@
 #include "mod_text_exports.h"
 #include "mod_time_exports.h"
 #include "mod_timers_exports.h"
+#include "mod_ttf_exports.h"
 #include "mod_video_exports.h"
 #include "mod_wm_exports.h"
 #endif
@@ -144,6 +145,7 @@ extern DLSYSFUNCS mod_string_functions_exports[];
 extern DLSYSFUNCS mod_sys_functions_exports[];
 extern DLSYSFUNCS mod_text_functions_exports[];
 extern DLSYSFUNCS mod_time_functions_exports[];
+extern DLSYSFUNCS mod_ttf_functions_exports[];
 extern DLSYSFUNCS mod_video_functions_exports[];
 extern DLSYSFUNCS mod_wm_functions_exports[];
  
@@ -226,6 +228,7 @@ extern char * mod_path_modules_dependency[];
 extern char * mod_screen_modules_dependency[];
 extern char * mod_scroll_modules_dependency[];
 extern char * mod_text_modules_dependency[];
+extern char * mod_ttf_modules_dependency[];
 extern char * mod_video_modules_dependency[];
 extern char * mod_wm_modules_dependency[];
  
@@ -256,7 +259,7 @@ typedef struct __FAKE_DL
 
 /* ---------- FAKE DYNAMIC LIBRARY ---------- */
  
-__FAKE_DL __fake_dl[49];
+__FAKE_DL __fake_dl[50];
  
 /* ------------------------------------------ */
  
@@ -2103,9 +2106,9 @@ void fake_dl_init()
 #endif
     __fake_dl[45].modules_dependency           = NULL;
   
-    /* -------------------- mod_video -------------------- */
+    /* -------------------- mod_ttf -------------------- */
  
-    __fake_dl[46].dlname                       = "mod_video";
+    __fake_dl[46].dlname                       = "mod_ttf";
 #ifdef __BGDC__
     __fake_dl[46].constants_def                = NULL;
     __fake_dl[46].types_def                    = NULL;
@@ -2118,10 +2121,10 @@ void fake_dl_init()
     __fake_dl[46].types_def                    = NULL;
     __fake_dl[46].globals_def                  = NULL;
     __fake_dl[46].locals_def                   = NULL;
-    __fake_dl[46].globals_fixup                = mod_video_globals_fixup;
+    __fake_dl[46].globals_fixup                = NULL;
     __fake_dl[46].locals_fixup                 = NULL;
 #endif
-    __fake_dl[46].functions_exports            = mod_video_functions_exports;
+    __fake_dl[46].functions_exports            = mod_ttf_functions_exports;
 #ifdef __BGDC__
     __fake_dl[46].module_initialize            = NULL;
     __fake_dl[46].module_finalize              = NULL;
@@ -2141,58 +2144,68 @@ void fake_dl_init()
     __fake_dl[46].process_exec_hook            = NULL;
     __fake_dl[46].handler_hooks                = NULL;
 #endif
-    __fake_dl[46].modules_dependency           = mod_video_modules_dependency;
+    __fake_dl[46].modules_dependency           = mod_ttf_modules_dependency;
+  
+    /* -------------------- mod_video -------------------- */
+ 
+    __fake_dl[47].dlname                       = "mod_video";
+#ifdef __BGDC__
+    __fake_dl[47].constants_def                = NULL;
+    __fake_dl[47].types_def                    = NULL;
+    __fake_dl[47].globals_def                  = NULL;
+    __fake_dl[47].locals_def                   = NULL;
+    __fake_dl[47].globals_fixup                = NULL;
+    __fake_dl[47].locals_fixup                 = NULL;
+#else
+    __fake_dl[47].constants_def                = NULL;
+    __fake_dl[47].types_def                    = NULL;
+    __fake_dl[47].globals_def                  = NULL;
+    __fake_dl[47].locals_def                   = NULL;
+    __fake_dl[47].globals_fixup                = mod_video_globals_fixup;
+    __fake_dl[47].locals_fixup                 = NULL;
+#endif
+    __fake_dl[47].functions_exports            = mod_video_functions_exports;
+#ifdef __BGDC__
+    __fake_dl[47].module_initialize            = NULL;
+    __fake_dl[47].module_finalize              = NULL;
+    __fake_dl[47].instance_create_hook         = NULL;
+    __fake_dl[47].instance_destroy_hook        = NULL;
+    __fake_dl[47].instance_pre_execute_hook    = NULL;
+    __fake_dl[47].instance_pos_execute_hook    = NULL;
+    __fake_dl[47].process_exec_hook            = NULL;
+    __fake_dl[47].handler_hooks                = NULL;
+#else
+    __fake_dl[47].module_initialize            = NULL;
+    __fake_dl[47].module_finalize              = NULL;
+    __fake_dl[47].instance_create_hook         = NULL;
+    __fake_dl[47].instance_destroy_hook        = NULL;
+    __fake_dl[47].instance_pre_execute_hook    = NULL;
+    __fake_dl[47].instance_pos_execute_hook    = NULL;
+    __fake_dl[47].process_exec_hook            = NULL;
+    __fake_dl[47].handler_hooks                = NULL;
+#endif
+    __fake_dl[47].modules_dependency           = mod_video_modules_dependency;
   
     /* -------------------- mod_wm -------------------- */
  
-    __fake_dl[47].dlname                       = "mod_wm";
+    __fake_dl[48].dlname                       = "mod_wm";
 #ifdef __BGDC__
-    __fake_dl[47].constants_def                = NULL;
-    __fake_dl[47].types_def                    = NULL;
-    __fake_dl[47].globals_def                  = NULL;
-    __fake_dl[47].locals_def                   = NULL;
-    __fake_dl[47].globals_fixup                = NULL;
-    __fake_dl[47].locals_fixup                 = NULL;
-#else
-    __fake_dl[47].constants_def                = NULL;
-    __fake_dl[47].types_def                    = NULL;
-    __fake_dl[47].globals_def                  = NULL;
-    __fake_dl[47].locals_def                   = NULL;
-    __fake_dl[47].globals_fixup                = NULL;
-    __fake_dl[47].locals_fixup                 = NULL;
-#endif
-    __fake_dl[47].functions_exports            = mod_wm_functions_exports;
-#ifdef __BGDC__
-    __fake_dl[47].module_initialize            = NULL;
-    __fake_dl[47].module_finalize              = NULL;
-    __fake_dl[47].instance_create_hook         = NULL;
-    __fake_dl[47].instance_destroy_hook        = NULL;
-    __fake_dl[47].instance_pre_execute_hook    = NULL;
-    __fake_dl[47].instance_pos_execute_hook    = NULL;
-    __fake_dl[47].process_exec_hook            = NULL;
-    __fake_dl[47].handler_hooks                = NULL;
-#else
-    __fake_dl[47].module_initialize            = NULL;
-    __fake_dl[47].module_finalize              = NULL;
-    __fake_dl[47].instance_create_hook         = NULL;
-    __fake_dl[47].instance_destroy_hook        = NULL;
-    __fake_dl[47].instance_pre_execute_hook    = NULL;
-    __fake_dl[47].instance_pos_execute_hook    = NULL;
-    __fake_dl[47].process_exec_hook            = NULL;
-    __fake_dl[47].handler_hooks                = NULL;
-#endif
-    __fake_dl[47].modules_dependency           = mod_wm_modules_dependency;
- 
-    /* -------------------- LAST -------------------- */
- 
-    __fake_dl[48].dlname                       = NULL;
     __fake_dl[48].constants_def                = NULL;
     __fake_dl[48].types_def                    = NULL;
     __fake_dl[48].globals_def                  = NULL;
     __fake_dl[48].locals_def                   = NULL;
     __fake_dl[48].globals_fixup                = NULL;
     __fake_dl[48].locals_fixup                 = NULL;
-    __fake_dl[48].functions_exports            = NULL;
+#else
+    __fake_dl[48].constants_def                = NULL;
+    __fake_dl[48].types_def                    = NULL;
+    __fake_dl[48].globals_def                  = NULL;
+    __fake_dl[48].locals_def                   = NULL;
+    __fake_dl[48].globals_fixup                = NULL;
+    __fake_dl[48].locals_fixup                 = NULL;
+#endif
+    __fake_dl[48].functions_exports            = mod_wm_functions_exports;
+#ifdef __BGDC__
     __fake_dl[48].module_initialize            = NULL;
     __fake_dl[48].module_finalize              = NULL;
     __fake_dl[48].instance_create_hook         = NULL;
@@ -2201,7 +2214,37 @@ void fake_dl_init()
     __fake_dl[48].instance_pos_execute_hook    = NULL;
     __fake_dl[48].process_exec_hook            = NULL;
     __fake_dl[48].handler_hooks                = NULL;
-    __fake_dl[48].modules_dependency           = NULL;
+#else
+    __fake_dl[48].module_initialize            = NULL;
+    __fake_dl[48].module_finalize              = NULL;
+    __fake_dl[48].instance_create_hook         = NULL;
+    __fake_dl[48].instance_destroy_hook        = NULL;
+    __fake_dl[48].instance_pre_execute_hook    = NULL;
+    __fake_dl[48].instance_pos_execute_hook    = NULL;
+    __fake_dl[48].process_exec_hook            = NULL;
+    __fake_dl[48].handler_hooks                = NULL;
+#endif
+    __fake_dl[48].modules_dependency           = mod_wm_modules_dependency;
+ 
+    /* -------------------- LAST -------------------- */
+ 
+    __fake_dl[49].dlname                       = NULL;
+    __fake_dl[49].constants_def                = NULL;
+    __fake_dl[49].types_def                    = NULL;
+    __fake_dl[49].globals_def                  = NULL;
+    __fake_dl[49].locals_def                   = NULL;
+    __fake_dl[49].globals_fixup                = NULL;
+    __fake_dl[49].locals_fixup                 = NULL;
+    __fake_dl[49].functions_exports            = NULL;
+    __fake_dl[49].module_initialize            = NULL;
+    __fake_dl[49].module_finalize              = NULL;
+    __fake_dl[49].instance_create_hook         = NULL;
+    __fake_dl[49].instance_destroy_hook        = NULL;
+    __fake_dl[49].instance_pre_execute_hook    = NULL;
+    __fake_dl[49].instance_pos_execute_hook    = NULL;
+    __fake_dl[49].process_exec_hook            = NULL;
+    __fake_dl[49].handler_hooks                = NULL;
+    __fake_dl[49].modules_dependency           = NULL;
  
 }
  
