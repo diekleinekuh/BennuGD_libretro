@@ -561,7 +561,7 @@ static int check_collision_with_mouse( INSTANCE * proc1, int colltype )
             for ( i = 0 ; i < 10 ; i++ )
             {
                 data = &(( SCROLL_EXTRA_DATA * ) & GLODWORD( mod_grproc, SCROLLS ) )[i] ;
-                scroll = ( scrolldata * ) data->reserved[0];
+                scroll = &scrolls[data->reserved[0]];
 
                 if ( scroll && scroll->active && ( cnumber & ( 1 << i ) ) )
                 {

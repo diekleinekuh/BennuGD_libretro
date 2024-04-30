@@ -143,7 +143,7 @@ void scroll_start( int n, int fileid, int graphid, int backid, int region, int f
 
         data = &(( SCROLL_EXTRA_DATA * ) &GLODWORD( libscroll, SCROLLS ) )[n] ;
 
-        data->reserved[0] = ( int32_t ) &scrolls[n]; /* First reserved dword point to internal scrolldata struct */
+        data->reserved[0] = n; /* First reserved dword point to internal scrolldata struct */
 
         if ( scrolls_objects[n] ) gr_destroy_object( scrolls_objects[n] );
         scrolls_objects[n] = ( int )gr_new_object( 0, ( OBJ_INFO * ) info_scroll, ( OBJ_DRAW * ) draw_scroll, ( void * ) n );
