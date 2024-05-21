@@ -741,7 +741,7 @@ INSTANCE * instance_get_by_type( uint32_t type, INSTANCE ** context )
 
     if ( !*context ) /* start scan */
         i = hashed_by_type[HASH( type )];
-    else if ( ( i = *context ) == ( INSTANCE * ) -1 ) /* End scan */
+    else if ( ( i = *context ) == ( INSTANCE * ) (0xFFFFFFFF) ) /* End scan */
         return ( *context = NULL );
 
     if ( i ) /* Valid instance, continue scan */
@@ -749,7 +749,7 @@ INSTANCE * instance_get_by_type( uint32_t type, INSTANCE ** context )
         if ( i->next_by_type )
             *context = i->next_by_type ;
         else
-            *context = ( INSTANCE * ) -1 ; /* Next call will be "end scan" */
+            *context = ( INSTANCE * ) 0xFFFFFFFF ; /* Next call will be "end scan" */
 
         return i;
     }

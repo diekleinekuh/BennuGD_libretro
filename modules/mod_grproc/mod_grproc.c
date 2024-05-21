@@ -893,7 +893,9 @@ static int __collision( INSTANCE * my, int id, int colltype )
 
     LOCDWORD( mod_grproc, my, GRPROC_ID_SCAN ) = 0 ;
     /* Check if already in scan by type and we reach limit */
-    ctx = ( INSTANCE ** ) LOCADDR( mod_grproc, my, GRPROC_CONTEXT );
+    uint32_t* context_address = (uint32_t*)LOCADDR( mod_grproc, my, GRPROC_CONTEXT );
+    INSTANCE* context = (INSTANCE*)(*context_address);    
+    ctx = &context;
     if ( LOCDWORD( mod_grproc, my, GRPROC_TYPE_SCAN ) != id ) /* Check if type change from last call */
     {
         *ctx = NULL;
@@ -911,10 +913,12 @@ static int __collision( INSTANCE * my, int id, int colltype )
              colfunc( my, &bbox1, ptr )
            )
         {
+            *context_address = (uint32_t)context;
             return LOCDWORD( mod_grproc, ptr, PROCESS_ID ) ;
         }
     }
 
+    *context_address = (uint32_t)context;
     return 0 ;
 }
 

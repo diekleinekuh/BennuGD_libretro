@@ -468,7 +468,10 @@ static int modproc_get_id( INSTANCE * my, int * params )
 
     LOCDWORD( mod_proc, my, ID_SCAN ) = 0 ;
     /* Check if already in scan by type and we reach limit */
-    ctx = ( INSTANCE ** ) LOCADDR( mod_proc, my, CONTEXT );
+
+    uint32_t* context_address = (uint32_t*)LOCADDR( mod_proc, my, CONTEXT );
+    INSTANCE* context = (INSTANCE*)(*context_address);
+    ctx = &context;
 /*
     if ( !*ctx && LOCDWORD( mod_proc, my, TYPE_SCAN ) )
     {
@@ -487,10 +490,11 @@ static int modproc_get_id( INSTANCE * my, int * params )
     {
         if ( /*ptr != my &&*/ ( LOCDWORD( mod_proc, ptr, STATUS ) & ~STATUS_WAITING_MASK ) >= STATUS_RUNNING )
         {
+            *context_address = (uint32_t)context;
             return LOCDWORD( mod_proc, ptr, PROCESS_ID ) ;
         }
     }
-
+    *context_address = (uint32_t)context;
     return 0 ;
 }
 
