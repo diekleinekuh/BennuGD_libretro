@@ -8,7 +8,6 @@ set(FT_DISABLE_BROTLI ON CACHE BOOL "" FORCE)
 FetchContent_Declare(freetype
     GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
     GIT_TAG e2bcca40ca0d82ae64ba25e5c5e252dc0d083162
-    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(freetype)

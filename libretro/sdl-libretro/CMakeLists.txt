@@ -112,7 +112,6 @@ FetchContent_Declare(
   vorbis
   GIT_REPOSITORY https://gitlab.xiph.org/xiph/vorbis.git
   GIT_TAG        84c023699cdf023a32fa4ded32019f194afcdad0
-  GIT_SHALLOW TRUE
   PATCH_COMMAND "${CMAKE_COMMAND}" "-D" "PATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/patches/patch_vorbis_min_required_version.patch" "-P" "${CMAKE_CURRENT_SOURCE_DIR}/patches/ApplyPatch.cmake"
 )
 
@@ -136,8 +135,7 @@ set(ENABLE_SHARED OFF CACHE BOOL "Whether to build the shared library" FORCE)
 FetchContent_Declare(
     mikmod
     GIT_REPOSITORY https://github.com/sezero/mikmod.git
-    GIT_TAG acdebd3ee2e28810288acfbb1b22cb37e7bc8c66
-    GIT_SHALLOW TRUE
+    GIT_TAG 56af6ef8d596e5aa885475cdb40b76ff063707cc            
     SOURCE_SUBDIR libmikmod
 )
 

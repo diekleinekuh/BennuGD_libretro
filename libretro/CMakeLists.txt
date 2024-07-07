@@ -4,7 +4,6 @@ FetchContent_Declare(
   libretro-common
   GIT_REPOSITORY https://github.com/diekleinekuh/libretro-common.git
   GIT_TAG        3d8d8c3e081d209395190c39688b24ea6b233cba
-  GIT_SHALLOW TRUE
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
