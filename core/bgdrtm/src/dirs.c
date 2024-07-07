@@ -42,6 +42,44 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+
+#if LIBRETRO_CORE
+extern const char * get_current_dir_libretro( );
+extern int chdir_libretro( const char * dir);
+extern int mkdir_libretro( const char * dir);
+extern int rmdir_libretro( const char * dir);
+extern int unlink_libretro(const char * filename);
+extern int diropen_libretro(__DIR_ST* hDir);
+extern void dirclose_libretro(__DIR_ST* hDir);
+extern int dirread_libretro(__DIR_ST* hdir);
+
+char * dir_current( void )
+{
+    return bgd_strdup(get_current_dir_libretro());
+}
+
+int dir_change( const char * dir )
+{
+    return chdir_libretro(dir);
+}
+
+int dir_create( const char * dir )
+{
+    return mkdir_libretro(dir);
+}
+
+int dir_delete( const char * dir )
+{
+    return rmdir_libretro(dir);
+}
+
+int dir_deletefile( const char * filename )
+{
+    return unlink_libretro(filename);
+}
+
+#else
+
 /* ------------------------------------------------------------------------------------ */
 /*
  *  FUNCTION : dir_path_convert
@@ -135,10 +173,17 @@ int dir_create( const char * dir )
 {
     char *c = dir_path_convert( dir ) ;
     if ( !c ) return 0;
+
+    const char * filename = c;
+// #if LIBRETRO_CORE
+//     extern const char* libretro_adjustpath(const char*, int writable);
+//     filename = libretro_adjustpath(filename, 1);
+// #endif
+
 #ifdef WIN32
-    int r = mkdir( c ) ;
+    int r = mkdir( filename ) ;
 #else
-    int r = mkdir( c, 0777 ) ;
+    int r = mkdir( filename, 0777 ) ;
 #endif
     bgd_free( c ) ;
     return r ;
@@ -163,7 +208,14 @@ int dir_delete( const char * dir )
 {
     char *c = dir_path_convert( dir ) ;
     if ( !c ) return 0;
-    int r = rmdir( c ) ;
+
+    const char * filename = c;
+// #if LIBRETRO_CORE
+//     extern const char* libretro_adjustpath(const char*, int writable);
+//     filename = libretro_adjustpath(filename, 1);
+// #endif
+   
+    int r = rmdir( filename ) ;
     bgd_free( c ) ;
     return r ;
 }
@@ -186,13 +238,21 @@ int dir_delete( const char * dir )
 int dir_deletefile( const char * filename )
 {
     char *c = dir_path_convert( filename ) ;
+    const char* fixed_filename = c;
     if ( !c ) return 0;
-    int r = unlink( c ) ;
+
+// #if LIBRETRO_CORE
+//     extern const char* libretro_adjustpath(const char*, int writable);
+//     fixed_filename = libretro_adjustpath(filename, 1);
+// #endif
+
+    int r = unlink( fixed_filename ) ;
     bgd_free( c ) ;
     return ( r == -1 ) ? 0 : 1 ;
 }
 
 /* ------------------------------------------------------------------------------------ */
+#endif
 
 __DIR_ST * dir_open( const char * path )
 {
@@ -204,7 +264,17 @@ __DIR_ST * dir_open( const char * path )
     {
         bgd_free ( hDir );
         return NULL;
+    }    
+
+#if LIBRETRO_CORE
+    if (!diropen_libretro(hDir))
+    {
+        bgd_free ( hDir );
+        return NULL;
     }
+    
+#else
+
 
 #ifdef _WIN32
     hDir->handle = FindFirstFile( hDir->path, &hDir->data );
@@ -277,23 +347,25 @@ __DIR_ST * dir_open( const char * path )
 
     hDir->currFile = 0;
 #endif
-
+#endif // LIBRETRO_CORE
     return hDir;
 }
 
 /* ------------------------------------------------------------------------------------ */
 
 void dir_close ( __DIR_ST * hDir )
-{
+{    
+#if LIBRETRO_CORE
+    dirclose_libretro(hDir);
+#else
     bgd_free ( hDir->path );
-
 #ifdef _WIN32
     FindClose( hDir->handle );
 #else
     globfree( &hDir->globd );
     bgd_free( hDir->pattern );
 #endif
-
+#endif //LIBRETRO_CORE
     bgd_free ( hDir );
 }
 
@@ -301,6 +373,13 @@ void dir_close ( __DIR_ST * hDir )
 
 __DIR_FILEINFO_ST * dir_read( __DIR_ST * hDir )
 {
+#if LIBRETRO_CORE
+    if (!dirread_libretro(hDir))
+    {
+        return NULL;
+    }
+#else
+
     char realpath[__MAX_PATH];
     char * ptr ;
 
@@ -423,7 +502,7 @@ __DIR_FILEINFO_ST * dir_read( __DIR_ST * hDir )
     hDir->currFile++;
 
 #endif
-
+#endif // LIBRETRO_CORE
     return ( &hDir->info );
 }
 

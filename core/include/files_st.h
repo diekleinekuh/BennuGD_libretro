@@ -79,10 +79,15 @@ typedef struct
 {
     int     type ;
 
-    FILE *  fp ;
+#if LIBRETRO_CORE
+    struct RFILE* fp;
+    struct gzFile_libretro* gz; 
+#else
+    FILE *  fp ;    
 #ifndef NO_ZLIB
     gzFile  gz ;
 #endif
+#endif //LIBRETRO_CORE
     int     n ;
     int     error ;
 	char	name[__MAX_PATH];

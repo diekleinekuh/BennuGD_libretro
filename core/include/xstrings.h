@@ -43,7 +43,7 @@ extern void _string_ptoa( char *t, void * p );
 extern void _string_ntoa( char *p, unsigned long n );
 extern void _string_utoa( char *p, unsigned long n );
 
-extern void         string_init() ;
+extern void         bennugd_internal_string_init() ; // Renamed to not clash with string_init from libretro-commpn
 extern const char * string_get( int code ) ;
 extern void         string_dump( void ( *wlog )( const char *fmt, ... ) );
 extern void         string_load( void *, int, int, int, int ) ;

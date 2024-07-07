@@ -86,6 +86,11 @@ typedef struct __DIR_FILEINFO_ST
 typedef struct __DIR_ST
 {
     char * path;
+#if LIBRETRO_CORE
+    struct RDIR* rdir;
+    char * dir;
+    char *pattern;
+#else    
 #ifdef _WIN32
     WIN32_FIND_DATA data;
     HANDLE handle;
@@ -95,6 +100,7 @@ typedef struct __DIR_ST
     int currFile;
     char *pattern;
 #endif
+#endif //LIBRETRO_CORE
     __DIR_FILEINFO_ST info;
 } __DIR_ST;
 

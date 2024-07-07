@@ -230,13 +230,15 @@ int main( int argc, char *argv[] )
                     "   3. This notice may not be removed or altered from any source\n"
                     "   distribution.\n"
                     , appexename ) ;
-            return -1 ;
+
+            ret = -1;
+            goto exit;
         }
     }
 
     /* Initialization (modules needed before dcb_load) */
 
-    string_init() ;
+    bennugd_internal_string_init() ;
     init_c_type() ;
 
     /* Init application title for windowed modes */
@@ -250,7 +252,7 @@ int main( int argc, char *argv[] )
     if ( strlen( appname ) > 3 )
     {
         char ** dcbext = dcb_exts, *ext = &appname[ strlen( appname ) - 4 ];
-#ifdef _WIN32
+#if defined _WIN32 || defined LIBRETRO_CORE
         if ( !strncmpi( ext, ".exe", 4 ) )
         {
             *ext = '\0';
@@ -296,7 +298,8 @@ fflush(stdout);
             if ( !dcbloaded )
             {
                 printf( "%s: doesn't exist or isn't version %d DCB compatible\n", filename, DCB_VERSION >> 8 ) ;
-                return -1 ;
+                ret = -1;
+                goto exit;
             }
         }
     }
@@ -336,6 +339,8 @@ fflush(stdout);
 
     bgdrtm_exit( ret );
 
+exit:
+    file_close(fp);
     bgd_free( configfile        );
     bgd_free( appexename        );
     bgd_free( appexepath        );

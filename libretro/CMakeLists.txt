@@ -1,14 +1,40 @@
 include(FetchContent)
 
+FetchContent_Declare(
+  libretro-common
+  GIT_REPOSITORY https://github.com/diekleinekuh/libretro-common.git
+  GIT_TAG        3d8d8c3e081d209395190c39688b24ea6b233cba
+  GIT_SHALLOW TRUE
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+)
+
+FetchContent_MakeAvailable(  libretro-common )
+
 add_subdirectory(sdl-libretro)
 
 add_library(retro_BennuGD SHARED
-    libco/libco.c
+    ${libretro-common_SOURCE_DIR}/libco/libco.c
+    ${libretro-common_SOURCE_DIR}/vfs/vfs_implementation.c
+    ${libretro-common_SOURCE_DIR}/file/file_path.c
+    ${libretro-common_SOURCE_DIR}/file/file_path_io.c
+    ${libretro-common_SOURCE_DIR}/file/retro_dirent.c
+    ${libretro-common_SOURCE_DIR}/string/stdstring.c
+    ${libretro-common_SOURCE_DIR}/encodings/encoding_utf.c
+    ${libretro-common_SOURCE_DIR}/time/rtime.c
+    ${libretro-common_SOURCE_DIR}/compat/compat_strl.c
+    ${libretro-common_SOURCE_DIR}/streams/file_stream.c
+    #${libretro-common_SOURCE_DIR}/streams/trans_stream.c
+    ${libretro-common_SOURCE_DIR}/streams/trans_stream_zlib.c
+    ${libretro-common_SOURCE_DIR}/streams/file_stream_transforms.c
+    #${libretro-common_SOURCE_DIR}/streams/trans_stream_pipe.c
     libretro.c
+    filesystem.c
+    filestream_gzip.c
 )
 
 target_include_directories(retro_BennuGD PRIVATE 
-    libco
     ${libretro-common_SOURCE_DIR}/include
 )
 

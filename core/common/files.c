@@ -45,8 +45,60 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include "files.h"
+
+#if LIBRETRO_CORE
+
+extern struct RFILE * fopen_libretro ( const char * filename, const char * mode );
+extern int fclose_libretro( struct RFILE* file);
+extern int feof_libretro(struct RFILE *stream);
+extern int fflush_libretro(struct RFILE *stream);
+extern size_t fread_libretro(void *ptr, size_t size, size_t nmemb, struct RFILE *stream);
+extern int fseek_libretro(struct RFILE *stream, long int offset, int whence);
+extern long int ftell_libretro(struct RFILE *stream);
+extern size_t fwrite_libretro(const void *ptr, size_t size, size_t nmemb, struct RFILE *stream);
+extern int remove_libretro(const char *filename);
+extern int rename_libretro(const char *old_filename, const char *new_filename);
+extern char *fgets_libretro(char *str, int n, struct RFILE *stream);
+
+extern struct gzFile_libretro* gzopen_libretro(const char* path, const char* mode);
+extern int gzclose_libretro(struct gzFile_libretro* file);
+extern int64_t gzread_libretro(struct gzFile_libretro* file, void* buf, size_t len);
+extern int gzeof_libretro(struct gzFile_libretro* file);
+extern int64_t gzwrite_libretro(struct gzFile_libretro* file, const void* buf, size_t len);
+extern long int gztell_libretro (struct gzFile_libretro* file );
+extern long int gzseek_libretro(struct gzFile_libretro* file, long int offset, int whence);
+extern int gzrewind_libretro(struct gzFile_libretro* file);
+extern char * gzgets_libretro(struct gzFile_libretro* file, char *buf, size_t len);
+
+const char* resolve_bgd_path(const char * dir);
+
+
+
+#define fopen(filename,mode)                            fopen_libretro(filename, mode)
+#define fclose(stream)                                  fclose_libretro(stream)
+#define feof(stream)                                    feof_libretro(stream)
+#define fflush(stream)                                  fflush_libretro(stream)
+#define fread(ptr,size,nmemb,stream)                    fread_libretro(ptr,size,nmemb,stream)
+#define fseek(stream,offset,whence)                     fseek_libretro(stream,offset,whence)
+#define ftell(stream)                                   ftell_libretro(stream)
+#define fwrite(ptr,size,nmemb,stream)                   fwrite_libretro(ptr,size,nmemb,stream)
+#define remove(filename)                                remove_libretro(filename)
+#define rename(old_filename,new_filename)               rename_libretro(old_filename,new_filename)
+#define fgets(str, n, stream)                           fgets_libretro(str, n, stream)
+
+#define gzopen(path, mode)                              gzopen_libretro(path,mode)
+#define gzclose(stream)                                 gzclose_libretro(stream)
+#define gzread(stream,buf,len)                          gzread_libretro(stream,buf,len)
+#define gzeof(stream)                                   gzeof_libretro(stream)
+#define gzwrite(stream,buf,len)                         gzwrite_libretro(stream, buf,len)
+#define gztell(stream)                                  gztell_libretro(stream)
+#define gzseek(stream,offset,whence)                    gzseek_libretro(stream,offset,whence)
+#define gzrewind(stream)                                gzrewind_libretro(stream)
+#define gzgets(stream, buf, len)                        gzgets_libretro(stream,buf,len)
+
+#endif
+
 
 #define MAX_POSSIBLE_PATHS  128
 
@@ -60,7 +112,11 @@ typedef struct
     char * name ;
     int  offset ;
     int  size ;
-    FILE * fp ;
+#if LIBRETRO_CORE
+    struct RFILE* fp;
+#else
+    FILE *  fp ;
+#endif 
 }
 XFILE ;
 
@@ -629,17 +685,122 @@ void file_rewind( file * fp )
 #endif
 
         default:
-            rewind( fp->fp ) ;
+            fseek(fp->fp, 0L, SEEK_SET) ;
     }
 }
+
+// Test case path here
+#if !defined(_WIN32)
+#include <stdlib.h>
+#include <string.h>
+
+#include <dirent.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+static const char* casepath(char const *path, size_t start_offset)
+{
+    struct stat statbuf;
+    if (stat(path, &statbuf)==0)
+    {
+        return path;
+    }
+
+    _Thread_local static char buffer[4096];
+
+    size_t l = strlen(path);
+    if (start_offset>l )
+    {
+        return path;
+    }
+
+    
+    char* dest = buffer + start_offset;
+    
+
+    const char* current = path+start_offset;
+    // hack for now
+    if (*path!='/')
+    {
+        buffer[0]='.';
+        buffer[1]='/';
+        strncpy(buffer+2, path, start_offset);
+        dest += 2;
+        *dest = 0;
+    }
+    else
+    {
+        strncpy(buffer, path, start_offset);
+        *dest = 0;
+    }
+    // 
+
+    
+    while(*current)
+    {
+        DIR* dir = opendir(buffer);
+        if (!dir)
+        {
+            return path;
+        }
+
+        const char* next=current;
+        
+        while(*next && *next!='/' && *next!='\\') ++next;
+        const size_t element_length=next-current;
+        
+        strncpy(dest, current, element_length);
+        dest[element_length]=0;
+
+        struct dirent *entry;
+        for (entry = readdir(dir); entry!=NULL; entry = readdir(dir))
+        {
+            if (strcasecmp(dest, entry->d_name) == 0)
+            {
+                strncpy(dest, entry->d_name, element_length);
+                dest+=element_length;
+                break;
+            }
+        }
+
+        closedir(dir);
+
+        if (!entry)
+        {            
+            return path;
+        }
+
+        if (*next)
+        {
+            *dest = *next;
+            ++next;
+            ++dest;
+            *dest=0;
+        }
+
+        current = next;
+    }
+
+    return buffer;
+}
+#else
+const char* casepath(char const *path, size_t start_offset)
+{
+    return path;
+}
+#endif
+//
 
 /* Open file */
 
 static int open_raw( file * f, const char * filename, const char * mode )
 {
-#if LIBRETRO_CORE
-    extern const char* libretro_adjustpath(const char*);
-    filename = libretro_adjustpath(filename);
+#if !LIBRETRO_CORE
+//     extern const char* libretro_adjustpath(const char*, int writable);
+//     filename = libretro_adjustpath(filename, strpbrk(mode,"wa")!=NULL);
+// #else
+    filename = casepath(filename, 0);
 #endif
     char    _mode[5];
     char    *p;
@@ -850,23 +1011,28 @@ int file_eof( file * fp )
 
 /* Get the FILE * of the file */
 
-FILE * file_fp( file * f )
-{
-    if ( f->type == F_XFILE )
-    {
-//        XFILE * xf = &x_file[f->n] ;
-        fseek( f->fp, f->pos, SEEK_SET ) ;
-        return f->fp ;
-    }
+// FILE * file_fp( file * f )
+// {
+//     if ( f->type == F_XFILE )
+//     {
+// //        XFILE * xf = &x_file[f->n] ;
+//         fseek( f->fp, f->pos, SEEK_SET ) ;
+//         return f->fp ;
+//     }
 
-    return f->fp ;
-}
+//     return f->fp ;
+// }
 
 /* ------------------------------------------------------------------------------------ */
 
 char * getfullpath( char *rel_path )
-{
+{    
+#if LIBRETRO_CORE
+    const char* fixed_path=resolve_bgd_path(rel_path);
+    return bgd_strdup( fixed_path );
+#else
     char fullpath[ __MAX_PATH ] = "";
+
 #ifdef _WIN32
     char * fpath = NULL;
     DWORD sz = GetFullPathName( rel_path, sizeof( fullpath ), fullpath, NULL );
@@ -886,6 +1052,7 @@ char * getfullpath( char *rel_path )
     if ( !*fullpath ) return NULL;
     return bgd_strdup( fullpath );
 #endif
+#endif
 }
 
 /* ------------------------------------------------------------------------------------ */
@@ -898,6 +1065,10 @@ char * getfullpath( char *rel_path )
 
 char * whereis( char *file )
 {
+#if LIBRETRO_CORE
+    return NULL;
+#endif
+
     char * path = getenv( "PATH" ), *pact = path, *p;
     char fullname[ __MAX_PATH ];
 
