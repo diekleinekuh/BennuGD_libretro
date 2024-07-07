@@ -14,8 +14,29 @@ if (NOT BUILD_SHARED_LIBS)
     add_compile_definitions(__STATIC__=1)
 endif()
 
-string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined -Wl,-Bsymbolic-functions")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-deprecated-declarations")
+include(CheckLinkerFlag)
+include(CheckCCompilerFlag)
+
+check_linker_flag("C" "-Wl,--no-undefined" HAS_NO_UNDEFINED)
+if (HAS_NO_UNDEFINED)
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
+endif()
+
+check_linker_flag("C" "-Wl,-Bsymbolic-functions" HAS_SYMBOLIC_FUNCTIONS)
+if (HAS_SYMBOLIC_FUNCTIONS)
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic-functions")
+endif()
+
+check_c_compiler_flag("-Wno-int-to-pointer-cast" HAS_NO_INT_TO_POINTER_CAST)
+if (HAS_NO_INT_TO_POINTER_CAST)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast")
+endif()
+
+check_c_compiler_flag("-Wno-int-to-pointer-cast" HAS_NO_POINTER_TO_INT_CAST)
+if (HAS_NO_POINTER_TO_INT_CAST)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-pointer-to-int-cast")
+endif()
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 
