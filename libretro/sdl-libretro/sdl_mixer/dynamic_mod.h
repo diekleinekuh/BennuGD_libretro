@@ -30,11 +30,11 @@ typedef struct {
 	void (*MikMod_Exit)(void);
 	CHAR* (*MikMod_InfoDriver)(void);
 	CHAR* (*MikMod_InfoLoader)(void);
-	BOOL (*MikMod_Init)(CHAR*);
+	BOOL (*MikMod_Init)(const CHAR*);
 	void (*MikMod_RegisterAllLoaders)(void);
 	void (*MikMod_RegisterDriver)(struct MDRIVER*);
 	int* MikMod_errno;
-	char* (*MikMod_strerror)(int);
+	const char* (*MikMod_strerror)(int);
 	BOOL (*Player_Active)(void);
 	void (*Player_Free)(MODULE*);
 	MODULE* (*Player_LoadGeneric)(MREADER*,int,BOOL);
