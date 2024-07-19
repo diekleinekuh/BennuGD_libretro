@@ -15,6 +15,7 @@ add_library(core OBJECT ${COMMON_SRC} ${BGDRTM_SRC})
 
 if (WIN32)
     target_compile_definitions(core PUBLIC _WIN32)
+    set_target_properties(core PROPERTIES COMPILE_FLAGS "/wd4311 /wd4312")
 else()
     target_compile_definitions(core PUBLIC TARGET_LINUX)
     target_link_libraries(core m dl)
@@ -29,10 +30,10 @@ target_include_directories(core PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/bgdrtm/include"
 )
 
-target_include_directories(core PRIVATE ${LIBRETRO_INCLUDE_DIR} ${SDL_INCLUDE_DIR})
+target_include_directories(core PRIVATE ${LIBRETRO_INCLUDE_DIR} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 target_link_libraries(core
     ${OPENSSL_CRYPTO_LIBRARY}
-    ${ZLIB_LIBRARIES}
+    zlib
     ${SDL_LIBRARIES})
 
