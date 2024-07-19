@@ -44,7 +44,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include "files.h"
 
 #if LIBRETRO_CORE
@@ -785,7 +784,7 @@ static const char* casepath(char const *path, size_t start_offset)
     return buffer;
 }
 #else
-const char* casepath(char const *path, size_t start_offset)
+static const char* casepath(char const *path, size_t start_offset)
 {
     return path;
 }
@@ -1058,7 +1057,7 @@ char * getfullpath( char *rel_path )
 /* ------------------------------------------------------------------------------------ */
 
 #ifdef _WIN32
-    #define ENV_PATH_SEP    ';'
+    #define ENV_PATH_SEP    ';'    
 #else
     #define ENV_PATH_SEP    ':'
 #endif
