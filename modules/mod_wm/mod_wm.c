@@ -75,6 +75,8 @@ static int bgd_move_window( INSTANCE * my, int * params )
     int res = 0;
     if ( full_screen ) return 0;
 
+#if !LIBRETRO_CORE
+
 #if defined( WIN32 ) || ( __linux && ( defined( SDL_VIDEO_DRIVER_X11 ) ) )
     SDL_SysWMinfo wminfo ;
 
@@ -111,7 +113,7 @@ static int bgd_move_window( INSTANCE * my, int * params )
     }
 #endif
 #endif
-
+#endif // !LIBRETRO_CORE
     // Missing BeOS & MAC support
     return res ;
 }
@@ -121,6 +123,8 @@ static int bgd_move_window( INSTANCE * my, int * params )
 static int bgd_get_window_pos( INSTANCE * my, int * params )
 {
     if ( full_screen ) return -1;
+
+#if !LIBRETRO_CORE
 
 #if defined( WIN32 ) || ( __linux && ( defined( SDL_VIDEO_DRIVER_X11 ) ) )
     SDL_SysWMinfo wminfo ;
@@ -164,7 +168,7 @@ static int bgd_get_window_pos( INSTANCE * my, int * params )
     wminfo.info.x11.unlock_func();
 #endif
 #endif
-
+#endif // !LIBRETRO_CORE
     return 1 ;
 }
 
@@ -172,6 +176,9 @@ static int bgd_get_window_pos( INSTANCE * my, int * params )
 
 static int bgd_get_window_size( INSTANCE * my, int * params )
 {
+
+#if !LIBRETRO_CORE
+
 #if defined( WIN32 ) || ( __linux && ( defined( SDL_VIDEO_DRIVER_X11 ) ) )
     SDL_SysWMinfo wminfo ;
 
@@ -228,7 +235,7 @@ static int bgd_get_window_size( INSTANCE * my, int * params )
     wminfo.info.x11.unlock_func();
 #endif
 #endif
-
+#endif // #if !LIBRETRO_CORE
     return 1 ;
 }
 
@@ -236,6 +243,8 @@ static int bgd_get_window_size( INSTANCE * my, int * params )
 
 static int bgd_get_desktop_size( INSTANCE * my, int * params )
 {
+#if !LIBRETRO_CORE
+
 #ifdef WIN32
     RECT Rect;
 
@@ -271,7 +280,7 @@ static int bgd_get_desktop_size( INSTANCE * my, int * params )
     wminfo.info.x11.unlock_func();
 #endif
 #endif
-
+#endif // #if !LIBRETRO_CORE
     return 1 ;
 }
 
