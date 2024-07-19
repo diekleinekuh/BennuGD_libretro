@@ -29,6 +29,12 @@ extern char* retro_save_directory;
 extern  size_t retro_save_directory_len;
 
 
+#ifdef _WIN32
+#define THREAD_LOCAL __declspec(thread)
+#else
+#define THREAD_LOCAL _Thread_local
+#endif
+
 #if !defined(_WIN32)
 #include <stdlib.h>
 #include <string.h>
@@ -110,7 +116,7 @@ static const char* casepath(char const *path, size_t start_offset)
     return buffer;
 }
 #else
-const char* casepath(char const *path, size_t start_offset)
+static const char* casepath(char const *path, size_t start_offset)
 {
     return path;
 }
@@ -166,7 +172,7 @@ const char* resolve_bgd_path(const char * dir)
         return dir;
     }
 
-    _Thread_local static char buffer[PATH_MAX_LENGTH];
+    THREAD_LOCAL static char buffer[PATH_MAX_LENGTH];
 
     if (dir[0]=='.' && dir[1]=='/')
     {
@@ -179,7 +185,7 @@ const char* resolve_bgd_path(const char * dir)
 
 const char* to_retro_path(const char * dir)
 {
-    _Thread_local static char buffer[PATH_MAX_LENGTH];
+    THREAD_LOCAL static char buffer[PATH_MAX_LENGTH];
 
     if (path_is_absolute(dir))
     {
