@@ -44,8 +44,8 @@ extern int FPS_init ;
 /* --------------------------------------------------------------------------- */
 
 extern void gr_set_fps( int fps, int jump );
-extern void gr_wait_frame();
-extern void gr_draw_frame();
+extern void gr_wait_frame(void);
+extern void gr_draw_frame(void);
 
 extern void gr_refresh_palette();
 
