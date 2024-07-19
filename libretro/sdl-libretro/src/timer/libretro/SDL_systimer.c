@@ -20,6 +20,7 @@
     slouken@libsdl.org
 */
 #include "SDL_config.h"
+#include "SDL_stdinc.h"
 
 #ifdef SDL_TIMER_LIBRETRO
 
@@ -28,7 +29,9 @@ extern uint64_t retro_get_microseconds();
 #include <stdio.h>
 //#include <sys/time.h>
 //#include <signal.h>
-//#include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include <string.h>
 #include <errno.h>
 
@@ -40,8 +43,6 @@ static uint64_t start;
 void SDL_StartTicks(void)
 {
 	start = retro_get_microseconds();
-	#ifdef _WIN32
-	#endif
 }
 
 Uint32 SDL_GetTicks (void)

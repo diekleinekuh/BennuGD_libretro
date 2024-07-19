@@ -315,13 +315,13 @@
 /* #undef SDL_VIDEO_OPENGL_OSMESA_DYNAMIC */
 //#define SDL_AUDIO_DRIVER_LIBRETRO 1
 //#define SDL_JOYSTICK_LIBRETRO 1
-//#ifdef __LINUX__
+#ifdef __LINUX__
 #define SDL_THREAD_PTHREAD 1
-//#define SDL_CDROM_LINUX 1
-//#else
-//#define SDL_THREAD_WIN32 1
-//#define SDL_CDROM_WIN32 1
-//#endif
+#define SDL_CDROM_LINUX 1
+#else
+#define SDL_THREAD_WIN32 1
+#define SDL_CDROM_WIN32 1
+#endif
 //#define SDL_TIMER_LIBRETRO 1
 //#define SDL_VIDEO_DRIVER_LIBRETRO 1
 
