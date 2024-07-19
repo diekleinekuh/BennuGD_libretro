@@ -77,7 +77,7 @@ DLVARFIXUP  __bgdexport( libwm, globals_fixup )[] =
  *      None
  */
 
-static void wm_events()
+static void wm_events(void)
 {
     SDL_Event e ;
 

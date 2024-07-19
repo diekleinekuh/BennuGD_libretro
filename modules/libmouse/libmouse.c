@@ -119,7 +119,7 @@ DLVARFIXUP __bgdexport( libmouse, globals_fixup )[] =
  *      None
  */
 
-static void do_mouse_events()
+static void do_mouse_events(void)
 {
     SDL_Event e ;
     static int last_mouse_x = -1, last_mouse_y = -1 ;

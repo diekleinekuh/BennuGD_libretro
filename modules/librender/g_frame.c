@@ -100,7 +100,7 @@ void gr_set_fps( int fps, int skip )
  *      None
  */
 
-void gr_wait_frame()
+void gr_wait_frame(void)
 {
     int frame_ticks ;
 
@@ -270,7 +270,7 @@ void gr_refresh_palette()
 
 /* --------------------------------------------------------------------------- */
 
-void gr_draw_frame()
+void gr_draw_frame(void)
 {
     if ( jump ) return ;
 

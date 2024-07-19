@@ -2481,7 +2481,7 @@ void __bgdexport( mod_debug, process_exec_hook )( INSTANCE * r ) {
 }
 /* --------------------------------------------------------------------------- */
 
-static void __frame_complete_hook() {
+static void __frame_complete_hook(void) {
     if ( frame_completed && debug_on_frame ) {
         debug_on_frame = 0;
         debugger_show_console = 1;

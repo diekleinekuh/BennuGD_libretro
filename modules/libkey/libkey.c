@@ -266,7 +266,7 @@ void hotkey_add( int mod, int sym, HOTKEY_CALLBACK callback )
  *      None
  */
 
-static void process_key_events()
+static void process_key_events(void)
 {
     SDL_Event e ;
     SDLMod m ;

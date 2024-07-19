@@ -31,7 +31,7 @@
 /* ----------------------------------------------------------------- */
 /* Public functions                                                  */
 
-static void  dump_new_events()
+static void  dump_new_events(void)
 {
     SDL_Event event;
     /* Remove all pendings events */
