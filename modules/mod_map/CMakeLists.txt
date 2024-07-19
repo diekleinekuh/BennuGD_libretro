@@ -1,1 +1,1 @@
-add_mod("render;font;bgload;${PNG_LIBRARIES}")
+add_mod("render;font;bgload;PNG::PNG")

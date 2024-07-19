@@ -81,6 +81,10 @@ FetchContent_Declare( libpng
 )
 FetchContent_MakeAvailable(libpng)
 set (PNG_LIBRARIES png_static)
+add_library(mypng INTERFACE)
+target_link_libraries(mypng INTERFACE png_static)
+target_include_directories(mypng INTERFACE "${libpng_BINARY_DIR};${libpng_SOURCE_DIR}")
+add_library(PNG::PNG ALIAS mypng)
 
 # restore state of BUILD_SHARED_LIBS
 set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_backup} CACHE INTERNAL "" FORCE)
