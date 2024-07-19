@@ -66,6 +66,7 @@
 #define PATH_CHAR_SEP '\\'
 #define PATH_CHAR_ISEP '/'
 #define PATH_BACKSLASH
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #else
 #define PATH_SEP "/"
 #define PATH_ISEP "\\"
