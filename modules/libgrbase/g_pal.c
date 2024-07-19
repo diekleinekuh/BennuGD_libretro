@@ -409,7 +409,7 @@ void _get_rgba( PIXEL_FORMAT * format, int color, int *r, int *g, int *b, int *a
 
 void _get_rgb( PIXEL_FORMAT * format, int color, int *r, int *g, int *b )
 {
-    return _get_rgba( format, color, r, g, b, NULL );
+    _get_rgba( format, color, r, g, b, NULL );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -668,14 +668,14 @@ int gr_rgba( int r, int g, int b, int a )
 
 void gr_get_rgb( int color, int *r, int *g, int *b )
 {
-    return _get_rgb( sys_pixel_format, color, r, g, b );
+    _get_rgb( sys_pixel_format, color, r, g, b );
 }
 
 /* --------------------------------------------------------------------------- */
 
 void gr_get_rgba( int color, int *r, int *g, int *b, int *a )
 {
-    return _get_rgba( sys_pixel_format, color, r, g, b, a );
+    _get_rgba( sys_pixel_format, color, r, g, b, a );
 }
 
 /* --------------------------------------------------------------------------- */
