@@ -34,7 +34,6 @@
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 #endif
 
-#include "alloca.h"
 #include "allocator.h"
 
 #endif
