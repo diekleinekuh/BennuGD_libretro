@@ -41,6 +41,42 @@
 #ifdef _WIN32
 #include <initguid.h>
 #include "ddraw.h"
+
+#if LIBRETRO_CORE
+// assume we have compiled in compat_posix_string
+#define strtok_r retro_strtok_r__
+#else
+static char *strtok_r(char *str, const char *delim, char **saveptr)
+{
+   char *first = NULL;
+   if (!saveptr || !delim)
+      return NULL;
+
+   if (str)
+      *saveptr = str;
+
+   do
+   {
+      char *ptr = NULL;
+      first = *saveptr;
+      while (*first && strchr(delim, *first))
+         *first++ = '\0';
+
+      if (*first == '\0')
+         return NULL;
+
+      ptr = first + 1;
+
+      while (*ptr && !strchr(delim, *ptr))
+         ptr++;
+
+      *saveptr = ptr + (*ptr ? 1 : 0);
+      *ptr     = '\0';
+   } while (strlen(first) == 0);
+
+   return first;
+}
+#endif
 #endif
 
 /* --------------------------------------------------------------------------- */
@@ -128,7 +164,7 @@ DLVARFIXUP __bgdexport( libvideo, globals_fixup )[] =
 LPDIRECTDRAW2 directdraw = NULL;
 DDCAPS ddcaps;
 
-HRESULT WINAPI( *_DirectDrawCreate )( GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter );
+HRESULT  (WINAPI *_DirectDrawCreate )( GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter );
 
 /* --------------------------------------------------------------------------- */
 
