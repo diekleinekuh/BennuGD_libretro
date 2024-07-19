@@ -44,6 +44,7 @@
 
 #if LIBRETRO_CORE
 // assume we have compiled in compat_posix_string
+extern char *retro_strtok_r__(char *str, const char *delim, char **saveptr);
 #define strtok_r retro_strtok_r__
 #else
 static char *strtok_r(char *str, const char *delim, char **saveptr)
