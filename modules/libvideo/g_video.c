@@ -178,7 +178,7 @@ int init_dx( void )
     handle = LoadLibrary( "DDRAW.DLL" );
     if ( handle == NULL ) return -1;
 
-    _DirectDrawCreate = GetProcAddress( handle, "DirectDrawCreate" );
+    _DirectDrawCreate = (HRESULT(WINAPI*)(GUID*,LPDIRECTDRAW*,IUnknown*))GetProcAddress( handle, "DirectDrawCreate" );
 
     hr = _DirectDrawCreate( NULL, &directdraw1, NULL );
     if ( FAILED( hr ) ) return -1;
