@@ -83,7 +83,7 @@ typedef Uint32 (SDLCALL *SDL_TimerCallback)(Uint32 interval);
  *
  * This function returns 0 if successful, or -1 if there was an error.
  */
-extern DECLSPEC int SDLCALL SDL_SetTimer(Uint32 interval, SDL_TimerCallback callback);
+//extern DECLSPEC int SDLCALL SDL_SetTimer(Uint32 interval, SDL_TimerCallback callback);
 
 /** @name New timer API
  * New timer API, supports multiple timers
@@ -98,21 +98,21 @@ extern DECLSPEC int SDLCALL SDL_SetTimer(Uint32 interval, SDL_TimerCallback call
  * passed in, the periodic alarm continues, otherwise a new alarm is
  * scheduled.  If the callback returns 0, the periodic alarm is cancelled.
  */
-typedef Uint32 (SDLCALL *SDL_NewTimerCallback)(Uint32 interval, void *param);
+//typedef Uint32 (SDLCALL *SDL_NewTimerCallback)(Uint32 interval, void *param);
 
 /** Definition of the timer ID type */
-typedef struct _SDL_TimerID *SDL_TimerID;
+//typedef struct _SDL_TimerID *SDL_TimerID;
 
 /** Add a new timer to the pool of timers already running.
  *  Returns a timer ID, or NULL when an error occurs.
  */
-extern DECLSPEC SDL_TimerID SDLCALL SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param);
+//extern DECLSPEC SDL_TimerID SDLCALL SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param);
 
 /**
  * Remove one of the multiple timers knowing its ID.
  * Returns a boolean value indicating success.
  */
-extern DECLSPEC SDL_bool SDLCALL SDL_RemoveTimer(SDL_TimerID t);
+//extern DECLSPEC SDL_bool SDLCALL SDL_RemoveTimer(SDL_TimerID t);
 
 /*@}*/
 

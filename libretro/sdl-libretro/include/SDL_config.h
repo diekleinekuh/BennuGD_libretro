@@ -29,10 +29,22 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
+
+#define SDL_AUDIO_DRIVER_LIBRETRO 1
+#define SDL_JOYSTICK_LIBRETRO 1
+#define SDL_TIMER_LIBRETRO 1
+#define SDL_VIDEO_DRIVER_LIBRETRO 1
+#define SDL_EVENTS_DISABLED 1
+
 /* Make sure that this isn't included by Visual C++ */
 #ifdef _MSC_VER
-#error You should copy include/SDL_config.h.default to include/SDL_config.h
-#endif
+// #error You should copy include/SDL_config.h.default to include/SDL_config.h
+#include "SDL_config_win32.h"
+#undef SDL_VIDEO_DRIVER_DDRAW
+#undef  SDL_VIDEO_DRIVER_DUMMY
+#undef  SDL_VIDEO_DRIVER_WINDIB
+#else
+
 
 /* C language features */
 /* #undef const */
@@ -301,17 +313,17 @@
 /* #undef SDL_VIDEO_OPENGL_WGL */
 /* #undef SDL_VIDEO_OPENGL_OSMESA */
 /* #undef SDL_VIDEO_OPENGL_OSMESA_DYNAMIC */
-#define SDL_AUDIO_DRIVER_LIBRETRO 1
-#define SDL_JOYSTICK_LIBRETRO 1
-#ifdef __LINUX__
+//#define SDL_AUDIO_DRIVER_LIBRETRO 1
+//#define SDL_JOYSTICK_LIBRETRO 1
+//#ifdef __LINUX__
 #define SDL_THREAD_PTHREAD 1
-#define SDL_CDROM_LINUX 1
-#else
-#define SDL_THREAD_WIN32 1
-#define SDL_CDROM_WIN32 1
-#endif
-#define SDL_TIMER_LIBRETRO 1
-#define SDL_VIDEO_DRIVER_LIBRETRO 1
+//#define SDL_CDROM_LINUX 1
+//#else
+//#define SDL_THREAD_WIN32 1
+//#define SDL_CDROM_WIN32 1
+//#endif
+//#define SDL_TIMER_LIBRETRO 1
+//#define SDL_VIDEO_DRIVER_LIBRETRO 1
 
 /* Disable screensaver */
 #define SDL_VIDEO_DISABLE_SCREENSAVER 1
@@ -321,4 +333,7 @@
 /* #undef SDL_HERMES_BLITTERS */
 /* #undef SDL_ALTIVEC_BLITTERS */
 
+#endif // _MSC_VER
+
 #endif /* _SDL_config_h */
+

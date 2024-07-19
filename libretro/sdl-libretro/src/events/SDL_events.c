@@ -55,156 +55,113 @@ static struct {
 	int safe;
 } SDL_EventLock;
 
-/* Thread functions */
+// /* Thread functions */
 static SDL_Thread *SDL_EventThread = NULL;	/* Thread handle */
 static Uint32 event_thread;			/* The event thread id */
 
-void SDL_Lock_EventThread(void)
-{
-	if ( SDL_EventThread && (SDL_ThreadID() != event_thread) ) {
-		/* Grab lock and spin until we're sure event thread stopped */
-		SDL_mutexP(SDL_EventLock.lock);
-		while ( ! SDL_EventLock.safe ) {
-			SDL_Delay(1);
-		}
-	}
-}
-void SDL_Unlock_EventThread(void)
-{
-	if ( SDL_EventThread && (SDL_ThreadID() != event_thread) ) {
-		SDL_mutexV(SDL_EventLock.lock);
-	}
-}
+// void SDL_Lock_EventThread(void)
+// {
+// 	if ( SDL_EventThread && (SDL_ThreadID() != event_thread) ) {
+// 		/* Grab lock and spin until we're sure event thread stopped */
+// 		SDL_mutexP(SDL_EventLock.lock);
+// 		while ( ! SDL_EventLock.safe ) {
+// 			SDL_Delay(1);
+// 		}
+// 	}
+// }
+// void SDL_Unlock_EventThread(void)
+// {
+// 	if ( SDL_EventThread && (SDL_ThreadID() != event_thread) ) {
+// 		SDL_mutexV(SDL_EventLock.lock);
+// 	}
+// }
 
-#ifdef __OS2__
-/*
- * We'll increase the priority of GobbleEvents thread, so it will process
- *  events in time for sure! For this, we need the DosSetPriority() API
- *  from the os2.h include file.
- */
-#define INCL_DOSPROCESS
-#include <os2.h>
-#include <time.h>
-#endif
+// #ifdef __OS2__
+// /*
+//  * We'll increase the priority of GobbleEvents thread, so it will process
+//  *  events in time for sure! For this, we need the DosSetPriority() API
+//  *  from the os2.h include file.
+//  */
+// #define INCL_DOSPROCESS
+// #include <os2.h>
+// #include <time.h>
+// #endif
 
-static int SDLCALL SDL_GobbleEvents(void *unused)
-{
-	event_thread = SDL_ThreadID();
+// static int SDLCALL SDL_GobbleEvents(void *unused)
+// {
+// 	event_thread = SDL_ThreadID();
 
-#ifdef __OS2__
-#ifdef USE_DOSSETPRIORITY
-	/* Increase thread priority, so it will process events in time for sure! */
-	DosSetPriority(PRTYS_THREAD, PRTYC_REGULAR, +16, 0);
-#endif
-#endif
+// #ifdef __OS2__
+// #ifdef USE_DOSSETPRIORITY
+// 	/* Increase thread priority, so it will process events in time for sure! */
+// 	DosSetPriority(PRTYS_THREAD, PRTYC_REGULAR, +16, 0);
+// #endif
+// #endif
 
-	while ( SDL_EventQ.active ) {
-		SDL_VideoDevice *video = current_video;
-		SDL_VideoDevice *this  = current_video;
+// 	while ( SDL_EventQ.active ) {
+// 		SDL_VideoDevice *video = current_video;
+// 		SDL_VideoDevice *this  = current_video;
 
-		/* Get events from the video subsystem */
-		if ( video ) {
-			video->PumpEvents(this);
-		}
+// 		/* Get events from the video subsystem */
+// 		if ( video ) {
+// 			video->PumpEvents(this);
+// 		}
 
-		/* Queue pending key-repeat events */
-		SDL_CheckKeyRepeat();
+// 		/* Queue pending key-repeat events */
+// 		SDL_CheckKeyRepeat();
 
-#if !SDL_JOYSTICK_DISABLED
-		/* Check for joystick state change */
-		if ( SDL_numjoysticks && (SDL_eventstate & SDL_JOYEVENTMASK) ) {
-			SDL_JoystickUpdate();
-		}
-#endif
+// #if !SDL_JOYSTICK_DISABLED
+// 		/* Check for joystick state change */
+// 		if ( SDL_numjoysticks && (SDL_eventstate & SDL_JOYEVENTMASK) ) {
+// 			SDL_JoystickUpdate();
+// 		}
+// #endif
 
-		/* Give up the CPU for the rest of our timeslice */
-		SDL_EventLock.safe = 1;
-		if ( SDL_timer_running ) {
-			SDL_ThreadedTimerCheck();
-		}
-		SDL_Delay(1);
+// 		/* Give up the CPU for the rest of our timeslice */
+// 		SDL_EventLock.safe = 1;
+// 		if ( SDL_timer_running ) {
+// 			SDL_ThreadedTimerCheck();
+// 		}
+// 		SDL_Delay(1);
 
-		/* Check for event locking.
-		   On the P of the lock mutex, if the lock is held, this thread
-		   will wait until the lock is released before continuing.  The
-		   safe flag will be set, meaning that the other thread can go
-		   about it's business.  The safe flag is reset before the V,
-		   so as soon as the mutex is free, other threads can see that
-		   it's not safe to interfere with the event thread.
-		 */
-		SDL_mutexP(SDL_EventLock.lock);
-		SDL_EventLock.safe = 0;
-		SDL_mutexV(SDL_EventLock.lock);
-	}
-	SDL_SetTimerThreaded(0);
-	event_thread = 0;
-	return(0);
-}
+// 		/* Check for event locking.
+// 		   On the P of the lock mutex, if the lock is held, this thread
+// 		   will wait until the lock is released before continuing.  The
+// 		   safe flag will be set, meaning that the other thread can go
+// 		   about it's business.  The safe flag is reset before the V,
+// 		   so as soon as the mutex is free, other threads can see that
+// 		   it's not safe to interfere with the event thread.
+// 		 */
+// 		SDL_mutexP(SDL_EventLock.lock);
+// 		SDL_EventLock.safe = 0;
+// 		SDL_mutexV(SDL_EventLock.lock);
+// 	}
+// 	SDL_SetTimerThreaded(0);
+// 	event_thread = 0;
+// 	return(0);
+// }
 
 static int SDL_StartEventThread(Uint32 flags)
 {
 	/* Reset everything to zero */
 	SDL_EventThread = NULL;
+	event_thread = 0;
 	SDL_memset(&SDL_EventLock, 0, sizeof(SDL_EventLock));
 
-	/* Create the lock and set ourselves active */
-#if !SDL_THREADS_DISABLED
-	SDL_EventQ.lock = SDL_CreateMutex();
-	if ( SDL_EventQ.lock == NULL ) {
-#ifdef __MACOS__ /* MacOS classic you can't multithread, so no lock needed */
-		;
-#else
-		return(-1);
-#endif
-	}
-#endif /* !SDL_THREADS_DISABLED */
-	SDL_EventQ.active = 1;
-
-	if ( (flags&SDL_INIT_EVENTTHREAD) == SDL_INIT_EVENTTHREAD ) {
-		SDL_EventLock.lock = SDL_CreateMutex();
-		if ( SDL_EventLock.lock == NULL ) {
-			return(-1);
-		}
-		SDL_EventLock.safe = 0;
-
-		/* The event thread will handle timers too */
-		SDL_SetTimerThreaded(2);
-#if (defined(__WIN32__) && !defined(_WIN32_WCE)) && !defined(HAVE_LIBC) && !defined(__SYMBIAN32__)
-#undef SDL_CreateThread
-		SDL_EventThread = SDL_CreateThread(SDL_GobbleEvents, NULL, NULL, NULL);
-#else
-		SDL_EventThread = SDL_CreateThread(SDL_GobbleEvents, NULL);
-#endif
-		if ( SDL_EventThread == NULL ) {
-			return(-1);
-		}
-	} else {
-		event_thread = 0;
-	}
 	return(0);
 }
 
 static void SDL_StopEventThread(void)
 {
-	SDL_EventQ.active = 0;
-	if ( SDL_EventThread ) {
-		SDL_WaitThread(SDL_EventThread, NULL);
-		SDL_EventThread = NULL;
-		SDL_DestroyMutex(SDL_EventLock.lock);
-		SDL_EventLock.lock = NULL;
-	}
-#ifndef IPOD
-	SDL_DestroyMutex(SDL_EventQ.lock);
-	SDL_EventQ.lock = NULL;
-#endif
+ 	SDL_EventQ.active = 0;
 }
 
-Uint32 SDL_EventThreadID(void)
-{
-	return(event_thread);
-}
+// Uint32 SDL_EventThreadID(void)
+// {
+// 	return(event_thread);
+// }
 
-/* Public functions */
+// /* Public functions */
 
 void SDL_StopEventLoop(void)
 {

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <SDL.h>
 #include "filesystem.h"
+#include "compat/posix_string.h"
 
 static struct retro_vfs_interface_info retro_vfs_interface_info = { 3, NULL};
 
@@ -17,6 +18,17 @@ static const size_t audio_frame_size=2*sizeof(int16_t);
 static const size_t audio_mixbuf_frames=1024;
 
 
+static struct retro_perf_callback retro_perf_interface;
+
+uint64_t retro_get_microseconds()
+{
+    if (retro_perf_interface.get_time_usec)
+    {
+        return retro_perf_interface.get_time_usec();
+    }
+
+    return 0;
+}
 
 // static inline bool string_starts_with_size(const char *str, const char *prefix,
 //       size_t size)
@@ -207,7 +219,7 @@ void retro_cheat_reset(void)
 }
 
 extern int bgdi_main(int argc, char*argv[]);
-static void run_bennugd()
+static void run_bennugd(void)
 {
     char* arg0=get_content_basename();
     char* arg1=NULL;    
@@ -248,7 +260,13 @@ void retro_init(void)
     if (environ_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &retro_vfs_interface_info))
     {
         log_cb(RETRO_LOG_INFO, "Using vfs interface");
-    }  
+    }
+
+    if (environ_cb(RETRO_ENVIRONMENT_GET_PERF_INTERFACE, &retro_perf_interface))
+    {
+        log_cb(RETRO_LOG_INFO, "retrieved perf interface");
+    }
+    
 
     enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
     //if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))

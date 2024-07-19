@@ -93,6 +93,11 @@ endif()
 
 add_library( sdl-libretro STATIC ${SDL-src})
 target_link_libraries(sdl-libretro Threads::Threads)
+
+if (WIN32)
+    target_link_libraries(sdl-libretro Winmm.lib)
+endif()
+
 include_directories(include)
 
 
@@ -140,6 +145,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable( ogg vorbis mikmod )
+
 set(BUILD_TESTING ${BUILD_TESTING_backup})
 
 add_compile_definitions(WAV_MUSIC OGG_MUSIC MOD_MUSIC)
@@ -171,3 +177,5 @@ set (SDL_mixer-src
 add_library( sdl_mixer-libretro STATIC ${SDL_mixer-src})
 
 target_link_libraries(sdl_mixer-libretro Vorbis::vorbis;Vorbis::vorbisfile;Ogg::ogg;mikmod-static)
+target_include_directories(sdl_mixer-libretro PRIVATE "${mikmod_SOURCE_DIR}/libmikmod/include")
+target_compile_definitions(sdl_mixer-libretro PRIVATE "MIKMOD_STATIC=1")
