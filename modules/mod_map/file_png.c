@@ -560,7 +560,7 @@ int gr_save_png( GRAPH * gr, const char * filename )
             for ( k = 0; k < ( unsigned )gr->height; k++ )
             {
                 ptr  = data + gr->width * k ; /* uses dword for each pixel! */
-                orig = ( uint16_t * )( gr->data + gr->pitch * k ) ;
+                orig = ( uint16_t * )( (uint8_t*)gr->data + gr->pitch * k ) ;
                 rowpointers[k] = ( uint8_t * )ptr ;
                 for ( i = 0 ; i < ( unsigned )gr->width ; i++ )
                 {
@@ -586,7 +586,7 @@ int gr_save_png( GRAPH * gr, const char * filename )
             for ( k = 0; k < ( unsigned )gr->height; k++ )
             {
                 ptr  = data + gr->width * k ; /* uses dword for each pixel! */
-                orig32 = ( uint32_t * )( gr->data + gr->pitch * k ) ;
+                orig32 = ( uint32_t * )( (uint8_t*)gr->data + gr->pitch * k ) ;
                 rowpointers[k] = ( uint8_t * )ptr ;
                 for ( i = 0 ; i < ( unsigned )gr->width ; i++ )
                 {

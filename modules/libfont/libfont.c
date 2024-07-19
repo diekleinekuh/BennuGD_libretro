@@ -415,7 +415,7 @@ int gr_font_newfrombitmap( GRAPH * map, int charset, int width, int height, int 
     {
         if ( i > last ) break;
 
-        chardata = map->data + h * charsize;
+        chardata = (uint8_t *)map->data + h * charsize;
 
         for ( charptr = chardata, w = 0; w < cw; w++, charptr += linesize, i++ )
         {

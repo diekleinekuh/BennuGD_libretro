@@ -64,7 +64,7 @@ int gr_get_pixel( GRAPH * dest, int x, int y )
     switch ( dest->format->depth )
     {
         case 1:
-            return (( *( uint8_t * )( dest->data + dest->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
+            return (( *( ( uint8_t * )dest->data + dest->pitch * y + ( x >> 3 ) ) ) & ( 0x80 >> ( x & 7 ) ) ) ? 1 : 0;
 
         case 8:
             return *(( uint8_t * ) dest->data + dest->pitch * y + x ) ;

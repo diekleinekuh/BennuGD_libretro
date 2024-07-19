@@ -214,7 +214,7 @@ void gr_unlock_screen()
                             {
                                 if ( scale_resolution_table_w[w] != -1 )
                                 {
-                                    src8 = screen->pixels + scale_resolution_table_w[w];
+                                    src8 = (uint8_t*)screen->pixels + scale_resolution_table_w[w];
                                     for ( h = scale_screen->h - 1; h-- ; )
                                     {
                                         if ( scale_resolution_table_h[h] != -1 ) *dst8 = src8[scale_resolution_table_h[h]];
@@ -228,7 +228,7 @@ void gr_unlock_screen()
                         {
                             for ( w = 0; w < scale_screen->w; w++ )
                             {
-                                src8 = screen->pixels + scale_resolution_table_w[w];
+                                src8 = (uint8_t*)screen->pixels + scale_resolution_table_w[w];
                                 for ( h = scale_screen->h - 1; h-- ; )
                                 {
                                     *dst8 = src8[scale_resolution_table_h[h]];
@@ -246,7 +246,7 @@ void gr_unlock_screen()
                             {
                                 if ( scale_resolution_table_h[h] != -1 )
                                 {
-                                    src8 = screen->pixels + scale_resolution_table_h[h];
+                                    src8 = (uint8_t*)screen->pixels + scale_resolution_table_h[h];
                                     for ( w = 0; w < scale_screen->w; w++ )
                                     {
                                         if ( scale_resolution_table_w[w] != -1 ) *dst8 = src8[scale_resolution_table_w[w]];
@@ -260,7 +260,7 @@ void gr_unlock_screen()
                         {
                             for ( h = 0; h < scale_screen->h; h++ )
                             {
-                                src8 = screen->pixels + scale_resolution_table_h[h];
+                                src8 = (uint8_t*)screen->pixels + scale_resolution_table_h[h];
                                 for ( w = 0; w < scale_screen->w; w++ )
                                 {
                                     *dst8 = src8[scale_resolution_table_w[w]];
@@ -282,7 +282,7 @@ void gr_unlock_screen()
                             {
                                 if ( scale_resolution_table_w[w] != -1 )
                                 {
-                                    src16 = screen->pixels + scale_resolution_table_w[w];
+                                    src16 = (uint8_t*)screen->pixels + scale_resolution_table_w[w];
                                     for ( h = scale_screen->h - 1; h-- ; )
                                     {
                                         if ( scale_resolution_table_h[h] != -1 ) *dst16 = src16[scale_resolution_table_h[h]];
@@ -297,7 +297,7 @@ void gr_unlock_screen()
                             int inc = scale_screen->pitch / scale_screen->format->BytesPerPixel;
                             for ( w = 0; w < scale_screen->w; w++ )
                             {
-                                src16 = screen->pixels + scale_resolution_table_w[w];
+                                src16 = (uint8_t*)screen->pixels + scale_resolution_table_w[w];
                                 for ( h = scale_screen->h - 1; h-- ; )
                                 {
                                     *dst16 = src16[scale_resolution_table_h[h]];
@@ -315,7 +315,7 @@ void gr_unlock_screen()
                             {
                                 if ( scale_resolution_table_h[h] != -1 )
                                 {
-                                    src16 = screen->pixels + scale_resolution_table_h[h];
+                                    src16 = (uint8_t*)screen->pixels + scale_resolution_table_h[h];
                                     for ( w = 0; w < scale_screen->w; w++ )
                                     {
                                         if ( scale_resolution_table_w[w] != -1 ) *dst16 = src16[scale_resolution_table_w[w]];
@@ -329,7 +329,7 @@ void gr_unlock_screen()
                         {
                             for ( h = 0; h < scale_screen->h; h++ )
                             {
-                                src16 = screen->pixels + scale_resolution_table_h[h];
+                                src16 = (uint8_t*)screen->pixels + scale_resolution_table_h[h];
                                 for ( w = 0; w < scale_screen->w; w++ )
                                 {
                                     *dst16 = src16[scale_resolution_table_w[w]];
@@ -351,7 +351,7 @@ void gr_unlock_screen()
                             {
                                 if ( scale_resolution_table_w[w] != -1 )
                                 {
-                                    src32 = screen->pixels + scale_resolution_table_w[w];
+                                    src32 = (uint8_t*)screen->pixels + scale_resolution_table_w[w];
                                     for ( h = scale_screen->h - 1; h-- ; )
                                     {
                                         if ( scale_resolution_table_h[h] != -1 ) *dst32 = src32[scale_resolution_table_h[h]];
@@ -366,7 +366,7 @@ void gr_unlock_screen()
                             int inc = scale_screen->pitch / scale_screen->format->BytesPerPixel;
                             for ( w = 0; w < scale_screen->w; w++ )
                             {
-                                src32 = screen->pixels + scale_resolution_table_w[w];
+                                src32 = (uint8_t*)screen->pixels + scale_resolution_table_w[w];
                                 for ( h = scale_screen->h - 1; h-- ; )
                                 {
                                     *dst32 = src32[scale_resolution_table_h[h]];
@@ -384,7 +384,7 @@ void gr_unlock_screen()
                             {
                                 if ( scale_resolution_table_h[h] != -1 )
                                 {
-                                    src32 = screen->pixels + scale_resolution_table_h[h];
+                                    src32 = (uint8_t*)screen->pixels + scale_resolution_table_h[h];
                                     for ( w = 0; w < scale_screen->w; w++ )
                                     {
                                         if ( scale_resolution_table_w[w] != -1 ) *dst32 = src32[scale_resolution_table_w[w]];
@@ -398,7 +398,7 @@ void gr_unlock_screen()
                         {
                             for ( h = 0; h < scale_screen->h; h++ )
                             {
-                                src32 = screen->pixels + scale_resolution_table_h[h];
+                                src32 = (uint8_t*)screen->pixels + scale_resolution_table_h[h];
                                 for ( w = 0; w < scale_screen->w; w++ )
                                 {
                                     *dst32 = src32[scale_resolution_table_w[w]];
