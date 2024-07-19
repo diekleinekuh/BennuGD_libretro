@@ -32,6 +32,28 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <winbase.h>
+
+#if LIBRETRO_CORE
+extern const char* path_basename_nocompression(const char* path);
+#define basename path_basename_nocompression
+#else
+static const char* basename(const char * path)
+{
+    const char *slash     = strrchr(path, '/');
+    const char *backslash = strrchr(path, '\\');
+
+    const char * seperator = (!slash || (backslash > slash)) ? backslash : slash;
+
+    if (seperator) 
+    {
+        return seperator+1;
+    }
+
+    return path;
+}
+#endif
+
+
 #else
 #define _GNU_SOURCE
 #include <dlfcn.h>
