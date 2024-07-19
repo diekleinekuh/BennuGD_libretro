@@ -603,10 +603,6 @@ static void show_struct( int num, char * title, int indent, void * data ) {
 /* --------------------------------------------------------------------------- */
 
 static void show_var( DCB_VAR var, char * name, void * data, char * title, int indent ) {
-    char spaces[indent+1] ;
-
-    memset( spaces, ' ', indent ) ;
-    spaces[indent] = 0 ;
 
     if ( !name ) {
         unsigned int code ;
@@ -620,12 +616,12 @@ static void show_var( DCB_VAR var, char * name, void * data, char * title, int i
         }
     }
 
-    if ( data ) console_printf( "%s%s %s %s %s\n", title, spaces, describe_type( var.Type, 0 ), name, show_value( var.Type, data ) ) ;
-    else        console_printf( "%s%s %s %s\n", title, spaces, describe_type( var.Type, 0 ), name ) ;
+    if ( data ) console_printf( "%s%*s %s %s %s\n", title, indent, "", describe_type( var.Type, 0 ), name, show_value( var.Type, data ) ) ;
+    else        console_printf( "%s%*s %s %s\n", title, indent, "", describe_type( var.Type, 0 ), name ) ;
 
     if ( var.Type.BaseType[0] == TYPE_STRUCT ) {
         show_struct( var.Type.Members, title, indent + 3, data ) ;
-        console_printf( "%s%s END", title, spaces ) ;
+        console_printf( "%s%*s END", title, indent,"" ) ;
     }
 }
 
