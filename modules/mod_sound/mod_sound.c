@@ -26,8 +26,6 @@
  *
  */
 
-#pragma comment (lib, "SDL_mixer")
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
