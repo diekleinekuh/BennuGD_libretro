@@ -75,6 +75,8 @@ int bgdi_main(int argc, char *argv[])
 int main( int argc, char *argv[] )
 #endif
 {
+    bgd_malloc_initialize();
+
     char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0;
     int i, j, ret = -1;
     file * fp = NULL;
@@ -346,5 +348,6 @@ exit:
     bgd_free( appexefullpath    );
     bgd_free( appname           );
 
+    bgd_malloc_cleanup();
     return ret;
 }
