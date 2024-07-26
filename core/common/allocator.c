@@ -43,7 +43,7 @@ static void* memory_map(size_t size, size_t* offset)
     }
     while(result==NULL && current_address<end_address);
 
-    address = result + size;
+    address = (char*)result + size;
 
     return result;
 }
