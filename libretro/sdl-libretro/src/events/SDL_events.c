@@ -147,6 +147,7 @@ static int SDL_StartEventThread(Uint32 flags)
 	SDL_EventThread = NULL;
 	event_thread = 0;
 	SDL_memset(&SDL_EventLock, 0, sizeof(SDL_EventLock));
+	SDL_EventQ.active = 1;
 
 	return(0);
 }
@@ -284,7 +285,7 @@ int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action,
 	}
 	/* Lock the event queue */
 	used = 0;
-	if ( SDL_mutexP(SDL_EventQ.lock) == 0 ) {
+	//if ( SDL_mutexP(SDL_EventQ.lock) == 0 ) {
 		if ( action == SDL_ADDEVENT ) {
 			for ( i=0; i<numevents; ++i ) {
 				used += SDL_AddEvent(&events[i]);
@@ -313,11 +314,11 @@ int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action,
 				}
 			}
 		}
-		SDL_mutexV(SDL_EventQ.lock);
-	} else {
-		SDL_SetError("Couldn't lock event queue");
-		used = -1;
-	}
+	//	SDL_mutexV(SDL_EventQ.lock);
+	//} else {
+	//	SDL_SetError("Couldn't lock event queue");
+	//	used = -1;
+	//}
 	return(used);
 }
 
