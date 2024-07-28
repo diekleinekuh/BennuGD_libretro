@@ -21,3 +21,8 @@
 */
 #include "SDL_config.h"
 
+#ifndef _SDL_mutex_c_h
+#define _SDL_mutex_c_h
+
+
+#endif /* _SDL_mutex_c_h */

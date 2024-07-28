@@ -39,6 +39,10 @@ set (SDL-src
     src/stdlib/SDL_string.c
 
     src/thread/SDL_thread.c
+    src/thread/generic/SDL_syssem.c
+    src/thread/libretro/SDL_syscond.c
+    src/thread/libretro/SDL_sysmutex.c
+    src/thread/libretro/SDL_systhread.c
 
     src/timer/SDL_timer.c
     src/timer/libretro/SDL_systimer.c
@@ -75,18 +79,18 @@ add_compile_definitions(__LIBRETRO__ LSB_FIRST )
 if (WIN32)
     set( SDL-src ${SDL-src}
         src/cdrom/win32/SDL_syscdrom.c
-        src/thread/win32/SDL_sysmutex.c
-        src/thread/win32/SDL_syssem.c
-        src/thread/win32/SDL_systhread.c
-        src/thread/generic/SDL_syscond.c
+        # src/thread/win32/SDL_sysmutex.c
+        # src/thread/win32/SDL_syssem.c
+        # src/thread/win32/SDL_systhread.c
+        # src/thread/generic/SDL_syscond.c
     )    
 else()
     set( SDL-src ${SDL-src}
         src/cdrom/linux/SDL_syscdrom.c
-        src/thread/pthread/SDL_syscond.c
-        src/thread/pthread/SDL_sysmutex.c
-        src/thread/pthread/SDL_syssem.c
-        src/thread/pthread/SDL_systhread.c
+        # src/thread/pthread/SDL_syscond.c
+        # src/thread/pthread/SDL_sysmutex.c
+        # src/thread/pthread/SDL_syssem.c
+        # src/thread/pthread/SDL_systhread.c
     )
     add_compile_definitions(__LINUX__ )
 endif()

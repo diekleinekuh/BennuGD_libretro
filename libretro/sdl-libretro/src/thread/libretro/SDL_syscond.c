@@ -21,117 +21,76 @@
 */
 #include "SDL_config.h"
 
-#include <sys/time.h>
-#include <unistd.h>
-#include <errno.h>
-#include <pthread.h>
 
 #include "SDL_thread.h"
 #include "SDL_sysmutex_c.h"
 
-struct SDL_cond
-{
-	pthread_cond_t cond;
-};
+#include "rthreads/rthreads.h"
+
+typedef struct SDL_cond SDL_cond;
 
 /* Create a condition variable */
 SDL_cond * SDL_CreateCond(void)
 {
-	SDL_cond *cond;
-
-	cond = (SDL_cond *) SDL_malloc(sizeof(SDL_cond));
-	if ( cond ) {
-		if ( pthread_cond_init(&cond->cond, NULL) < 0 ) {
-			SDL_SetError("pthread_cond_init() failed");
-			SDL_free(cond);
-			cond = NULL;
-		}
-	}
-	return(cond);
+	return (SDL_cond *)scond_new();
 }
 
 /* Destroy a condition variable */
 void SDL_DestroyCond(SDL_cond *cond)
 {
-	if ( cond ) {
-		pthread_cond_destroy(&cond->cond);
-		SDL_free(cond);
+	if ( cond )
+	{
+		scond_free((scond_t*)cond);
 	}
 }
 
 /* Restart one of the threads that are waiting on the condition variable */
 int SDL_CondSignal(SDL_cond *cond)
 {
-	int retval;
-
 	if ( ! cond ) {
 		SDL_SetError("Passed a NULL condition variable");
 		return -1;
 	}
 
-	retval = 0;
-	if ( pthread_cond_signal(&cond->cond) != 0 ) {
-		SDL_SetError("pthread_cond_signal() failed");
-		retval = -1;
-	}
-	return retval;
+	scond_signal((scond_t*)cond);
+
+	return 0;
 }
 
 /* Restart all threads that are waiting on the condition variable */
 int SDL_CondBroadcast(SDL_cond *cond)
 {
-	int retval;
-
 	if ( ! cond ) {
 		SDL_SetError("Passed a NULL condition variable");
 		return -1;
 	}
 
-	retval = 0;
-	if ( pthread_cond_broadcast(&cond->cond) != 0 ) {
-		SDL_SetError("pthread_cond_broadcast() failed");
-		retval = -1;
+	if ( scond_broadcast((scond_t*)cond) != 0 ) {
+		SDL_SetError("scond_broadcast() failed");
+		return -1;
 	}
-	return retval;
+	return 0;
 }
 
 int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, Uint32 ms)
 {
-	int retval;
-	struct timeval delta;
-	struct timespec abstime;
-
 	if ( ! cond ) {
 		SDL_SetError("Passed a NULL condition variable");
 		return -1;
 	}
 
-	gettimeofday(&delta, NULL);
-
-	abstime.tv_sec = delta.tv_sec + (ms/1000);
-	abstime.tv_nsec = (delta.tv_usec + (ms%1000) * 1000) * 1000;
-        if ( abstime.tv_nsec > 1000000000 ) {
-          abstime.tv_sec += 1;
-          abstime.tv_nsec -= 1000000000;
-        }
-
-  tryagain:
-	retval = pthread_cond_timedwait(&cond->cond, &mutex->id, &abstime);
-	switch (retval) {
-	    case EINTR:
-		goto tryagain;
-		break;
-	    case ETIMEDOUT:
-		retval = SDL_MUTEX_TIMEDOUT;
-		break;
-	    case 0:
-		break;
-	    default:
-		SDL_SetError("pthread_cond_timedwait() failed");
-		retval = -1;
-		break;
+	if (!mutex)
+	{
+		SDL_SetError("Passed a NULL mutex variable");
+		return -1;		
 	}
-	return retval;
+
+	if (!scond_wait_timeout((scond_t*)cond, (slock_t*)mutex, ms*1000))
+	{
+		return SDL_MUTEX_TIMEDOUT;
+	}
+
+	return 0;
 }
 
 /* Wait on the condition variable, unlocking the provided mutex.
@@ -146,10 +105,12 @@ int SDL_CondWait(SDL_cond *cond, SDL_mutex *mutex)
 		return -1;
 	}
 
-	retval = 0;
-	if ( pthread_cond_wait(&cond->cond, &mutex->id) != 0 ) {
-		SDL_SetError("pthread_cond_wait() failed");
-		retval = -1;
-	}
-	return retval;
+	if (!mutex)
+	{
+		SDL_SetError("Passed a NULL mutex variable");
+		return -1;		
+	}	
+
+	scond_wait((scond_t*)cond, (slock_t*)mutex);
+	return 0;
 }

@@ -21,3 +21,42 @@
 */
 #include "SDL_config.h"
 
+#include "SDL_thread.h"
+#include "rthreads/rthreads.h"
+
+SDL_mutex *SDL_CreateMutex (void)
+{
+	return (SDL_mutex*)slock_new();
+}
+
+void SDL_DestroyMutex(SDL_mutex *mutex)
+{
+	if ( mutex )
+	{
+		slock_free((slock_t*)mutex);
+	}
+}
+
+/* Lock the mutex */
+int SDL_mutexP(SDL_mutex *mutex)
+{
+	if ( mutex == NULL ) {
+		SDL_SetError("Passed a NULL mutex");
+		return -1;
+	}
+
+	slock_lock((slock_t*)mutex);
+	return 0;
+}
+
+int SDL_mutexV(SDL_mutex *mutex)
+{
+	if ( mutex == NULL ) {
+		SDL_SetError("Passed a NULL mutex");
+		return -1;
+	}
+
+	slock_unlock((slock_t*)mutex);
+
+	return 0;
+}

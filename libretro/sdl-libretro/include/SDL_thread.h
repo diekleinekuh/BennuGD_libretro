@@ -89,12 +89,12 @@ extern DECLSPEC SDL_Thread * SDLCALL SDL_CreateThread(int (SDLCALL *fn)(void *),
 #endif
 
 /** Get the 32-bit thread identifier for the current thread */
-extern DECLSPEC Uint32 SDLCALL SDL_ThreadID(void);
+extern DECLSPEC void* SDLCALL SDL_ThreadID(void);
 
 /** Get the 32-bit thread identifier for the specified thread,
  *  equivalent to SDL_ThreadID() if the specified thread is NULL.
  */
-extern DECLSPEC Uint32 SDLCALL SDL_GetThreadID(SDL_Thread *thread);
+extern DECLSPEC void* SDLCALL SDL_GetThreadID(SDL_Thread *thread);
 
 /** Wait for a thread to finish.
  *  The return code for the thread function is placed in the area

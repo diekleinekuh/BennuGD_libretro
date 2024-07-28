@@ -21,3 +21,40 @@
 */
 #include "SDL_config.h"
 
+#include "SDL_thread.h"
+#include "../SDL_thread_c.h"
+#include "../SDL_systhread.h"
+#include "rthreads/rthreads.h"
+
+
+int SDL_SYS_CreateThread(SDL_Thread *thread, void *args)
+{
+	thread->handle = sthread_create(&SDL_RunThread, args);
+
+	if (!thread->handle)
+	{
+		SDL_SetError("sthread_create failed");
+		return -1;
+	}
+
+	return(0);
+}
+
+void SDL_SYS_SetupThread(void)
+{
+}
+
+void* SDL_ThreadID(void)
+{
+	return (void*)sthread_get_current_thread_id();
+}
+
+void SDL_SYS_WaitThread(SDL_Thread *thread)
+{
+	sthread_join(thread->handle);
+}
+
+void SDL_SYS_KillThread(SDL_Thread *thread)
+{
+	// cannot be safely implemented most of the time and seems unused
+}

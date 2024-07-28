@@ -35,6 +35,7 @@
 #define SDL_TIMER_LIBRETRO 1
 #define SDL_VIDEO_DRIVER_LIBRETRO 1
 #define SDL_EVENTS_DISABLED 1
+#define SDL_THREAD_LIBRETRO 1
 
 /* Make sure that this isn't included by Visual C++ */
 #ifdef _MSC_VER

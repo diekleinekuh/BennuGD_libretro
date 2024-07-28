@@ -27,22 +27,6 @@
 /* Need the definitions of SYS_ThreadHandle */
 #if SDL_THREADS_DISABLED
 #include "generic/SDL_systhread_c.h"
-#elif SDL_THREAD_BEOS
-#include "beos/SDL_systhread_c.h"
-#elif SDL_THREAD_DC
-#include "dc/SDL_systhread_c.h"
-#elif SDL_THREAD_OS2
-#include "os2/SDL_systhread_c.h"
-#elif SDL_THREAD_PTH
-#include "pth/SDL_systhread_c.h"
-#elif SDL_THREAD_PTHREAD
-#include "pthread/SDL_systhread_c.h"
-#elif SDL_THREAD_SPROC
-#include "irix/SDL_systhread_c.h"
-#elif SDL_THREAD_WIN32
-#include "win32/SDL_systhread_c.h"
-#elif SDL_THREAD_SYMBIAN
-#include "symbian/SDL_systhread_c.h"
 #elif SDL_THREAD_LIBRETRO
 #include "libretro/SDL_systhread_c.h"
 #else
@@ -53,7 +37,7 @@
 
 /* This is the system-independent thread info structure */
 struct SDL_Thread {
-	Uint32 threadid;
+	void* threadid;
 	SYS_ThreadHandle handle;
 	int status;
 	SDL_error errbuf;

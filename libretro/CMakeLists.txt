@@ -11,6 +11,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(  libretro-common )
 
+include_directories(${libretro-common_SOURCE_DIR}/include)
 add_subdirectory(sdl-libretro)
 
 add_library(retro_BennuGD SHARED
@@ -30,6 +31,7 @@ add_library(retro_BennuGD SHARED
     #${libretro-common_SOURCE_DIR}/streams/trans_stream_pipe.c
     ${libretro-common_SOURCE_DIR}/compat/compat_posix_string.c
     ${libretro-common_SOURCE_DIR}/compat/fopen_utf8.c
+    ${libretro-common_SOURCE_DIR}/rthreads/rthreads.c
     libretro.c
     filesystem.c
     filestream_gzip.c

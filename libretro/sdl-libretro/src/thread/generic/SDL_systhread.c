@@ -37,9 +37,9 @@ void SDL_SYS_SetupThread(void)
 	return;
 }
 
-Uint32 SDL_ThreadID(void)
+void* SDL_ThreadID(void)
 {
-	return(0);
+	return((void*)0);
 }
 
 void SDL_SYS_WaitThread(SDL_Thread *thread)
