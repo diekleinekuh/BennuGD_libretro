@@ -1,0 +1,18 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "dll",
+      "exe": "${env.USERPROFILE}\\Downloads\\RetroArch-Win64\\RetroArch.exe",
+      "args": [
+        "-L",
+        "${cmake.buildRoot}\\bin\\retro_BennuGD.dll",
+        "${env.USERPROFILE}\\Downloads\\SORRv52\\SorR.dat"
+      ],
+      "project": "CMakeLists.txt",
+      "projectTarget": "retro_BennuGD.dll (bin\\retro_BennuGD.dll)",
+      "name": "retro_BennuGD.dll (bin\\retro_BennuGD.dll)"
+    }
+  ]
+}
