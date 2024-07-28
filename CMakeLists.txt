@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 project(bennugd_libretro)
 
 option(libretro_core "build libretro_core instead of standalone version" ON)
