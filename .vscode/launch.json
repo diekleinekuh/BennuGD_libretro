@@ -7,11 +7,20 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug in retroarch",
+            "name": "Debug",
             "program": "retroarch",
             "args": ["-L","${workspaceFolder}/build/lib/libretro_BennuGD.so", 
-                "/home/markus/SORR/SorR.dat"],
+                "${env:HOME}/SORR/SorR.dat"],
             "cwd": "${workspaceFolder}"
-        }
+        },
+        {
+            "type": "cppvsdbg",
+            "request": "launch",
+            "name": "Debug(Windows)",
+            "program": "${env:USERPROFILE}\\Downloads\\RetroArch-Win64\\retroarch.exe",
+            "args": ["-L","${workspaceFolder}/build/bin/Debug/retro_BennuGD.dll", 
+                "${env:USERPROFILE}\\Downloads\\SORR\\SorR.dat"],
+            "cwd": "${workspaceFolder}"
+        }        
     ]
 }
