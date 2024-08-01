@@ -62,9 +62,9 @@ static SDL_LIBRETRO_JoyData joy_data[4];
 
 
 
-/*                                   A      B      X      Y      LSH    RSH    BACK   START  GUIDE  LS     RS  	                                           - SDL button name   */
+/*                                   A      B      X      Y      LSH    RSH    BACK   START  LS     RS	   LT	  RT     UP     DOWN   LEFT   RIGHT    - SDL button name   */
 /*                                   0      1      2      3      4      5      6      7      8      9      10     11     12     13     14     15	   - SDL button number */
-static const unsigned short vbt[] = {0x0100,0x0001,0x0200,0x0002,0x1000,0x2000,0x0004,0x0008,0x0080,0x0400,0x0800,0x0040,0x0010,0x0020,0x4000,0x8000};  /* - retro button mask */
+static const unsigned short vbt[] = {0x0001,0x0100,0x0002,0x0200,0x0400,0x0800,0x0004,0x0008,0x4000,0x8000,0x1000,0x2000,0x0010,0x0020,0x0040,0x0080};  /* - retro button mask */
 
 /* Function to scan the system for joysticks.
  * This function should set SDL_numjoysticks to the number of available
@@ -121,7 +121,7 @@ joystick->hwdata->an[2]=0;
 joystick->hwdata->an[3]=0;
 
 	joystick->naxes = 4;
-	joystick->nhats = 0;
+	joystick->nhats = 1;
 	joystick->nballs = 0;
 	joystick->nbuttons = 16;
 
@@ -157,6 +157,29 @@ SDL_SYS_JoystickUpdate(SDL_Joystick * joystick)
 			}
 		}
 		joystick->hwdata->old_pad_data = pad_retromask;
+
+		// make up coolie hat data
+		Uint8 hat_value = SDL_HAT_CENTERED;
+
+		if (pad_retromask & 0x10)
+		{
+			hat_value |= SDL_HAT_UP;
+		}
+		else if (pad_retromask & 0x20)
+		{
+			hat_value |= SDL_HAT_DOWN;
+		}
+
+		if (pad_retromask & 0x40)
+		{
+			hat_value |= SDL_HAT_LEFT;
+		}
+		else if (pad_retromask & 0x80)
+		{
+			hat_value |= SDL_HAT_RIGHT;
+		}
+
+		SDL_PrivateJoystickHat(joystick, 0, hat_value);
 	}
 
 	new_an[0] = (libretro_input_state_cb(joystick->index, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT,  RETRO_DEVICE_ID_ANALOG_X));
