@@ -63,7 +63,7 @@ set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "Build test binaries")
 set(ZLIB_COMPAT ON CACHE BOOL "Compile with zlib compatible API" FORCE)
 FetchContent_Declare(zlib-ng
     GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
-    GIT_TAG        2.1.6
+    GIT_TAG        2.2.1
     GIT_SHALLOW TRUE    
 )
 FetchContent_MakeAvailable(zlib-ng)

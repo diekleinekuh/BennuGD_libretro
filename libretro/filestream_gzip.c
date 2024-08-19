@@ -22,7 +22,7 @@ struct gzFile_libretro
     int64_t uncompressed_data_pos;
     unsigned int buffer_start_pos;
     unsigned int buffer_end_pos;    
-    char buffer[BUFFER_SIZE];
+    uint8_t buffer[BUFFER_SIZE];
 };
 
 gzFile_libretro* gzopen_libretro(const char* path, const char* mode)

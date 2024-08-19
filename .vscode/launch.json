@@ -14,6 +14,15 @@
             "cwd": "${workspaceFolder}"
         },
         {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug (OSX)",
+            "program": "/Applications/RetroArch.app/Contents/MacOS/RetroArch",
+            "args": ["-L","${workspaceFolder}/build/lib/libretro_BennuGD.dylib", 
+                "${env:HOME}/Downloads/SORR/SorR.dat"],
+            "cwd": "${workspaceFolder}"
+        },        
+        {
             "type": "cppvsdbg",
             "request": "launch",
             "name": "Debug(Windows)",

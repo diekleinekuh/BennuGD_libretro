@@ -43,6 +43,8 @@ target_include_directories(retro_BennuGD PRIVATE
 
 target_link_libraries(retro_BennuGD bgdi)
 
+target_compile_definitions(retro_BennuGD PRIVATE HAVE_POSIX_MEMALIGN=${HAVE_POSIX_MEMALIGN})
+
 include_directories(${sdl-libretro_SOURCE_DIR}/include)
 
 set(SDL_LIBRARIES "sdl-libretro" PARENT_SCOPE)

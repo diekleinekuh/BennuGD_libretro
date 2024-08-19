@@ -132,7 +132,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 			return(-1);
 		}
 
-		if (desired->channels =! 2)	
+		if (desired->channels != 2)	
 		{
 			SDL_SetError("SDL_OpenAudio() only stereo supported in libretro implementation");
 			return(-1);

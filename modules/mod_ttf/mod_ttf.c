@@ -256,7 +256,7 @@ int gr_load_ttf (const char * filename, int size, int bpp, int fg, int bg, int g
 	if (strncmp (facename, filename, 1024) != 0)
 	{
 		if (facedata) free(facedata);
-		error = FT_New_Memory_Face (freetype, buffer, readed, 0, &face);
+		error = FT_New_Memory_Face (freetype, (FT_Byte*)buffer, readed, 0, &face);
 		if (error)
 		{
 			if (error == FT_Err_Unknown_File_Format) {

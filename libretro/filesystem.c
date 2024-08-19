@@ -83,7 +83,7 @@ static const char* casepath(char const *path, size_t start_offset)
         dest[element_length]=0;
 
         bool read_entry = false;
-        while(read_entry = retro_readdir(dir))
+        while((read_entry = retro_readdir(dir)))
         {
             const char * filename = retro_dirent_get_name(dir);            
 

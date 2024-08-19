@@ -18,6 +18,7 @@ set (SDL-src
     src/audio/SDL_wave.c
 
     src/cdrom/SDL_cdrom.c
+    src/cdrom/dummy/SDL_syscdrom.c
 
     src/cpuinfo/SDL_cpuinfo.c
 
@@ -75,25 +76,6 @@ set (SDL-src
 )
 
 add_compile_definitions(__LIBRETRO__ LSB_FIRST )
-
-if (WIN32)
-    set( SDL-src ${SDL-src}
-        src/cdrom/win32/SDL_syscdrom.c
-        # src/thread/win32/SDL_sysmutex.c
-        # src/thread/win32/SDL_syssem.c
-        # src/thread/win32/SDL_systhread.c
-        # src/thread/generic/SDL_syscond.c
-    )    
-else()
-    set( SDL-src ${SDL-src}
-        src/cdrom/linux/SDL_syscdrom.c
-        # src/thread/pthread/SDL_syscond.c
-        # src/thread/pthread/SDL_sysmutex.c
-        # src/thread/pthread/SDL_syssem.c
-        # src/thread/pthread/SDL_systhread.c
-    )
-    add_compile_definitions(__LINUX__ )
-endif()
 
 add_library( sdl-libretro STATIC ${SDL-src})
 target_link_libraries(sdl-libretro Threads::Threads)

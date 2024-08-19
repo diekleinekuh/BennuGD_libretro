@@ -144,6 +144,13 @@ int debug = 0;  /* 1 if running in debug mode      */
 #define _OS_ID          OS_IOS
 #endif
 
+#if LIBRETRO_CORE
+#ifdef _OS_ID
+#undef _OS_ID
+#endif
+#define _OS_ID          OS_LINUX // fake linux
+#endif
+
 /* --------------------------------------------------------------------------- */
 
 #if defined(TARGET_GP2X_WIZ) || defined(TARGET_CAANOO)

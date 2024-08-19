@@ -21,11 +21,17 @@ add_library(core OBJECT ${COMMON_SRC} ${BGDRTM_SRC})
 target_include_directories(core PRIVATE "${rpmalloc_SOURCE_DIR}/rpmalloc/")
 
 if (WIN32)
-    target_compile_definitions(core PUBLIC _WIN32)
     set_target_properties(core PROPERTIES COMPILE_FLAGS "/wd4311 /wd4312")
 else()
-    target_compile_definitions(core PUBLIC TARGET_LINUX)
     target_link_libraries(core m dl)
+endif()
+
+if (NOT libretro_core)
+    if (WIN32)
+        target_compile_definitions(core PUBLIC _WIN32)
+    else()
+        target_compile_definitions(core PUBLIC TARGET_LINUX)
+    endif()
 endif()
 
 target_compile_definitions(core 
