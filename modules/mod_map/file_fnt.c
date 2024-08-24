@@ -61,7 +61,7 @@ static int gr_font_loadfrom( file * fp );
  *
  */
 
-int gr_font_load( char * filename )
+int gr_font_load( const char * filename )
 {
     file * fp ;
     int result;

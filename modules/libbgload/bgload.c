@@ -71,7 +71,7 @@ int bgDoLoad( void *d )
 
 /* --------------------------------------------------------------------------- */
 
-int bgload( int ( *fn )(), int * params )
+int bgload( int ( *fn )(const char*), int * params )
 {
     bgdata *t = prep( params );
     t->fn = fn;
