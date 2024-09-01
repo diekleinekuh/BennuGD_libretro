@@ -15,131 +15,26 @@ extern uint8_t* allocated_chunk;
 
 void* ptr_from_int(uint32_t input)
 {
-    //return (void*)(size_t)input;
-
     if (input > 0)
         return allocated_chunk + input - 1;
     else
         return NULL;
-
-    // uint32_t low_part = (uint32_t)(size_t)allocated_chunk;
-    // uint32_t high_part = ((size_t)allocated_chunk) & 0xFFFFFFFF00000000;
-    // if (input<low_part)
-    // {
-    //     high_part +=0x100000000;
-    // }
-
-    // size_t result = high_part |  (size_t)input;
-
-    // return (void*)result;
 }
 
 int32_t int_from_ptr(const void* ptr)
 {
-    // assert((((size_t)ptr) & 0xFFFFFFFF00000000) == 0);
-    // return (int32_t)(size_t)ptr;
-
     if (!ptr)
         return 0;
 
-    assert(ptr >= allocated_chunk);
+    assert((uint8_t*)ptr >= allocated_chunk);
     assert(allocated_chunk != NULL);
     return (uint8_t*)ptr - allocated_chunk + 1;
-    // assert((((size_t)ptr)>>32)==1);
-    // return ((size_t)ptr)&0xFFFFFFFF;
-}
-
-
-static void* memory_map_at_address(size_t size, size_t* offset, void* desired_address)
-{
-#if PLATFORM_WINDOWS
-	//Ok to MEM_COMMIT - according to MSDN, "actual physical pages are not allocated unless/until the virtual addresses are actually accessed"
-	void* ptr = VirtualAlloc(desired_address, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	if (!ptr) {
-		return 0;
-	}
-#else
-	int flags = MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZED | MAP_FIXED;
-
-	void* ptr = mmap(desired_address, size, PROT_READ | PROT_WRITE, flags, -1, 0);
-	if ((ptr == MAP_FAILED) || !ptr) {
-	 	return 0;
-	}
-#endif
-
-	_rpmalloc_stat_add(&_mapped_pages_os, (int32_t)((size) >> _memory_page_size_shift));
-	return ptr;
 }
 
 static void* memory_map(size_t size, size_t* offset)
 {
-
-#if PLATFORM_WINDOWS
-	//Ok to MEM_COMMIT - according to MSDN, "actual physical pages are not allocated unless/until the virtual addresses are actually accessed"
-	void* ptr = VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	if (!ptr) {
-		return 0;
-	}
-#else
-	const int flags = MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZED;
-
-	void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, flags, -1, 0);
-	if ((ptr == MAP_FAILED) || !ptr) {
-	 	return 0;
-	}
-#endif
-
-    _rpmalloc_stat_add(&_mapped_pages_os, (int32_t)((size) >> _memory_page_size_shift));
-
-    //assert(allocated_chunk==NULL);
-    allocated_chunk = ptr;
-    return ptr;
-}
-
-static void memory_unmap(void* address, size_t size, size_t offset, size_t release)
-{
-	rpmalloc_assert(release || (offset == 0), "Invalid unmap size");
-	rpmalloc_assert(!release || (release >= _memory_page_size), "Invalid unmap size");
-	rpmalloc_assert(size >= _memory_page_size, "Invalid unmap size");
-	if (release && offset) {
-		offset <<= 3;
-		address = pointer_offset(address, -(int32_t)offset);
-		if ((release >= _memory_span_size) && (_memory_span_size > _memory_map_granularity)) {
-			//Padding is always one span size
-			release += _memory_span_size;
-		}
-	}
-
-#if PLATFORM_WINDOWS
-	if (!VirtualFree(address, release ? 0 : size, release ? MEM_RELEASE : MEM_DECOMMIT)) {
-		rpmalloc_assert(0, "Failed to unmap virtual memory block");
-	}
-#else
-	if (release) {
-		if (munmap(address, release)) {
-			rpmalloc_assert(0, "Failed to unmap virtual memory block");
-		}
-	} else {
-#if defined(MADV_FREE_REUSABLE)
-		int ret;
-		while ((ret = madvise(address, size, MADV_FREE_REUSABLE)) == -1 && (errno == EAGAIN))
-			errno = 0;
-		if ((ret == -1) && (errno != 0)) {
-#elif defined(MADV_DONTNEED)
-		if (madvise(address, size, MADV_DONTNEED)) {
-#elif defined(MADV_PAGEOUT)
-		if (madvise(address, size, MADV_PAGEOUT)) {
-#elif defined(MADV_FREE)
-		if (madvise(address, size, MADV_FREE)) {
-#else
-		if (posix_madvise(address, size, POSIX_MADV_DONTNEED)) {
-#endif
-			rpmalloc_assert(0, "Failed to madvise virtual memory block as free");
-		}
-	}
-#endif
-	if (release)
-		_rpmalloc_stat_sub(&_mapped_pages_os, release >> _memory_page_size_shift);
+    allocated_chunk = (uint8_t*)_rpmalloc_mmap_os(size, offset);
+    return allocated_chunk;
 }
 
 void bgd_malloc_initialize()
@@ -148,7 +43,7 @@ void bgd_malloc_initialize()
 
     rpmalloc_config_t config = {
         .memory_map = &memory_map,
-        .memory_unmap = &memory_unmap,
+        .memory_unmap = &_rpmalloc_unmap_os,
         .span_map_count = 4096
     };
 
