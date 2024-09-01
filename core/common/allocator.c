@@ -11,26 +11,6 @@ static char* address = 0x0;
 
 uint8_t* allocated_chunk=0x0;
 
-extern uint8_t* allocated_chunk;
-
-void* ptr_from_int(uint32_t input)
-{
-    if (input > 0)
-        return allocated_chunk + input - 1;
-    else
-        return NULL;
-}
-
-int32_t int_from_ptr(const void* ptr)
-{
-    if (!ptr)
-        return 0;
-
-    assert((uint8_t*)ptr >= allocated_chunk);
-    assert(allocated_chunk != NULL);
-    return (uint8_t*)ptr - allocated_chunk + 1;
-}
-
 static void* memory_map(size_t size, size_t* offset)
 {
     allocated_chunk = (uint8_t*)_rpmalloc_mmap_os(size, offset);
