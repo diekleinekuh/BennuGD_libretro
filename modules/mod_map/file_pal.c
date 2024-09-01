@@ -202,7 +202,7 @@ int gr_load_pal( const char * filename )
     }
 
     if ( fp ) file_close( fp ) ;
-    return ( int ) r;
+    return ( int ) int_from_ptr(r);
 }
 
 /* --------------------------------------------------------------------------- */

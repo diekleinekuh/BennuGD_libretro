@@ -396,8 +396,8 @@ static int grproc_get_real_point( INSTANCE * my, int * params )
         ry /= -LOCINT32( mod_grproc, my, RESOLUTION );
     }
 
-    *( int * )params[1] = rx ;
-    *( int * )params[2] = ry ;
+    *( int * )ptr_from_int(params[1]) = rx ;
+    *( int * )ptr_from_int(params[2]) = ry ;
 
     return 1 ;
 }
@@ -894,7 +894,7 @@ static int __collision( INSTANCE * my, int id, int colltype )
     LOCDWORD( mod_grproc, my, GRPROC_ID_SCAN ) = 0 ;
     /* Check if already in scan by type and we reach limit */
     uint32_t* context_address = (uint32_t*)LOCADDR( mod_grproc, my, GRPROC_CONTEXT );
-    INSTANCE* context = (INSTANCE*)(*context_address);    
+    INSTANCE* context = (INSTANCE*)ptr_from_int(*context_address);    
     ctx = &context;
     if ( LOCDWORD( mod_grproc, my, GRPROC_TYPE_SCAN ) != id ) /* Check if type change from last call */
     {
@@ -913,12 +913,12 @@ static int __collision( INSTANCE * my, int id, int colltype )
              colfunc( my, &bbox1, ptr )
            )
         {
-            *context_address = (uint32_t)context;
+            *context_address = (uint32_t)int_from_ptr(context);
             return LOCDWORD( mod_grproc, ptr, PROCESS_ID ) ;
         }
     }
 
-    *context_address = (uint32_t)context;
+    *context_address = (uint32_t)int_from_ptr(context);
     return 0 ;
 }
 

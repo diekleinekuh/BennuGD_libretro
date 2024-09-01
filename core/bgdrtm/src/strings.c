@@ -83,7 +83,7 @@ static int      string_last_id = 1 ;        /* How many strings slots are used. 
 void _string_ptoa( char *t, void * ptr )
 {
     unsigned char c ;
-    int p = ( int ) ptr;
+    int p = ( int ) (size_t) ptr;
 
     c = ((( p ) & 0xf0000000 ) >> 28 );
     *t++ = ( c > 9 ? '7' : '0' ) + c; /* '7' + 10 = 'A' */

@@ -60,7 +60,7 @@ GRAPH * instance_graph( INSTANCE * i )
 {
     int * xgraph, c, a ;
 
-    if (( xgraph = ( int * ) LOCDWORD( librender, i, XGRAPH ) ) ) // Get offset of XGRAPH table
+    if (( xgraph = ( int * ) ptr_from_int(LOCDWORD( librender, i, XGRAPH )) ) ) // Get offset of XGRAPH table
     {
         c = *xgraph++;  // Get number of graphs ids in XGRAPH table
         if ( c )
@@ -163,13 +163,13 @@ void draw_instance_at( INSTANCE * i, REGION * region, int x, int y, GRAPH * dest
     if (( blendop = LOCDWORD( librender, i, BLENDOP ) ) )
     {
         blend_table = map->blend_table;
-        map->blend_table = ( int16_t * ) blendop;
+        map->blend_table = ( int16_t * ) ptr_from_int(blendop);
     }
 
     if (( paletteid = LOCDWORD( librender, i, PALETTEID ) ) )
     {
         palette = map->format->palette ;
-        map->format->palette = ( PALETTE * ) paletteid;
+        map->format->palette = ( PALETTE * ) ptr_from_int(paletteid);
     }
 
     /* XGRAPH does not rotate destination graphic.
@@ -204,7 +204,7 @@ void draw_instance( INSTANCE * i, REGION * clip )
     /* Difference with draw_instance_at to here */
 
 //    map = instance_graph( i ) ;
-    map = ( GRAPH * ) LOCDWORD( librender, i, GRAPHPTR );
+    map = ( GRAPH * ) ptr_from_int(LOCDWORD( librender, i, GRAPHPTR ));
     if ( !map ) return ;
 
     flags = ( LOCDWORD( librender, i, FLAGS ) ^ LOCDWORD( librender, i, XGRAPH_FLAGS ) );
@@ -223,13 +223,13 @@ void draw_instance( INSTANCE * i, REGION * clip )
     if (( blendop = LOCDWORD( librender, i, BLENDOP ) ) )
     {
         blend_table = map->blend_table;
-        map->blend_table = ( int16_t * ) blendop;
+        map->blend_table = ( int16_t * ) ptr_from_int(blendop);
     }
 
     if (( paletteid = LOCDWORD( librender, i, PALETTEID ) ) )
     {
         palette = map->format->palette ;
-        map->format->palette = ( PALETTE * ) paletteid;
+        map->format->palette = ( PALETTE * ) ptr_from_int(paletteid);
     }
 
     /* Difference with draw_instance_at from here */
@@ -282,7 +282,7 @@ int draw_instance_info( INSTANCE * i, REGION * region, int * z, int * drawme )
 
     * drawme = 0;
 
-    LOCDWORD( librender, i, GRAPHPTR ) = ( int )( graph = instance_graph( i ) );
+    LOCDWORD( librender, i, GRAPHPTR ) = int_from_ptr( graph = instance_graph( i ) );
     if ( !graph )
     {
         /*

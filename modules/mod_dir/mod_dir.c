@@ -234,7 +234,7 @@ static int moddir_glob( INSTANCE * my, int * params )
 
 static int moddir_open( INSTANCE * my, int * params )
 {
-    int result = ( int ) dir_open( string_get( params[ 0 ] ) );
+    int result = ( int ) int_from_ptr( dir_open( string_get( params[ 0 ] ) ));
     string_discard( params[ 0 ] );
     return result;
 }
@@ -244,7 +244,7 @@ static int moddir_open( INSTANCE * my, int * params )
 
 static int moddir_close( INSTANCE * my, int * params )
 {
-    if ( params[ 0 ] ) dir_close ( ( __DIR_ST * ) params[ 0 ] ) ;
+    if ( params[ 0 ] ) dir_close ( ( __DIR_ST * ) ptr_from_int(params[ 0 ]) ) ;
     return 1;
 }
 
@@ -257,7 +257,7 @@ static int moddir_close( INSTANCE * my, int * params )
 
 static int moddir_read( INSTANCE * my, int * params )
 {
-    return ( __moddir_read((__DIR_ST *) params[ 0 ] ) ) ;
+    return ( __moddir_read((__DIR_ST *) ptr_from_int(params[ 0 ]) ) ) ;
 }
 
 /* ----------------------------------------------------------------- */

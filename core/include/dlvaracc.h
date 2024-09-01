@@ -66,7 +66,7 @@
 #define LOCEXISTS(m,a)    (m##_locals_fixup[a].size != -1)
 #define GLOEXISTS(m,a)    (m##_globals_fixup[a].data_offset)
 
-#define LOCADDR(m,a,b)    ((uint8_t *)((a)->locdata) + (uint32_t)m##_locals_fixup[b].data_offset)
+#define LOCADDR(m,a,b)    ((uint8_t *)((a)->locdata) + (size_t)m##_locals_fixup[b].data_offset)
 #define GLOADDR(m,a)      (m##_globals_fixup[a].data_offset)
 
 #define LOCDWORD(m,a,b)   (*(uint32_t *)LOCADDR(m,a,b))

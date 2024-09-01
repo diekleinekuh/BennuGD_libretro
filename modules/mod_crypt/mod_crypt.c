@@ -38,14 +38,14 @@
 
 static int modcrypt_new( INSTANCE * my, int * params )
 {
-    return ( ( int ) crypt_create( params[0], ( char * ) params[1] ) );
+    return ( ( int ) int_from_ptr( crypt_create( params[0], ( char * ) ptr_from_int(params[1]) )) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int modcrypt_del( INSTANCE * my, int * params )
 {
-    crypt_destroy( ( crypt_handle * ) params[0] );
+    crypt_destroy( ( crypt_handle * ) ptr_from_int(params[0]) );
     return 1;
 }
 
@@ -69,14 +69,14 @@ static int __crypt( crypt_handle * ch, char * in, char * out, int blocks, int en
 
 static int modcrypt_encrypt( INSTANCE * my, int * params )
 {
-    return ( __crypt( ( crypt_handle * ) params[0], ( char * ) params[1], ( char * ) params[2], params[3], 1 ) );
+    return ( __crypt( ( crypt_handle * ) ptr_from_int(params[0]), ( char * ) ptr_from_int(params[1]), ( char * ) ptr_from_int(params[2]), params[3], 1 ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int modcrypt_decrypt( INSTANCE * my, int * params )
 {
-    return ( __crypt( ( crypt_handle * ) params[0], ( char * ) params[1], ( char * ) params[2], params[3], 0 ) );
+    return ( __crypt( ( crypt_handle * ) ptr_from_int(params[0]), ( char * ) ptr_from_int(params[1]), ( char * ) ptr_from_int(params[2]), params[3], 0 ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -84,8 +84,8 @@ static int modcrypt_decrypt( INSTANCE * my, int * params )
 static int modcrypt_encrypt2( INSTANCE * my, int * params )
 {
     int r;
-    crypt_handle * ch = crypt_create( params[0], ( char * ) params[1] );
-    r = __crypt( ch, ( char * ) params[2], ( char * ) params[3], params[4], 1 );
+    crypt_handle * ch = crypt_create( params[0], ( char * ) ptr_from_int(params[1]) );
+    r = __crypt( ch, ( char * ) ptr_from_int(params[2]), ( char * ) ptr_from_int(params[3]), params[4], 1 );
     crypt_destroy( ch );
     return r;
 }
@@ -95,8 +95,8 @@ static int modcrypt_encrypt2( INSTANCE * my, int * params )
 static int modcrypt_decrypt2( INSTANCE * my, int * params )
 {
     int r;
-    crypt_handle * ch = crypt_create( params[0], ( char * ) params[1] );
-    r = __crypt( ch, ( char * ) params[2], ( char * ) params[3], params[4], 0 );
+    crypt_handle * ch = crypt_create( params[0], ( char * ) ptr_from_int(params[1]) );
+    r = __crypt( ch, ( char * ) ptr_from_int(params[2]), ( char * ) ptr_from_int(params[3]), params[4], 0 );
     crypt_destroy( ch );
     return r;
 }

@@ -376,7 +376,7 @@ static int modpathfind_path_find( INSTANCE * my, int * params )
 
 static int modpathfind_path_getxy( INSTANCE * my, int * params )
 {
-    return path_get(( int * )params[0], ( int * )params[1] ) ;
+    return path_get(( int * )ptr_from_int(params[0]), ( int * )ptr_from_int(params[1]) ) ;
 }
 
 /* --------------------------------------------------------------------------- */

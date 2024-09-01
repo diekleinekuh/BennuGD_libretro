@@ -125,7 +125,7 @@ static void _put_pixel( GRAPH * dest, int x, int y, int color )
 static int modeffects_filter( INSTANCE *my, int *params )
 { //fpg,map,tabla10
     GRAPH * map = bitmap_get( params[0], params[1] ), * map2;
-    int *tabla = ( int* )params[2];
+    int *tabla = ( int* )ptr_from_int(params[2]);
     int x, y, i, j;
     int r, g, b, a, r2, g2, b2, c;
     float r1, g1, b1;

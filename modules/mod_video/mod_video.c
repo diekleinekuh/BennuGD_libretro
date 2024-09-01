@@ -152,7 +152,7 @@ static int modvideo_list_modes( INSTANCE * my, int * params )
     available_modes[i*2  ] = 0;
     available_modes[i*2+1] = 0;
 
-    return ( int )available_modes;
+    return ( int ) int_from_ptr(available_modes);
 }
 
 /* --------------------------------------------------------------------------- */

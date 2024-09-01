@@ -680,7 +680,7 @@ static int modflic_startx1( INSTANCE * my, int * params )
         flic->size = 100;
         flic->flags = 0;
 
-        return ( int ) flic ;
+        return ( int ) int_from_ptr(flic) ;
     }
 
     return 0 ;
@@ -705,7 +705,7 @@ static int modflic_startx2( INSTANCE * my, int * params )
         flic->size = params[5];
         flic->flags = params[6];
 
-        return ( int ) flic ;
+        return ( int ) int_from_ptr(flic) ;
     }
 
     return 0 ;
@@ -713,24 +713,25 @@ static int modflic_startx2( INSTANCE * my, int * params )
 
 static int modflic_resetx( INSTANCE * my, int * params )
 {
-    flic_reset(( FLIC * ) params[0] ) ;
+    flic_reset(( FLIC * ) ptr_from_int(params[0]) ) ;
     return 1 ;
 }
 
 static int modflic_endx( INSTANCE * my, int * params )
 {
-    flic_destroy((( FLIC * ) params[0] ) ) ;
+    flic_destroy((( FLIC * ) ptr_from_int(params[0]) ) ) ;
     return 1 ;
 }
 
 static int modflic_framex( INSTANCE * my, int * params )
 {
-    return (( FLIC * ) params[0] )->finished ? 0 : (( FLIC * ) params[0] )->current_frame ;
+    FLIC * flic = ptr_from_int(params[0]);
+    return flic->finished ? 0 : flic->current_frame ;
 }
 
 static int modflic_params( INSTANCE * my, int * params )
 {
-    FLIC * flic = ( FLIC * ) params[0] ;
+    FLIC * flic = ( FLIC * ) ptr_from_int(params[0]) ;
 
     flic->x = params[1] ;
     flic->y = params[2] ;
@@ -744,7 +745,7 @@ static int modflic_params( INSTANCE * my, int * params )
 
 static int modflic_move( INSTANCE * my, int * params )
 {
-    FLIC * flic = ( FLIC * ) params[0] ;
+    FLIC * flic = ( FLIC * ) ptr_from_int(params[0]) ;
 
     flic->x = params[1] ;
     flic->y = params[2] ;
@@ -754,45 +755,51 @@ static int modflic_move( INSTANCE * my, int * params )
 
 static int modflic_z( INSTANCE * my, int * params )
 {
-    (( FLIC * ) params[0] )->z = params[1] ;
+    (( FLIC * ) ptr_from_int(params[0]) )->z = params[1] ;
 
     return 1 ;
 }
 
 static int modflic_angle( INSTANCE * my, int * params )
 {
-    (( FLIC * ) params[0] )->angle = params[1] ;
+    (( FLIC * ) ptr_from_int(params[0]) )->angle = params[1] ;
 
     return 1 ;
 }
 
 static int modflic_size( INSTANCE * my, int * params )
 {
-    (( FLIC * ) params[0] )->size = params[1] ;
+    (( FLIC * ) ptr_from_int(params[0]) )->size = params[1] ;
 
     return 1 ;
 }
 
 static int modflic_flags( INSTANCE * my, int * params )
 {
-    (( FLIC * ) params[0] )->flags = params[1] ;
+    (( FLIC * ) ptr_from_int(params[0]) )->flags = params[1] ;
 
     return 1 ;
 }
 
 static int modflic_getinfo( INSTANCE * my, int * params )
 {
-    FLIC * flic = ( FLIC * ) params[0] ;
+    FLIC * flic = ( FLIC * ) ptr_from_int(params[0]) ;
 
-    if ((( int * ) params[1] ) ) *(( int * ) params[1] ) = flic->x ;
-    if ((( int * ) params[2] ) ) *(( int * ) params[2] ) = flic->y ;
-    if ((( int * ) params[3] ) ) *(( int * ) params[3] ) = flic->z ;
-    if ((( int * ) params[4] ) ) *(( int * ) params[4] ) = flic->angle ;
-    if ((( int * ) params[5] ) ) *(( int * ) params[5] ) = flic->size ;
-    if ((( int * ) params[6] ) ) *(( int * ) params[6] ) = flic->flags ;
-    if ((( int * ) params[7] ) ) *(( int * ) params[7] ) = flic->header.frames ;
-    if ((( int * ) params[8] ) ) *(( int * ) params[8] ) = flic->header.width ;
-    if ((( int * ) params[9] ) ) *(( int * ) params[9] ) = flic->header.height ;
+    int* int_params[9];
+    for (int i=0; i<9; ++i)
+    {
+        int_params[i]= (int*)ptr_from_int(params[1+i]);
+    }
+
+    if (int_params[0]) *int_params[0] = flic->x ;
+    if (int_params[1]) *int_params[1] = flic->y ;
+    if (int_params[2]) *int_params[2] = flic->z ;
+    if (int_params[3]) *int_params[3] = flic->angle ;
+    if (int_params[4]) *int_params[4] = flic->size ;
+    if (int_params[5]) *int_params[5] = flic->flags ;
+    if (int_params[6]) *int_params[6] = flic->header.frames ;
+    if (int_params[7]) *int_params[7] = flic->header.width ;
+    if (int_params[8]) *int_params[8] = flic->header.height ;
 
     return 1 ;
 }

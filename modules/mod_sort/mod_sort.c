@@ -299,8 +299,8 @@ static int modsort_sort( INSTANCE * my, int * params )
 {
     /* Get the description of the data to be sorted */
 
-    void *          data = ( void * )params[0];
-    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )params[1];
+    void *          data = ( void * )ptr_from_int(params[0]);
+    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )ptr_from_int(params[1]);
     DCB_TYPEDEF     copy = *type;
     int             vars = params[2];
     int             element_size;
@@ -354,14 +354,14 @@ static int modsort_ksort( INSTANCE * my, int * params )
 {
     /* Get the description of the data to be sorted */
 
-    void *          data = ( void * )params[0];
-    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )params[1];
+    void *          data = ( void * )ptr_from_int(params[0]);
+    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )ptr_from_int(params[1]);
     DCB_TYPEDEF     copy = *type;
     int             vars = params[2];
     int             element_size;
 
-    void *          key_data = ( void * )params[3];
-    DCB_TYPEDEF *   key_type = ( DCB_TYPEDEF * )params[4];
+    void *          key_data = ( void * )ptr_from_int(params[3]);
+    DCB_TYPEDEF *   key_type = ( DCB_TYPEDEF * )ptr_from_int(params[4]);
 
     /* Is it valid? */
 
@@ -422,8 +422,8 @@ static int modsort_sort_n( INSTANCE * my, int * params )
 {
     /* Get the description of the data to be sorted */
 
-    void *          data = ( void * )params[0];
-    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )params[1];
+    void *          data = ( void * )ptr_from_int(params[0]);
+    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )ptr_from_int(params[1]);
     DCB_TYPEDEF     copy = *type;
     int             vars = params[2];
     int             element_size;
@@ -480,14 +480,14 @@ static int modsort_ksort_n( INSTANCE * my, int * params )
 {
     /* Get the description of the data to be sorted */
 
-    void *          data = ( void * )params[0];
-    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )params[1];
+    void *          data = ( void * )ptr_from_int(params[0]);
+    DCB_TYPEDEF *   type = ( DCB_TYPEDEF * )ptr_from_int(params[1]);
     DCB_TYPEDEF     copy = *type;
     int             vars = params[2];
     int             element_size;
 
-    void *          key_data = ( void * )params[3];
-    DCB_TYPEDEF *   key_type = ( DCB_TYPEDEF * )params[4];
+    void *          key_data = ( void * )ptr_from_int(params[3]);
+    DCB_TYPEDEF *   key_type = ( DCB_TYPEDEF * )ptr_from_int(params[4]);
 
     /* Is it valid? */
 
@@ -596,7 +596,7 @@ static void QuickSort( uint8_t *Data, int inf, int sup, int *params )
 static int modsort_quicksort( INSTANCE *my, int *params )
 {
 
-    uint8_t *Data = ( uint8_t * )params[0];
+    uint8_t *Data = ( uint8_t * )ptr_from_int(params[0]);
     QuickSort( Data, 0, params[2] - 1, params );
     return 1 ;
 }

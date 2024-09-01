@@ -175,6 +175,7 @@ int instance_go( INSTANCE * r ) {
     INSTANCE * i = NULL;
     char * str = NULL;
     int status;
+    void* tmp;
 
     /* Pointer to the current process's code (it may be a called one) */
 
@@ -406,7 +407,7 @@ main_loop_instance_go:
             case MN_PRIVATE | MN_BYTE | MN_UNSIGNED:
             case MN_PRIVATE | MN_STRING:
             case MN_PRIVATE | MN_FLOAT:
-                *r->stack_ptr++ = ( uint32_t ) & PRIDWORD( r, ptr[1] );
+                *r->stack_ptr++ = ( uint32_t ) int_from_ptr(& PRIDWORD( r, ptr[1] ));
                 ptr += 2;
                 break;
 
@@ -418,7 +419,7 @@ main_loop_instance_go:
             case MN_PUBLIC | MN_BYTE | MN_UNSIGNED:
             case MN_PUBLIC | MN_STRING:
             case MN_PUBLIC | MN_FLOAT:
-                *r->stack_ptr++ = ( uint32_t ) & PUBDWORD( r, ptr[1] );
+                *r->stack_ptr++ = ( uint32_t ) int_from_ptr(& PUBDWORD( r, ptr[1] ));
                 ptr += 2;
                 break;
 
@@ -430,7 +431,7 @@ main_loop_instance_go:
             case MN_LOCAL | MN_BYTE | MN_UNSIGNED:
             case MN_LOCAL | MN_STRING:
             case MN_LOCAL | MN_FLOAT:
-                *r->stack_ptr++ = ( uint32_t ) & LOCDWORD( r, ptr[1] );
+                *r->stack_ptr++ = ( uint32_t ) int_from_ptr(& LOCDWORD( r, ptr[1] ));
                 ptr += 2;
                 break;
 
@@ -442,7 +443,7 @@ main_loop_instance_go:
             case MN_GLOBAL | MN_BYTE | MN_UNSIGNED:
             case MN_GLOBAL | MN_STRING:
             case MN_GLOBAL | MN_FLOAT:
-                *r->stack_ptr++ = ( uint32_t ) & GLODWORD( ptr[1] );
+                *r->stack_ptr++ = ( uint32_t ) int_from_ptr(& GLODWORD( ptr[1] ));
                 ptr += 2;
                 break;
 
@@ -459,7 +460,7 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Process %d not active\n", r->proc->name, LOCDWORD( r, PROCESS_ID ), r->stack_ptr[-1] );
                     exit( 0 );
                 }
-                r->stack_ptr[-1] = ( uint32_t ) & LOCDWORD( i, ptr[1] );
+                r->stack_ptr[-1] = ( uint32_t ) int_from_ptr(& LOCDWORD( i, ptr[1] ));
                 ptr += 2;
                 break;
 
@@ -476,7 +477,7 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Process %d not active\n", r->proc->name, LOCDWORD( r, PROCESS_ID ), r->stack_ptr[-1] );
                     exit( 0 );
                 }
-                r->stack_ptr[-1] = ( uint32_t ) & PUBDWORD( i, ptr[1] );
+                r->stack_ptr[-1] = ( uint32_t ) int_from_ptr(& PUBDWORD( i, ptr[1] ));
                 ptr += 2;
                 break;
 
@@ -537,7 +538,7 @@ main_loop_instance_go:
             case MN_PTR:
             case MN_PTR | MN_UNSIGNED:
             case MN_PTR | MN_FLOAT:
-                r->stack_ptr[-1] = *( int32_t * )r->stack_ptr[-1];
+                r->stack_ptr[-1] = *( int32_t * )ptr_from_int(r->stack_ptr[-1]);
                 ptr++;
                 break;
 
@@ -596,7 +597,7 @@ main_loop_instance_go:
                 break;
 
             case MN_STRING | MN_PTR:
-                r->stack_ptr[-1] = *( int32_t * )r->stack_ptr[-1];
+                r->stack_ptr[-1] = *( int32_t * )ptr_from_int(r->stack_ptr[-1]);
                 string_use( r->stack_ptr[-1] );
                 ptr++;
                 break;
@@ -690,12 +691,12 @@ main_loop_instance_go:
                 break;
 
             case MN_WORD | MN_PTR:
-                r->stack_ptr[-1] = *( int16_t * )r->stack_ptr[-1];
+                r->stack_ptr[-1] = *( int16_t * )ptr_from_int(r->stack_ptr[-1]);
                 ptr++;
                 break;
 
             case MN_WORD | MN_PTR | MN_UNSIGNED:
-                r->stack_ptr[-1] = *( uint16_t * )r->stack_ptr[-1];
+                r->stack_ptr[-1] = *( uint16_t * )ptr_from_int(r->stack_ptr[-1]);
                 ptr++;
                 break;
 
@@ -782,12 +783,12 @@ main_loop_instance_go:
                 break;
 
             case MN_BYTE | MN_PTR:
-                r->stack_ptr[-1] = *(( int8_t * )r->stack_ptr[-1] );
+                r->stack_ptr[-1] = *(( int8_t * )ptr_from_int(r->stack_ptr[-1]) );
                 ptr++;
                 break;
 
             case MN_BYTE | MN_PTR | MN_UNSIGNED:
-                r->stack_ptr[-1] = *(( uint8_t * )r->stack_ptr[-1] );
+                r->stack_ptr[-1] = *(( uint8_t * )ptr_from_int(r->stack_ptr[-1]) );
                 ptr++;
                 break;
 
@@ -1252,9 +1253,10 @@ main_loop_instance_go:
             /* String operations */
 
             case MN_VARADD | MN_STRING:
-                n = *( int32_t * )( r->stack_ptr[-2] );
-                *( int32_t * )( r->stack_ptr[-2] ) = string_add( n, r->stack_ptr[-1] );
-                string_use( *( int32_t * )( r->stack_ptr[-2] ) );
+                tmp = ptr_from_int( r->stack_ptr[-2] );
+                n = *( int32_t * )tmp;
+                *( int32_t * )tmp = string_add( n, r->stack_ptr[-1] );
+                string_use( *( int32_t * )tmp );
                 string_discard( n );
                 string_discard( r->stack_ptr[-1] );
                 r->stack_ptr--;
@@ -1262,15 +1264,17 @@ main_loop_instance_go:
                 break;
 
             case MN_LETNP | MN_STRING:
-                string_discard( *( int32_t * )( r->stack_ptr[-2] ) );
-                ( *( int32_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                tmp = ptr_from_int( r->stack_ptr[-2] );
+                string_discard( *( int32_t * )tmp );
+                ( *( int32_t * )tmp ) = r->stack_ptr[-1];
                 r->stack_ptr -= 2;
                 ptr++;
                 break;
 
             case MN_LET | MN_STRING:
-                string_discard( *( int32_t * )( r->stack_ptr[-2] ) );
-                ( *( int32_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                tmp = ptr_from_int( r->stack_ptr[-2] );
+                string_discard( *( int32_t * )tmp );
+                ( *( int32_t * )tmp ) = r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1354,7 +1358,8 @@ main_loop_instance_go:
                 break;
 
             case MN_POINTER2STR:
-                r->stack_ptr[-ptr[1] - 1] = string_ptoa( *( void ** ) & r->stack_ptr[-ptr[1] - 1] );
+                // This just seems to convert a pointer to a string, using the offset seems fine
+                r->stack_ptr[-ptr[1] - 1] = string_ptoa( ( void * ) (size_t)r->stack_ptr[-ptr[1] - 1] );
                 string_use( r->stack_ptr[-ptr[1] - 1] );
                 ptr += 2;
                 break;
@@ -1378,7 +1383,7 @@ main_loop_instance_go:
             /* Fixed-length strings operations*/
 
             case MN_A2STR:
-                str = ( char * )( r->stack_ptr[-ptr[1] - 1] );
+                str = ( char * )ptr_from_int( r->stack_ptr[-ptr[1] - 1] );
                 n = string_new( str );
                 string_use( n );
                 r->stack_ptr[-ptr[1] - 1] = n;
@@ -1387,8 +1392,9 @@ main_loop_instance_go:
 
             case MN_STR2A:
                 n = r->stack_ptr[-1];
-                strncpy( ( char * )( r->stack_ptr[-2] ), string_get( n ), ptr[1] );
-                (( char * )( r->stack_ptr[-2] ) )[ptr[1]] = 0;
+                tmp = ptr_from_int(r->stack_ptr[-2]);
+                strncpy( ( char * )tmp, string_get( n ), ptr[1] );
+                (( char * )tmp )[ptr[1]] = 0;
                 r->stack_ptr[-2] = r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr += 2;
@@ -1396,8 +1402,9 @@ main_loop_instance_go:
 
             case MN_STRACAT:
                 n = r->stack_ptr[-1];
-                strncat( ( char * )( r->stack_ptr[-2] ), string_get( n ), (ptr[1]-1) - strlen( ( char * )( r->stack_ptr[-2] ) ) );
-                (( char * )( r->stack_ptr[-2] ) )[ptr[1]-1] = 0;
+                tmp = ptr_from_int( r->stack_ptr[-2]);
+                strncat( ( char * )tmp, string_get( n ), (ptr[1]-1) - strlen( ( char * )tmp ) );
+                (( char * )tmp )[ptr[1]-1] = 0;
                 r->stack_ptr[-2] = r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr += 2;
@@ -1407,61 +1414,63 @@ main_loop_instance_go:
 
             case MN_LETNP:
             case MN_LETNP | MN_UNSIGNED:
-                ( *( int32_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                ( *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
                 r->stack_ptr -= 2;
                 ptr++;
                 break;
 
             case MN_LET:
             case MN_LET | MN_UNSIGNED:
-                ( *( int32_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                ( *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_INC:
             case MN_INC | MN_UNSIGNED:
-                ( *( int32_t * )( r->stack_ptr[-1] ) ) += ptr[1];
+                ( *( int32_t * )ptr_from_int( r->stack_ptr[-1] ) ) += ptr[1];
                 ptr += 2;
                 break;
 
             case MN_DEC:
             case MN_DEC | MN_UNSIGNED:
-                ( *( int32_t * )( r->stack_ptr[-1] ) ) -= ptr[1];
+                ( *( int32_t * )ptr_from_int( r->stack_ptr[-1] ) ) -= ptr[1];
                 ptr += 2;
                 break;
 
             case MN_POSTDEC:
             case MN_POSTDEC | MN_UNSIGNED:
-                ( *( int32_t * )( r->stack_ptr[-1] ) ) -= ptr[1];
-                r->stack_ptr[-1] = *( int32_t * )( r->stack_ptr[-1] ) + ptr[1];
+                tmp = ptr_from_int( r->stack_ptr[-1] );
+                ( *( int32_t * )tmp ) -= ptr[1];
+                r->stack_ptr[-1] = *( int32_t * )tmp + ptr[1];
                 ptr += 2;
                 break;
 
             case MN_POSTINC:
             case MN_POSTINC | MN_UNSIGNED:
-                *(( int32_t * )( r->stack_ptr[-1] ) ) += ptr[1];
-                r->stack_ptr[-1] = *( int32_t * )( r->stack_ptr[-1] ) - ptr[1];
+                tmp = ptr_from_int( r->stack_ptr[-1] );
+                *(( int32_t * )tmp ) += ptr[1];
+                r->stack_ptr[-1] = *( int32_t * )tmp - ptr[1];
                 ptr += 2;
                 break;
 
             case MN_VARADD:
             case MN_VARADD | MN_UNSIGNED:
-                *( int32_t * )( r->stack_ptr[-2] ) += r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) += r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARSUB:
             case MN_VARSUB | MN_UNSIGNED:
-                *( int32_t * )( r->stack_ptr[-2] ) -= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) -= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARMUL:
             case MN_VARMUL | MN_UNSIGNED:
-                *( int32_t * )( r->stack_ptr[-2] ) *= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) *= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1472,7 +1481,7 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Division by zero\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
                     exit( 0 );
                 }
-                *( int32_t * )( r->stack_ptr[-2] ) /= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) /= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1483,52 +1492,52 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Division by zero\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
                     exit( 0 );
                 }
-                *( int32_t * )( r->stack_ptr[-2] ) %= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) %= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VAROR:
             case MN_VAROR | MN_UNSIGNED:
-                *( int32_t * )( r->stack_ptr[-2] ) |= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) |= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARXOR:
             case MN_VARXOR | MN_UNSIGNED:
-                *( int32_t * )( r->stack_ptr[-2] ) ^= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) ^= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARAND:
             case MN_VARAND | MN_UNSIGNED:
-                *( int32_t * )( r->stack_ptr[-2] ) &= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) &= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARROR:
-                *( int32_t * )( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARROR | MN_UNSIGNED:
-                *( uint32_t * )( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
+                *( uint32_t * )ptr_from_int( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARROL:
-                *( int32_t * )( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
+                *( int32_t * )ptr_from_int( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_VARROL | MN_UNSIGNED:
-                *( uint32_t * )( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
+                *( uint32_t * )ptr_from_int( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1537,61 +1546,63 @@ main_loop_instance_go:
 
             case MN_WORD | MN_LETNP:
             case MN_WORD | MN_LETNP | MN_UNSIGNED:
-                ( *( int16_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                ( *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
                 r->stack_ptr -= 2;
                 ptr++;
                 break;
 
             case MN_WORD | MN_LET:
             case MN_WORD | MN_LET | MN_UNSIGNED:
-                ( *( int16_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                ( *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_INC:
             case MN_WORD | MN_INC | MN_UNSIGNED:
-                ( *( int16_t * )( r->stack_ptr[-1] ) ) += ptr[1];
+                ( *( int16_t * )ptr_from_int( r->stack_ptr[-1] ) ) += ptr[1];
                 ptr += 2;
                 break;
 
             case MN_WORD | MN_DEC:
             case MN_WORD | MN_DEC | MN_UNSIGNED:
-                ( *( int16_t * )( r->stack_ptr[-1] ) ) -= ptr[1];
+                ( *( int16_t * )ptr_from_int( r->stack_ptr[-1] ) ) -= ptr[1];
                 ptr += 2;
                 break;
 
             case MN_WORD | MN_POSTDEC:
             case MN_WORD | MN_POSTDEC | MN_UNSIGNED:
-                ( *( int16_t * )( r->stack_ptr[-1] ) ) -= ptr[1];
-                r->stack_ptr[-1] = *( int16_t * )( r->stack_ptr[-1] ) + ptr[1];
+                tmp = ptr_from_int(r->stack_ptr[-1]);
+                ( *( int16_t * )tmp ) -= ptr[1];
+                r->stack_ptr[-1] = *( int16_t * )tmp + ptr[1];
                 ptr += 2;
                 break;
 
             case MN_WORD | MN_POSTINC:
             case MN_WORD | MN_POSTINC | MN_UNSIGNED:
-                *(( int16_t * )( r->stack_ptr[-1] ) ) += ptr[1];
-                r->stack_ptr[-1] = *( int16_t * )( r->stack_ptr[-1] ) - ptr[1];
+                tmp = ptr_from_int(r->stack_ptr[-1]);
+                *(( int16_t * )tmp ) += ptr[1];
+                r->stack_ptr[-1] = *( int16_t * )tmp - ptr[1];
                 ptr += 2;
                 break;
 
             case MN_WORD | MN_VARADD:
             case MN_WORD | MN_VARADD | MN_UNSIGNED:
-                *( int16_t * )( r->stack_ptr[-2] ) += r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) += r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARSUB:
             case MN_WORD | MN_VARSUB | MN_UNSIGNED:
-                *( int16_t * )( r->stack_ptr[-2] ) -= r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) -= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARMUL:
             case MN_WORD | MN_VARMUL | MN_UNSIGNED:
-                *( int16_t * )( r->stack_ptr[-2] ) *= r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) *= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1602,7 +1613,7 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Division by zero\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
                     exit( 0 );
                 }
-                *( int16_t * )( r->stack_ptr[-2] ) /= ( int16_t )r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) /= ( int16_t )r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1613,52 +1624,52 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Division by zero\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
                     exit( 0 );
                 }
-                *( int16_t * )( r->stack_ptr[-2] ) %= ( int16_t )r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) %= ( int16_t )r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VAROR:
             case MN_WORD | MN_VAROR | MN_UNSIGNED:
-                *( int16_t * )( r->stack_ptr[-2] ) |= r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) |= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARXOR:
             case MN_WORD | MN_VARXOR | MN_UNSIGNED:
-                *( int16_t * )( r->stack_ptr[-2] ) ^= r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) ^= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARAND:
             case MN_WORD | MN_VARAND | MN_UNSIGNED:
-                *( int16_t * )( r->stack_ptr[-2] ) &= r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) &= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARROR:
-                *( int16_t * )( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARROR | MN_UNSIGNED:
-                *( uint16_t * )( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
+                *( uint16_t * )ptr_from_int( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARROL:
-                *( int16_t * )( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
+                *( int16_t * )ptr_from_int( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_WORD | MN_VARROL | MN_UNSIGNED:
-                *( uint16_t * )( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
+                *( uint16_t * )ptr_from_int( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1667,61 +1678,63 @@ main_loop_instance_go:
 
             case MN_BYTE | MN_LETNP:
             case MN_BYTE | MN_LETNP | MN_UNSIGNED:
-                ( *( uint8_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                ( *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
                 r->stack_ptr -= 2;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_LET:
             case MN_BYTE | MN_LET | MN_UNSIGNED:
-                ( *( uint8_t * )( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
+                ( *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) ) = r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_INC:
             case MN_BYTE | MN_INC | MN_UNSIGNED:
-                ( *( uint8_t * )( r->stack_ptr[-1] ) ) += ptr[1];
+                ( *( uint8_t * )ptr_from_int( r->stack_ptr[-1] ) ) += ptr[1];
                 ptr += 2;
                 break;
 
             case MN_BYTE | MN_DEC:
             case MN_BYTE | MN_DEC | MN_UNSIGNED:
-                ( *( uint8_t * )( r->stack_ptr[-1] ) ) -= ptr[1];
+                ( *( uint8_t * )ptr_from_int( r->stack_ptr[-1] ) ) -= ptr[1];
                 ptr += 2;
                 break;
 
             case MN_BYTE | MN_POSTDEC:
             case MN_BYTE | MN_POSTDEC | MN_UNSIGNED:
-                ( *( uint8_t * )( r->stack_ptr[-1] ) ) -= ptr[1];
-                r->stack_ptr[-1] = *( uint8_t * )( r->stack_ptr[-1] ) + ptr[1];
+                tmp = ptr_from_int(r->stack_ptr[-1]);
+                ( *( uint8_t * )tmp ) -= ptr[1];
+                r->stack_ptr[-1] = *( uint8_t * )tmp + ptr[1];
                 ptr += 2;
                 break;
 
             case MN_BYTE | MN_POSTINC:
             case MN_BYTE | MN_POSTINC | MN_UNSIGNED:
-                *(( uint8_t * )( r->stack_ptr[-1] ) ) += ptr[1];
-                r->stack_ptr[-1] = *( uint8_t * )( r->stack_ptr[-1] ) - ptr[1];
+                tmp = ptr_from_int(r->stack_ptr[-1]);
+                *(( uint8_t * )tmp ) += ptr[1];
+                r->stack_ptr[-1] = *( uint8_t * )tmp - ptr[1];
                 ptr += 2;
                 break;
 
             case MN_BYTE | MN_VARADD:
             case MN_BYTE | MN_VARADD | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) += r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) += r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARSUB:
             case MN_BYTE | MN_VARSUB | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) -= r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) -= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARMUL:
             case MN_BYTE | MN_VARMUL | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) *= r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) *= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1732,7 +1745,7 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Division by zero\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
                     exit( 0 );
                 }
-                *( uint8_t * )( r->stack_ptr[-2] ) /= ( uint8_t )r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) /= ( uint8_t )r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1743,52 +1756,52 @@ main_loop_instance_go:
                     fprintf( stderr, "ERROR: Runtime error in %s(%d) - Division by zero\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
                     exit( 0 );
                 }
-                *( uint8_t * )( r->stack_ptr[-2] ) %= ( uint8_t )r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) %= ( uint8_t )r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VAROR:
             case MN_BYTE | MN_VAROR | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) |= r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) |= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARXOR:
             case MN_BYTE | MN_VARXOR | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) ^= r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) ^= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARAND:
             case MN_BYTE | MN_VARAND | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) &= r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) &= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARROR:
-                *( int8_t * )( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
+                *( int8_t * )ptr_from_int( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARROR | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) >>= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARROL:
-                *( int8_t * )( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
+                *( int8_t * )ptr_from_int( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_BYTE | MN_VARROL | MN_UNSIGNED:
-                *( uint8_t * )( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
+                *( uint8_t * )ptr_from_int( r->stack_ptr[-2] ) <<= r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
@@ -1796,59 +1809,61 @@ main_loop_instance_go:
             /* Direct operations with variables FLOAT type */
 
             case MN_FLOAT | MN_LETNP:
-                ( *( float * )( r->stack_ptr[-2] ) ) = *( float * ) & r->stack_ptr[-1];
+                ( *( float * )ptr_from_int( r->stack_ptr[-2] ) ) = *( float * ) & r->stack_ptr[-1];
                 r->stack_ptr -= 2;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_LET :
-                ( *( float * )( r->stack_ptr[-2] ) ) = *( float * ) & r->stack_ptr[-1];
+                ( *( float * )ptr_from_int( r->stack_ptr[-2] ) ) = *( float * ) & r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_INC:
-                ( *( float * )( r->stack_ptr[-1] ) ) += ptr[1];
+                ( *( float * )ptr_from_int( r->stack_ptr[-1] ) ) += ptr[1];
                 ptr += 2;
                 break;
 
             case MN_FLOAT | MN_DEC:
-                ( *( float * )( r->stack_ptr[-1] ) ) -= ptr[1];
+                ( *( float * )ptr_from_int( r->stack_ptr[-1] ) ) -= ptr[1];
                 ptr += 2;
                 break;
 
             case MN_FLOAT | MN_POSTDEC:
-                ( *( float * )( r->stack_ptr[-1] ) ) -= ptr[1];
-                r->stack_ptr[-1] = *( uint32_t * )( r->stack_ptr[-1] ) + ptr[1];
+                tmp = ptr_from_int(r->stack_ptr[-1]);
+                ( *( float * )tmp ) -= ptr[1];
+                r->stack_ptr[-1] = *( uint32_t * )tmp + ptr[1];
                 ptr += 2;
                 break;
 
             case MN_FLOAT | MN_POSTINC:
-                *(( float * )( r->stack_ptr[-1] ) ) += ptr[1];
-                r->stack_ptr[-1] = *( uint32_t * )( r->stack_ptr[-1] ) - ptr[1];
+                tmp = ptr_from_int(r->stack_ptr[-1]);
+                *(( float * )tmp ) += ptr[1];
+                r->stack_ptr[-1] = *( uint32_t * )tmp - ptr[1];
                 ptr += 2;
                 break;
 
             case MN_FLOAT | MN_VARADD:
-                *( float * )( r->stack_ptr[-2] ) += *( float * ) & r->stack_ptr[-1];
+                *( float * )ptr_from_int( r->stack_ptr[-2] ) += *( float * ) & r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_VARSUB:
-                *( float * )( r->stack_ptr[-2] ) -= *( float * ) & r->stack_ptr[-1];
+                *( float * )ptr_from_int( r->stack_ptr[-2] ) -= *( float * ) & r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_VARMUL:
-                *( float * )( r->stack_ptr[-2] ) *= *( float * ) & r->stack_ptr[-1];
+                *( float * )ptr_from_int( r->stack_ptr[-2] ) *= *( float * ) & r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;
 
             case MN_FLOAT | MN_VARDIV:
-                *( float * )( r->stack_ptr[-2] ) /= *( float * ) & r->stack_ptr[-1];
+                *( float * )ptr_from_int( r->stack_ptr[-2] ) /= *( float * ) & r->stack_ptr[-1];
                 r->stack_ptr--;
                 ptr++;
                 break;

@@ -254,7 +254,7 @@ static int _moddraw_object_new( DRAWING_OBJECT * dr, int z )
 
     drawing_objects = dr;
 
-    return ( int ) dr;
+    return ( int ) int_from_ptr( dr );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -274,7 +274,7 @@ static int _moddraw_object_new( DRAWING_OBJECT * dr, int z )
 
 static void _moddraw_object_destroy( int id )
 {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) id, * next;
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ptr_from_int(id), * next;
     int destroyall = 0;
 
     if ( !dr )
@@ -320,7 +320,7 @@ static void _moddraw_object_destroy( int id )
 
 static void _moddraw_object_move( int id, int x, int y )
 {
-    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) id;
+    DRAWING_OBJECT * dr = ( DRAWING_OBJECT * ) ptr_from_int(id);
 
     if ( dr )
     {

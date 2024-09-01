@@ -101,7 +101,7 @@ void instance_remove_from_list_by_id( INSTANCE * r, uint32_t id )
 
 void instance_add_to_list_by_instance( INSTANCE * r )
 {
-    unsigned int hash = HASH_INSTANCE( r );
+    unsigned int hash = HASH_INSTANCE( int_from_ptr(r) );
 
     if ( !hashed_by_instance ) hashed_by_instance = bgd_calloc( HASH_SIZE, sizeof( INSTANCE * ) );
 
@@ -115,7 +115,7 @@ void instance_add_to_list_by_instance( INSTANCE * r )
 
 void instance_remove_from_list_by_instance( INSTANCE * r )
 {
-    unsigned int hash = HASH_INSTANCE( r );
+    unsigned int hash = HASH_INSTANCE( int_from_ptr(r) );
 
     if ( r->prev_by_instance ) r->prev_by_instance->next_by_instance = r->next_by_instance ;
     if ( r->next_by_instance ) r->next_by_instance->prev_by_instance = r->prev_by_instance ;
@@ -391,7 +391,7 @@ INSTANCE * instance_duplicate( INSTANCE * father )
     r->called_by = NULL;
 
     r->stack = bgd_malloc( father->stack[0] );
-    memmove(r->stack, father->stack, (int)father->stack_ptr - (int)father->stack);
+    memmove(r->stack, father->stack, father->stack_ptr - father->stack);
     r->stack_ptr = &r->stack[1];
 
     /* Initialize list pointers */
@@ -665,7 +665,7 @@ int instance_exists( INSTANCE * r )
 
     if ( !hashed_by_instance || !r ) return 0;
 
-    i = hashed_by_instance[HASH_INSTANCE( r )];
+    i = hashed_by_instance[HASH_INSTANCE( int_from_ptr(r) )];
     while ( i )
     {
         if ( r == i ) return 1 ;
@@ -741,7 +741,7 @@ INSTANCE * instance_get_by_type( uint32_t type, INSTANCE ** context )
 
     if ( !*context ) /* start scan */
         i = hashed_by_type[HASH( type )];
-    else if ( ( i = *context ) == ( INSTANCE * ) (0xFFFFFFFF) ) /* End scan */
+    else if ( ( i = *context ) == ( INSTANCE * ) (-1) ) /* End scan */
         return ( *context = NULL );
 
     if ( i ) /* Valid instance, continue scan */
@@ -749,7 +749,7 @@ INSTANCE * instance_get_by_type( uint32_t type, INSTANCE ** context )
         if ( i->next_by_type )
             *context = i->next_by_type ;
         else
-            *context = ( INSTANCE * ) 0xFFFFFFFF ; /* Next call will be "end scan" */
+            *context = ( INSTANCE * ) -1 ; /* Next call will be "end scan" */
 
         return i;
     }

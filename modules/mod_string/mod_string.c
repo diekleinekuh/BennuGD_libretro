@@ -316,7 +316,7 @@ static int modstring_formatFI( INSTANCE * my, int * params )
 
 static int modstring_get_buffer( INSTANCE * my, int * params )
 {
-    int r = (int) string_get( params[0] );
+    int r = (int) int_from_ptr( string_get( params[0] ) );
     string_discard( params[0] ) ;
     return r;
 }
@@ -327,7 +327,7 @@ static int modstring_get_buffer( INSTANCE * my, int * params )
 
 static int modstring_string_alloc( INSTANCE * my, int * params )
 {
-    return ( int ) bgd_calloc( 1, sizeof( int ) ) ;
+    return ( int ) int_from_ptr( bgd_calloc( 1, sizeof( int ) ) );
 }
 
 
@@ -340,10 +340,10 @@ static int modstring_string_alloc2( INSTANCE * my, int * params )
     int * r = bgd_malloc( sizeof( int ) ) ;
     if ( !r ) {
         string_discard( params[0] ) ;
-        return ( int ) NULL ;
+        return ( int ) int_from_ptr(NULL) ;
     }
     *r = params[0] ;
-    return ( int ) r ;
+    return ( int ) int_from_ptr(r) ;
 }
 
 /** STRING_RELEASE( STRING ** )
@@ -351,7 +351,7 @@ static int modstring_string_alloc2( INSTANCE * my, int * params )
  */
 static int modstring_string_release( INSTANCE * my, int * params )
 {
-    int ** ppstr = ( int ** ) params[0] ;
+    int ** ppstr = ( int ** ) ptr_from_int(params[0]) ;
     if ( !ppstr ) return 0 ;
     if ( *ppstr ) string_discard( **ppstr ) ;
     bgd_free( *ppstr ) ;

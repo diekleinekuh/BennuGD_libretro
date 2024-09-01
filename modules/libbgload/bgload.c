@@ -48,7 +48,7 @@ static bgdata *prep( int *params )
 {
     bgdata *t = ( bgdata* )bgd_malloc( sizeof( bgdata ) );
     t->file = bgd_strdup(( char * )string_get( params[0] ));
-    t->id = ( int* )params[1];
+    t->id = ptr_from_int(params[1]);
     *( t->id ) = -2 ; // WAIT STATUS
     string_discard( params[0] );
     return t;

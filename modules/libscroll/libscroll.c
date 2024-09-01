@@ -146,7 +146,7 @@ void scroll_start( int n, int fileid, int graphid, int backid, int region, int f
         data->reserved[0] = n; /* First reserved dword point to internal scrolldata struct */
 
         if ( scrolls_objects[n] ) gr_destroy_object( scrolls_objects[n] );
-        scrolls_objects[n] = ( int )gr_new_object( 0, ( OBJ_INFO * ) info_scroll, ( OBJ_DRAW * ) draw_scroll, ( void * ) n );
+        scrolls_objects[n] = ( int )gr_new_object( 0, ( OBJ_INFO * ) info_scroll, ( OBJ_DRAW * ) draw_scroll, ( void * ) (size_t)n );
     }
 }
 

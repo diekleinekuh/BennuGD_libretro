@@ -61,7 +61,7 @@ static int modsys_exec( INSTANCE * my, int * params )
     argv = ( char ** ) bgd_calloc( argc + 2, sizeof( char * ) );
     argv[0] = filename;
     for ( n = 0; n < argc; n++ )
-        argv[n + 1] = ( char * ) string_get((( int * )( params[3] ) )[n] );
+        argv[n + 1] = ( char * ) string_get((( int * )ptr_from_int( params[3] ) )[n] );
 
     // Execute program
 #ifdef WIN32

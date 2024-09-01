@@ -884,7 +884,7 @@ static int __m7_start( int n, int fileid, int inid, int outid, int region, int h
     mode7_inf[n].region  = region_get( region ) ;
 
     if ( mode7_inf[n].id ) gr_destroy_object( mode7_inf[n].id );
-    mode7_inf[n].id = gr_new_object( dat->z, ( OBJ_INFO * ) info_mode7, ( OBJ_DRAW * ) draw_mode7, ( void * ) n );
+    mode7_inf[n].id = gr_new_object( dat->z, ( OBJ_INFO * ) info_mode7, ( OBJ_DRAW * ) draw_mode7, ( void * )(size_t)n );
 
     return 1;
 }

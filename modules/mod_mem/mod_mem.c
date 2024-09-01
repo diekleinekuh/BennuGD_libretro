@@ -196,30 +196,30 @@ static int modmem_memory_total( INSTANCE * my, int * params )
 
 static int modmem_memcmp( INSTANCE * my, int * params )
 {
-    return ( memcmp(( void * )params[0], ( void * )params[1], params[2] ) ) ;
+    return ( memcmp(( void * )ptr_from_int(params[0]), ( void * )ptr_from_int(params[1]), params[2] ) ) ;
 }
 
 static int modmem_memmove( INSTANCE * my, int * params )
 {
-    memmove(( void * )params[0], ( void * )params[1], params[2] ) ;
+    memmove(( void * )ptr_from_int(params[0]), ( void * )ptr_from_int(params[1]), params[2] ) ;
     return 1 ;
 }
 
 static int modmem_memcopy( INSTANCE * my, int * params )
 {
-    memcpy(( void * )params[0], ( void * )params[1], params[2] ) ;
+    memcpy(( void * )ptr_from_int(params[0]), ( void * )ptr_from_int(params[1]), params[2] ) ;
     return 1 ;
 }
 
 static int modmem_memset( INSTANCE * my, int * params )
 {
-    memset(( void * )params[0], params[1], params[2] ) ;
+    memset(( void * )ptr_from_int(params[0]), params[1], params[2] ) ;
     return 1 ;
 }
 
 static int modmem_memsetw( INSTANCE * my, int * params )
 {
-    uint16_t * ptr = ( uint16_t * )params[0] ;
+    uint16_t * ptr = ( uint16_t * )ptr_from_int(params[0]) ;
     const uint16_t b = params[1] ;
     int n ;
 
@@ -229,7 +229,7 @@ static int modmem_memsetw( INSTANCE * my, int * params )
 
 static int modmem_memseti( INSTANCE * my, int * params )
 {
-    uint32_t * ptr = ( uint32_t * )params[0] ;
+    uint32_t * ptr = ( uint32_t * )ptr_from_int(params[0]) ;
     const uint32_t b = params[1] ;
     int n ;
 
@@ -239,22 +239,22 @@ static int modmem_memseti( INSTANCE * my, int * params )
 
 static int modmem_calloc( INSTANCE * my, int * params )
 {
-    return (( int ) bgd_calloc( params[0], params[1] ) ) ;
+    return (( int ) int_from_ptr( bgd_calloc( params[0], params[1] ) ) ) ;
 }
 
 static int modmem_alloc( INSTANCE * my, int * params )
 {
-    return (( int ) bgd_malloc( params[0] ) ) ;
+    return (( int ) int_from_ptr( bgd_malloc( params[0] ) ) ) ;
 }
 
 static int modmem_realloc( INSTANCE * my, int * params )
 {
-    return (( int )bgd_realloc(( void * )params[0], params[1] ) ) ;
+    return (( int )int_from_ptr( bgd_realloc(( void * )ptr_from_int(params[0]), params[1] ) ) ) ;
 }
 
 static int modmem_free( INSTANCE * my, int * params )
 {
-    bgd_free(( void * )params[0] ) ;
+    bgd_free(( void * )ptr_from_int(params[0]) ) ;
     return 1 ;
 }
 

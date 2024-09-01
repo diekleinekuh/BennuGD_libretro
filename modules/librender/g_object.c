@@ -180,7 +180,7 @@ int gr_new_object( int z, OBJ_INFO * info, OBJ_DRAW * draw, void * what )
 
     ctr->first_in_key = object;
 
-    return ( int ) object;
+    return int_from_ptr( object );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -199,7 +199,7 @@ int gr_new_object( int z, OBJ_INFO * info, OBJ_DRAW * draw, void * what )
 void gr_destroy_object( int id )
 {
     CONTAINER * ctr ;
-    OBJECT * object = ( OBJECT * ) id ;
+    OBJECT * object = ( OBJECT * ) ptr_from_int( id ) ;
 
     if ( !object ) return ;
 

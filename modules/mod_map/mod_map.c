@@ -127,8 +127,8 @@ static int modmap_get_point( INSTANCE * my, int * params )
     /* Use the center as control point if it is not there */
     if ( params[2] == 0 && ( bmp->ncpoints == 0 || bmp->cpoints[0].x == CPOINT_UNDEFINED ) )
     {
-        *( int * )params[3] = bmp->width / 2;
-        *( int * )params[4] = bmp->height / 2;
+        *( int * )ptr_from_int(params[3]) = bmp->width / 2;
+        *( int * )ptr_from_int(params[4]) = bmp->height / 2;
         return 1 ;
     }
 
@@ -137,8 +137,8 @@ static int modmap_get_point( INSTANCE * my, int * params )
     if ( bmp->cpoints[params[2]].x == CPOINT_UNDEFINED && bmp->cpoints[params[2]].y == CPOINT_UNDEFINED )
         return 0;
 
-    *( int * )params[3] = bmp->cpoints[params[2]].x ;
-    *( int * )params[4] = bmp->cpoints[params[2]].y ;
+    *( int * )ptr_from_int(params[3]) = bmp->cpoints[params[2]].x ;
+    *( int * )ptr_from_int(params[4]) = bmp->cpoints[params[2]].y ;
     return 1 ;
 }
 
@@ -178,7 +178,7 @@ static int modmap_map_buffer( INSTANCE * my, int * params )
     else
         map = background ;
 
-    return map ? ( int )map->data : 0 ;
+    return map ? ( int )int_from_ptr(map->data) : 0 ;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -427,7 +427,7 @@ static int modmap_load_pal( INSTANCE * my, int * params )
 
 static int modmap_save_pal( INSTANCE * my, int * params )
 {
-    int r = gr_save_pal( string_get( params[0] ), ( PALETTE * )params[1] );
+    int r = gr_save_pal( string_get( params[0] ), ( PALETTE * )ptr_from_int(params[1]) );
     string_discard( params[0] );
     return r;
 }
@@ -446,7 +446,7 @@ static int modmap_save_system_pal( INSTANCE * my, int * params )
 static int modmap_convert_palette( INSTANCE * my, int * params )
 {
     GRAPH * map = bitmap_get( params[0], params[1] ) ;
-    int * newpal = ( int * ) params[2];
+    int * newpal = ( int * ) ptr_from_int(params[2]);
     uint32_t x, y ;
     uint8_t * orig, * ptr ;
 
@@ -469,7 +469,7 @@ static int modmap_convert_palette( INSTANCE * my, int * params )
 
 static int modmap_set_colors( INSTANCE * my, int * params )
 {
-    gr_set_colors( params[0], params[1], ( uint8_t * )params[2] ) ;
+    gr_set_colors( params[0], params[1], ( uint8_t * )ptr_from_int(params[2]) ) ;
     return 1 ;
 }
 
@@ -477,7 +477,7 @@ static int modmap_set_colors( INSTANCE * my, int * params )
 
 static int modmap_get_colors( INSTANCE * my, int * params )
 {
-    gr_get_colors( params[0], params[1], ( uint8_t * )params[2] ) ;
+    gr_get_colors( params[0], params[1], ( uint8_t * )ptr_from_int(params[2]) ) ;
     return 1 ;
 }
 
@@ -500,7 +500,7 @@ static int modmap_find_color( INSTANCE * my, int * params )
 
 static int modmap_find_color2( INSTANCE * my, int * params )
 {
-    return find_nearest_color( ( PALETTE * ) params[0], 0, 255, params[1], params[2], params[3] ) ;
+    return find_nearest_color( ( PALETTE * ) ptr_from_int(params[0]), 0, 255, params[1], params[2], params[3] ) ;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -516,7 +516,7 @@ static int modmap_find_color3( INSTANCE * my, int * params )
 
 static int modmap_get_rgb( INSTANCE * my, int * params )
 {
-    gr_get_rgb( params[0], ( int * )params[1], ( int * )params[2], ( int * )params[3] ) ;
+    gr_get_rgb( params[0], ( int * )ptr_from_int(params[1]), ( int * )ptr_from_int(params[2]), ( int * )ptr_from_int(params[3]) ) ;
     return 1 ;
 }
 
@@ -524,7 +524,7 @@ static int modmap_get_rgb( INSTANCE * my, int * params )
 
 static int modmap_get_rgba( INSTANCE * my, int * params )
 {
-    gr_get_rgba( params[0], ( int * )params[1], ( int * )params[2], ( int * )params[3], ( int * )params[4] ) ;
+    gr_get_rgba( params[0], ( int * )ptr_from_int(params[1]), ( int * )ptr_from_int(params[2]), ( int * )ptr_from_int(params[3]), ( int * )ptr_from_int(params[4]) ) ;
     return 1 ;
 }
 
@@ -546,7 +546,7 @@ static int modmap_rgba( INSTANCE * my, int * params )
 
 static int modmap_get_rgb_depth( INSTANCE * my, int * params )
 {
-    gr_get_rgb_depth( params[4], params[0], ( int * )params[1], ( int * )params[2], ( int * )params[3] ) ;
+    gr_get_rgb_depth( params[4], params[0], ( int * )ptr_from_int(params[1]), ( int * )ptr_from_int(params[2]), ( int * )ptr_from_int(params[3]) ) ;
     return 1 ;
 }
 
@@ -554,7 +554,7 @@ static int modmap_get_rgb_depth( INSTANCE * my, int * params )
 
 static int modmap_get_rgba_depth( INSTANCE * my, int * params )
 {
-    gr_get_rgba_depth( params[5], params[0], ( int * )params[1], ( int * )params[2], ( int * )params[3], ( int * )params[4] ) ;
+    gr_get_rgba_depth( params[5], params[0], ( int * )ptr_from_int(params[1]), ( int * )ptr_from_int(params[2]), ( int * )ptr_from_int(params[3]), ( int * )ptr_from_int(params[4]) ) ;
     return 1 ;
 }
 
@@ -581,7 +581,7 @@ static int modmap_rgba_depth( INSTANCE * my, int * params )
 static int modmap_get_rgb_map( INSTANCE * my, int * params )
 {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
-    _get_rgb( bmp->format, params[2], ( int * )params[3], ( int * )params[4], ( int * )params[5] ) ;
+    _get_rgb( bmp->format, params[2], ( int * )ptr_from_int(params[3]), ( int * )ptr_from_int(params[4]), ( int * )ptr_from_int(params[5]) ) ;
     return 1 ;
 }
 
@@ -590,7 +590,7 @@ static int modmap_get_rgb_map( INSTANCE * my, int * params )
 static int modmap_get_rgba_map( INSTANCE * my, int * params )
 {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
-    _get_rgba( bmp->format, params[2], ( int * )params[3], ( int * )params[4], ( int * )params[5], ( int * )params[6] ) ;
+    _get_rgba( bmp->format, params[2], ( int * )ptr_from_int(params[3]), ( int * )ptr_from_int(params[4]), ( int * )ptr_from_int(params[5]), ( int * )ptr_from_int(params[6]) ) ;
     return 1 ;
 }
 
@@ -639,21 +639,21 @@ static int modmap_fade_off( INSTANCE * my, int * params )
 
 static int modmap_pal_create( INSTANCE * my, int * params )
 {
-    return ( int ) pal_new(( PALETTE * )NULL ) ;
+    return ( int ) int_from_ptr( pal_new(( PALETTE * )NULL ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int modmap_pal_clone( INSTANCE * my, int * params )
 {
-    return ( int ) pal_new(( PALETTE * )( params[0] ) ) ;
+    return ( int ) int_from_ptr( pal_new(( PALETTE * )( ptr_from_int(params[0]) ) ) );
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int modmap_pal_unload( INSTANCE * my, int * params )
 {
-    pal_destroy(( PALETTE * )( params[0] ) ) ;
+    pal_destroy(( PALETTE * )( ptr_from_int(params[0]) ) ) ;
     return 1;
 }
 
@@ -669,7 +669,7 @@ static int modmap_pal_refresh( INSTANCE * my, int * params )
 
 static int modmap_pal_refresh_2( INSTANCE * my, int * params )
 {
-    pal_refresh(( PALETTE * )( params[0] ) );
+    pal_refresh(( PALETTE * )( ptr_from_int(params[0]) ) );
     return 1;
 }
 
@@ -677,7 +677,7 @@ static int modmap_pal_refresh_2( INSTANCE * my, int * params )
 
 static int modmap_pal_map_assign( INSTANCE * my, int * params )
 {
-    return pal_map_assign( params[0], params[1], ( PALETTE * )( params[2] ) );
+    return pal_map_assign( params[0], params[1], ( PALETTE * )ptr_from_int( params[2] ) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -693,14 +693,14 @@ static int modmap_pal_map_getid( INSTANCE * my, int * params )
 {
     GRAPH * bmp = bitmap_get( params[0], params[1] ) ;
     if ( !bmp || bmp->format->depth != 8 ) return 0 ;
-    return ( int ) bmp->format->palette ;
+    return ( int ) int_from_ptr(bmp->format->palette) ;
 }
 
 /* --------------------------------------------------------------------------- */
 
 static int modmap_set_system_pal( INSTANCE * my, int * params )
 {
-    if ( pal_set(( PALETTE * )NULL, 0, 256, ( uint8_t * )(( PALETTE * )params[0])->rgb ) )
+    if ( pal_set(( PALETTE * )NULL, 0, 256, ( uint8_t * )(( PALETTE * )ptr_from_int(params[0]))->rgb ) )
     {
         pal_refresh( sys_pixel_format->palette );
         return 1;
@@ -712,7 +712,7 @@ static int modmap_set_system_pal( INSTANCE * my, int * params )
 
 static int modmap_set_system_pal_raw( INSTANCE * my, int * params )
 {
-    if ( pal_set(( PALETTE * )NULL, 0, 256, ( uint8_t * )params[0] ) )
+    if ( pal_set(( PALETTE * )NULL, 0, 256, ( uint8_t * )ptr_from_int(params[0]) ) )
     {
         pal_refresh( sys_pixel_format->palette );
         return 1;
@@ -724,7 +724,7 @@ static int modmap_set_system_pal_raw( INSTANCE * my, int * params )
 
 static int modmap_pal_set( INSTANCE * my, int * params )
 {
-    int ret = pal_set(( PALETTE * )( params[0] ), params[1], params[2], ( uint8_t * )params[3] ) ;
+    int ret = pal_set(( PALETTE * )ptr_from_int( params[0] ), params[1], params[2], ( uint8_t * )ptr_from_int(params[3]) ) ;
     if ( ret && !params[0] ) pal_refresh( sys_pixel_format->palette );
     return ret;
 }
@@ -733,7 +733,7 @@ static int modmap_pal_set( INSTANCE * my, int * params )
 
 static int modmap_pal_get( INSTANCE * my, int * params )
 {
-    return ( pal_get(( PALETTE * )( params[0] ), params[1], params[2], ( uint8_t * )params[3] ) ) ;
+    return ( pal_get(( PALETTE * )ptr_from_int( params[0] ), params[1], params[2], ( uint8_t * )ptr_from_int(params[3]) ) ) ;
 }
 
 /* ---------------------------------------------------------------------- */

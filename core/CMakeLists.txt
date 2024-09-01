@@ -20,9 +20,7 @@ FetchContent_MakeAvailable(rpmalloc)
 add_library(core OBJECT ${COMMON_SRC} ${BGDRTM_SRC})
 target_include_directories(core PRIVATE "${rpmalloc_SOURCE_DIR}/rpmalloc/")
 
-if (WIN32)
-    set_target_properties(core PROPERTIES COMPILE_FLAGS "/wd4311 /wd4312")
-else()
+if (NOT WIN32)
     target_link_libraries(core m dl)
 endif()
 

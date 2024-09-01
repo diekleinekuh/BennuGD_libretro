@@ -9,6 +9,47 @@
 
 static char* address = 0x0;
 
+uint8_t* allocated_chunk=0x0;
+
+extern uint8_t* allocated_chunk;
+
+void* ptr_from_int(uint32_t input)
+{
+    //return (void*)(size_t)input;
+
+    if (input > 0)
+        return allocated_chunk + input - 1;
+    else
+        return NULL;
+
+    // uint32_t low_part = (uint32_t)(size_t)allocated_chunk;
+    // uint32_t high_part = ((size_t)allocated_chunk) & 0xFFFFFFFF00000000;
+    // if (input<low_part)
+    // {
+    //     high_part +=0x100000000;
+    // }
+
+    // size_t result = high_part |  (size_t)input;
+
+    // return (void*)result;
+}
+
+int32_t int_from_ptr(const void* ptr)
+{
+    // assert((((size_t)ptr) & 0xFFFFFFFF00000000) == 0);
+    // return (int32_t)(size_t)ptr;
+
+    if (!ptr)
+        return 0;
+
+    assert(ptr >= allocated_chunk);
+    assert(allocated_chunk != NULL);
+    return (uint8_t*)ptr - allocated_chunk + 1;
+    // assert((((size_t)ptr)>>32)==1);
+    // return ((size_t)ptr)&0xFFFFFFFF;
+}
+
+
 static void* memory_map_at_address(size_t size, size_t* offset, void* desired_address)
 {
 #if PLATFORM_WINDOWS
@@ -32,20 +73,27 @@ static void* memory_map_at_address(size_t size, size_t* offset, void* desired_ad
 
 static void* memory_map(size_t size, size_t* offset)
 {
-    char* current_address=address;
-    char* end_address = address+0x100000000;
-    void* result;
-    do 
-    {
-        void * desired_address = (void*)(((uintptr_t)current_address)&0xFFFFFFFF);
-        result = memory_map_at_address(size, offset,  desired_address);
-        current_address += _memory_span_size;
-    }
-    while(result==NULL && current_address<end_address);
 
-    address = (char*)result + size;
+#if PLATFORM_WINDOWS
+	//Ok to MEM_COMMIT - according to MSDN, "actual physical pages are not allocated unless/until the virtual addresses are actually accessed"
+	void* ptr = VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	if (!ptr) {
+		return 0;
+	}
+#else
+	const int flags = MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZED;
 
-    return result;
+	void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, flags, -1, 0);
+	if ((ptr == MAP_FAILED) || !ptr) {
+	 	return 0;
+	}
+#endif
+
+    _rpmalloc_stat_add(&_mapped_pages_os, (int32_t)((size) >> _memory_page_size_shift));
+
+    //assert(allocated_chunk==NULL);
+    allocated_chunk = ptr;
+    return ptr;
 }
 
 static void memory_unmap(void* address, size_t size, size_t offset, size_t release)
@@ -100,7 +148,8 @@ void bgd_malloc_initialize()
 
     rpmalloc_config_t config = {
         .memory_map = &memory_map,
-        .memory_unmap = &memory_unmap
+        .memory_unmap = &memory_unmap,
+        .span_map_count = 4096
     };
 
     rpmalloc_initialize_config(&config);

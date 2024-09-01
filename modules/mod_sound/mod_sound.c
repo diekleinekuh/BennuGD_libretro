@@ -273,7 +273,7 @@ static int load_song( const char * filename )
         return( 0 );
     }
 
-    return (( int )h );
+    return (( int )int_from_ptr(h) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -294,7 +294,7 @@ static int load_song( const char * filename )
 
 static int play_song( int id, int loops )
 {
-    __sound_handle * h = (__sound_handle *) id;
+    __sound_handle * h = (__sound_handle *) ptr_from_int(id);
     if ( audio_initialized && id && h->hnd )
     {
         int result = Mix_PlayMusic(( Mix_Music * )h->hnd, loops );
@@ -325,7 +325,7 @@ static int play_song( int id, int loops )
 
 static int fade_music_in( int id, int loops, int ms )
 {
-    __sound_handle * h = (__sound_handle *) id;
+    __sound_handle * h = (__sound_handle *) ptr_from_int(id);
     if ( audio_initialized && id && h->hnd ) return( Mix_FadeInMusic(( Mix_Music * )h->hnd, loops, ms ) );
     return( -1 );
 }
@@ -370,7 +370,7 @@ static int fade_music_off( int ms )
 
 static int unload_song( int id )
 {
-    __sound_handle * h = (__sound_handle *) id;
+    __sound_handle * h = (__sound_handle *) ptr_from_int(id);
     if ( audio_initialized && id && h->hnd )
     {
         if ( Mix_PlayingMusic() ) Mix_HaltMusic();
@@ -539,7 +539,7 @@ static int load_wav( const char * filename )
         return( 0 );
     }
 
-    return (( int )h );
+    return (( int ) int_from_ptr(h) );
 }
 
 /* --------------------------------------------------------------------------- */
@@ -562,7 +562,7 @@ static int load_wav( const char * filename )
 
 static int play_wav( int id, int loops, int channel )
 {
-    __sound_handle * h = (__sound_handle *) id;
+    __sound_handle * h = (__sound_handle *) ptr_from_int(id);
     if ( audio_initialized && id && h->hnd ) return ( ( int ) Mix_PlayChannel( channel, ( Mix_Chunk * )h->hnd, loops ) );
     return ( -1 );
 }
@@ -585,7 +585,7 @@ static int play_wav( int id, int loops, int channel )
 
 static int unload_wav( int id )
 {
-    __sound_handle * h = (__sound_handle *) id;
+    __sound_handle * h = (__sound_handle *) ptr_from_int(id);
     if ( audio_initialized && id && h->hnd ) {
         Mix_FreeChunk(( Mix_Chunk * ) h->hnd );
         file_close( h->rwops->hidden.unknown.data1 );
@@ -715,7 +715,7 @@ static int set_wav_volume( int sample, int volume )
     if ( volume < 0 ) volume = 0;
     if ( volume > 128 ) volume = 128;
 
-    __sound_handle * h = (__sound_handle *) sample;
+    __sound_handle * h = (__sound_handle *) ptr_from_int(sample);
     if ( sample && h->hnd ) return( Mix_VolumeChunk(( Mix_Chunk * )h->hnd, volume ) );
 
     return -1 ;
@@ -1009,7 +1009,7 @@ static int modsound_unload_song( INSTANCE * my, int * params )
 static int modsound_unload_song2( INSTANCE * my, int * params )
 {
 #ifndef TARGET_DINGUX_A320
-    int *s = (int *)(params[0]), r;
+    int *s = (int *)ptr_from_int(params[0]), r;
     if ( !s || *s == -1 ) return ( -1 );
     r = unload_song( *s );
     *s = 0;
@@ -1354,7 +1354,7 @@ static int modsound_unload_wav( INSTANCE * my, int * params )
 static int modsound_unload_wav2( INSTANCE * my, int * params )
 {
 #ifndef TARGET_DINGUX_A320
-    int *s = (int *)(params[0]), r;
+    int *s = (int *)ptr_from_int(params[0]), r;
     if ( !s || *s == -1 ) return ( -1 );
     r = unload_wav( *s );
     *s = 0;
