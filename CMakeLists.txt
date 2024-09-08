@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22...3.24)
-project(bennugd_libretro)
+project(bennugd_libretro C)
+set (CMAKE_C_STANDARD 11)
 
 option(libretro_core "build libretro_core instead of standalone version" ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)

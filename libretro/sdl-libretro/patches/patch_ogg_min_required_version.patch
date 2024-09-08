@@ -3,6 +3,6 @@ index fe20f2d..ff9f766 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1,2 +1,2 @@
--cmake_minimum_required(VERSION 2.8.12)
+-cmake_minimum_required(VERSION 3.0)
 +cmake_minimum_required(VERSION 3.5)
- project(libogg)
+ 

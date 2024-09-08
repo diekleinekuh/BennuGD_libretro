@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(sdl-libretro)
+project(sdl-libretro C)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -94,8 +94,8 @@ set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
   ogg
   GIT_REPOSITORY https://gitlab.xiph.org/xiph/ogg.git
-  GIT_TAG        v1.3.5
-  GIT_SHALLOW TRUE
+  GIT_TAG        7cf42ea17aef7bc1b7b21af70724840a96c2e7d0
+  #GIT_SHALLOW TRUE
   PATCH_COMMAND "${CMAKE_COMMAND}" "-D" "PATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/patches/patch_ogg_min_required_version.patch" "-P" "${CMAKE_CURRENT_SOURCE_DIR}/patches/ApplyPatch.cmake"
 )
 
