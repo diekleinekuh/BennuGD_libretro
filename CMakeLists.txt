@@ -30,16 +30,6 @@ if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
     endif()   
 endif()
 
-check_c_compiler_flag("-Wno-int-to-pointer-cast" HAS_NO_INT_TO_POINTER_CAST)
-if (HAS_NO_INT_TO_POINTER_CAST)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast")
-endif()
-
-check_c_compiler_flag("-Wno-int-to-pointer-cast" HAS_NO_POINTER_TO_INT_CAST)
-if (HAS_NO_POINTER_TO_INT_CAST)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-pointer-to-int-cast")
-endif()
-
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 
