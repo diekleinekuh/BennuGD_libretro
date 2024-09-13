@@ -18,7 +18,7 @@ endif()
 include(CheckLinkerFlag)
 include(CheckCCompilerFlag)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")    
     check_linker_flag("C" "-Wl,--no-undefined" HAS_NO_UNDEFINED)
     if (HAS_NO_UNDEFINED)
         string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
