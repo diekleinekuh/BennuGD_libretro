@@ -119,7 +119,6 @@ void bgd_malloc_initialize()
     // This makes it posible to use 32 bit offset addressing relative to the start of the window.
 #if PLATFORM_WINDOWS    	
 	allocated_chunk = VirtualAlloc(0, reseved_address_space, MEM_RESERVE, PAGE_READWRITE);
-    assert(allocated_chunk);
 #else
     allocated_chunk = mmap(NULL, reseved_address_space, PROT_NONE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_UNINITIALIZED, 0, 0 );
 #endif
@@ -141,7 +140,7 @@ void bgd_malloc_cleanup()
 #if PLATFORM_WINDOWS    	
 	if (!VirtualFree(allocated_chunk, 0, MEM_RELEASE))
     {
-        assert(false);
+        assert(0);
     }    
 #else
     if (munmap(allocated_chunk, reseved_address_space))
