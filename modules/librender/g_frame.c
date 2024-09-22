@@ -32,6 +32,11 @@
 
 #include "librender.h"
 
+#if LIBRETRO_CORE
+#include <stdbool.h>
+extern bool retro_enable_frame_limiter;
+#endif
+
 /* --------------------------------------------------------------------------- */
 
 #define FPS_INTIAL_VALUE    25
@@ -138,7 +143,10 @@ void gr_wait_frame(void)
     FPS_count++ ;
 
     /* -------------- */
-//#if !LIBRETRO_CORE
+#if LIBRETRO_CORE
+    if (retro_enable_frame_limiter)
+    {
+#endif
     if ( fps_value )
     {
         FPS_count_sync++ ;
@@ -191,7 +199,9 @@ void gr_wait_frame(void)
             }
         }
     }
-//#endif // #if !LIBRETRO_CORE
+#if LIBRETRO_CORE
+    }
+#endif
     /* Si paso 1 segundo o mas desde la ultima lectura */
     if ( frame_ticks - FPS_init >= 1000 )
     {
