@@ -1245,7 +1245,7 @@ static void console_instance_dump( INSTANCE * father, int indent ) {
     PROCDEF * proc ;
     DCB_PROC * dcbproc ;
     char buffer[128] ;
-    char line[128] ;
+    char line[133] ;
     int n, nid, bigbro, son ;
 
     i = father ;
