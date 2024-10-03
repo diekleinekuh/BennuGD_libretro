@@ -24,10 +24,10 @@ function(disable_all_warnings target)
     # Adding the disabled warnings to COMPILE_OPTIONS applies them also to assembler files 
     # where they are not supported causing new warnings. 
     # So this disables warnings individually :-/
-
-    if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
+    if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+        set(disabled_warnings "")
+    elseif (CMAKE_C_COMPILER_ID MATCHES "GNU")
         set(disabled_warnings "-Wno-attributes;-Wno-stringop-truncation")
-        #target_compile_options(${target} PRIVATE "-w")
     elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
         set(disabled_warnings "/wd4132;/wd4189;/wd4206;/wd4210;/wd4295;/wd4701;/wd4702;/wd4334;/wd4244")
     endif()
