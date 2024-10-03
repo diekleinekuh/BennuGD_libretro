@@ -25,10 +25,8 @@ add_library(retro_BennuGD SHARED
     ${libretro-common_SOURCE_DIR}/time/rtime.c
     ${libretro-common_SOURCE_DIR}/compat/compat_strl.c
     ${libretro-common_SOURCE_DIR}/streams/file_stream.c
-    #${libretro-common_SOURCE_DIR}/streams/trans_stream.c
     ${libretro-common_SOURCE_DIR}/streams/trans_stream_zlib.c
     ${libretro-common_SOURCE_DIR}/streams/file_stream_transforms.c
-    #${libretro-common_SOURCE_DIR}/streams/trans_stream_pipe.c
     ${libretro-common_SOURCE_DIR}/compat/compat_posix_string.c
     ${libretro-common_SOURCE_DIR}/compat/fopen_utf8.c
     ${libretro-common_SOURCE_DIR}/rthreads/rthreads.c
@@ -36,6 +34,10 @@ add_library(retro_BennuGD SHARED
     filesystem.c
     filestream_gzip.c
 )
+
+if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    set_source_files_properties(${libretro-common_SOURCE_DIR}/libco/libco.c PROPERTIES COMPILE_OPTIONS "/wd4005")
+endif()
 
 target_include_directories(retro_BennuGD PRIVATE 
     ${libretro-common_SOURCE_DIR}/include
