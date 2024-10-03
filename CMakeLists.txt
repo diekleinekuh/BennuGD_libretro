@@ -18,6 +18,14 @@ endif()
 include(CheckLinkerFlag)
 include(CheckCCompilerFlag)
 
+function(disable_all_warnings target)
+    if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
+        target_compile_options(${target} PRIVATE -w)
+    elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(${target} PRIVATE /w)
+    endif()
+endfunction()
+
 if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")    
     check_linker_flag("C" "-Wl,--no-undefined" HAS_NO_UNDEFINED)
     if (HAS_NO_UNDEFINED)
@@ -49,9 +57,7 @@ FetchContent_Declare( libressl
     URL https://github.com/libressl/portable/releases/download/v3.9.1/libressl-3.9.1.tar.gz
 )
 FetchContent_MakeAvailable(libressl)
-if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
-    target_compile_options(crypto_obj PRIVATE -Wno-attributes)
-endif()
+disable_all_warnings(crypto_obj)
 set(OPENSSL_CRYPTO_LIBRARY crypto)
 
 # zlib
@@ -63,6 +69,7 @@ FetchContent_Declare(zlib-ng
     GIT_SHALLOW TRUE    
 )
 FetchContent_MakeAvailable(zlib-ng)
+disable_all_warnings(zlib)
 
 # libpng
 set(PNG_SHARED OFF CACHE BOOL "Build libpng as a shared library" FORCE)

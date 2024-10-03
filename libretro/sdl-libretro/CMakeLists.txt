@@ -131,6 +131,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable( ogg vorbis mikmod )
+disable_all_warnings(mikmod-static)
 
 set(BUILD_TESTING ${BUILD_TESTING_backup})
 
