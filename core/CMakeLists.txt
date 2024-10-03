@@ -1,12 +1,26 @@
 cmake_minimum_required(VERSION 3.16)
 include(CMakePrintHelpers)
 
-file(GLOB COMMON_SRC
-    "common/*.c"
+set(COMMON_SRC
+    "common/allocator.c"
+    "common/b_crypt.c"
+    "common/debug.c"
+    "common/files.c"
+    "common/xctype.c"
 )
 
-file(GLOB BGDRTM_SRC
-    "bgdrtm/src/*.c"
+set(BGDRTM_SRC
+    "bgdrtm/src/config.c"
+    "bgdrtm/src/copy.c"
+    "bgdrtm/src/dcbr.c"
+    "bgdrtm/src/dirs.c"
+    "bgdrtm/src/fmath.c"
+    "bgdrtm/src/instance.c"
+    "bgdrtm/src/interpreter.c"
+    "bgdrtm/src/misc.c"
+    "bgdrtm/src/strings.c"
+    "bgdrtm/src/sysprocs.c"
+    "bgdrtm/src/varspace_file.c"
 )
 
 FetchContent_Declare(
@@ -19,6 +33,10 @@ FetchContent_MakeAvailable(rpmalloc)
 
 add_library(core OBJECT ${COMMON_SRC} ${BGDRTM_SRC})
 target_include_directories(core PRIVATE "${rpmalloc_SOURCE_DIR}/rpmalloc/")
+
+if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    set_source_files_properties("common/allocator.c" PROPERTIES COMPILE_OPTIONS "/experimental:c11atomics")
+endif()
 
 if (NOT WIN32)
     target_link_libraries(core m dl)

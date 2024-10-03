@@ -58,8 +58,6 @@ if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
     if (HAS_SYMBOLIC_FUNCTIONS)
         string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic-functions")
     endif()
-elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /experimental:c11atomics")
 endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
