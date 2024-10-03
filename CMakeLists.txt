@@ -49,6 +49,9 @@ FetchContent_Declare( libressl
     URL https://github.com/libressl/portable/releases/download/v3.9.1/libressl-3.9.1.tar.gz
 )
 FetchContent_MakeAvailable(libressl)
+if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
+    target_compile_options(crypto_obj PRIVATE -Wno-attributes)
+endif()
 set(OPENSSL_CRYPTO_LIBRARY crypto)
 
 # zlib
