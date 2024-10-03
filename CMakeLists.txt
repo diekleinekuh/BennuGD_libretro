@@ -19,11 +19,33 @@ include(CheckLinkerFlag)
 include(CheckCCompilerFlag)
 
 function(disable_all_warnings target)
+    # Simply adding "/w" causes D9025 because /w overrides any /W1, /W2, /W3 or /W4 the target might have defined.
+    # Some targets add those in CMAKE_C_FLAGS which makes it hard to override.
+    # Adding the disabled warnings to COMPILE_OPTIONS applies them also to assembler files 
+    # where they are not supported causing new warnings. 
+    # So this disables warnings individually :-/
+
     if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
-        target_compile_options(${target} PRIVATE -w)
+        set(disabled_warnings "-Wno-attributes;-Wno-stringop-truncation")
+        #target_compile_options(${target} PRIVATE "-w")
     elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    target_compile_options(${target} PRIVATE /w)
+        set(disabled_warnings "/wd4132;/wd4189;/wd4206;/wd4210;/wd4295;/wd4701;/wd4702;/wd4334;/wd4244")
     endif()
+    get_target_property(target_source_dir ${target} SOURCE_DIR)
+    cmake_path(SET target_path ${target_source_dir})
+    get_target_property(target_sources ${target} SOURCES)
+    foreach( src IN LISTS target_sources)
+        cmake_path(APPEND target_path ${src} OUTPUT_VARIABLE src_path)
+        cmake_path(GET src_path EXTENSION LAST_ONLY src_ext)
+        if(src_ext MATCHES "^\.[Cc]$")
+            get_source_file_property(src_compile_options ${src_path} COMPILE_OPTIONS)
+            if (NOT src_compile_options)
+                set(src_compile_options)
+            endif()
+            list(APPEND src_compile_options ${disabled_warnings})
+            set_source_files_properties( "${src_path}" TARGET_DIRECTORY ${target} PROPERTIES COMPILE_OPTIONS "${src_compile_options}" )
+        endif()
+    endforeach()
 endfunction()
 
 if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")    
@@ -37,7 +59,7 @@ if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
         string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic-functions")
     endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /experimental:c11atomics")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /experimental:c11atomics")
 endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -54,10 +76,19 @@ set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
 set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
 FetchContent_Declare( libressl 
-    URL https://github.com/libressl/portable/releases/download/v3.9.1/libressl-3.9.1.tar.gz
+    URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
 )
 FetchContent_MakeAvailable(libressl)
+
 disable_all_warnings(crypto_obj)
+disable_all_warnings(compat_obj)
+disable_all_warnings(crypto)
+disable_all_warnings(ssl_obj)
+disable_all_warnings(bs_obj)
+disable_all_warnings(ssl)
+disable_all_warnings(tls_obj)
+disable_all_warnings(tls_compat_obj)
+disable_all_warnings(tls)
 set(OPENSSL_CRYPTO_LIBRARY crypto)
 
 # zlib
