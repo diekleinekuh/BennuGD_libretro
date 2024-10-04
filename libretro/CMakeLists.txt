@@ -2,8 +2,8 @@ include(FetchContent)
 
 FetchContent_Declare(
   libretro-common
-  GIT_REPOSITORY https://github.com/diekleinekuh/libretro-common.git
-  GIT_TAG        3d8d8c3e081d209395190c39688b24ea6b233cba
+  GIT_REPOSITORY https://github.com/libretro/libretro-common.git
+  GIT_TAG        0abedaac6a795c093f2e1a22f3028fca9efdf3c9
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
