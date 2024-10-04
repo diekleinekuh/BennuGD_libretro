@@ -1,4 +1,7 @@
 #include "allocator.h"
+
+#if SIZE_MAX>UINT32_MAX // check for 64 bit system
+
 #include <assert.h>
 #include <stdatomic.h>
 #include <stddef.h>
@@ -179,3 +182,5 @@ char* bgd_strdup(const char* s)
     memcpy(result, s, size);
     return result;
 }
+
+#endif
