@@ -7,95 +7,96 @@
 # Core definitions
 .core-defs:
   variables:
-    JNI_PATH: build
     CORENAME: bennugd
+    CORE_ARGS: -DCMAKE_BUILD_TYPE=Release
+
+.core-defs-osx:
+  extends: .core-defs
+  variables:
+    CORE_ARGS: -DCMAKE_BUILD_TYPE=Release -G Xcode
+    EXTRA_PATH: Release
 
 # Inclusion templates, required for the build to work
 include:
   ################################## DESKTOPS ################################
-  # Windows 64-bit
+  # Windows
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/windows-x64-mingw.yml'
-    
-  # Windows 32-bit
-  - project: 'libretro-infrastructure/ci-templates'
-    file: '/windows-i686-mingw.yml'
+    file: '/windows-cmake-mingw.yml'
 
-  # Linux 64-bit
+  # DJGPP
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/linux-x64.yml'
+    file: '/djgpp-static-cmake.yml'
 
-  # Linux 32-bit
+  # MacOS
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/linux-i686.yml'
+    file: 'osx-cmake-x86.yml'
 
-  # MacOS 64-bit
+  # MacOS
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/osx-x64.yml'
+    file: 'osx-cmake-arm64.yml'
 
-  # MacOS ARM 64-bit
+  # MacOS (PPC)
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/osx-arm64.yml'
+    file: 'osx-cmake-ppc.yml'
+
+  # Linux
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-cmake.yml'
 
   ################################## CELLULAR ################################
   # Android
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/android-jni.yml'
+    file: '/android-cmake.yml'
 
   # iOS
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/ios-arm64.yml'
-
-  # iOS (armv7)
-  - project: 'libretro-infrastructure/ci-templates'
-    file: '/ios9.yml'
+    file: '/ios-cmake.yml'
 
   ################################## CONSOLES ################################
-  # PlayStation 2
+  # Libnx
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/ps2-static.yml'
+    file: '/libnx-static-cmake.yml'
 
-  # PlayStation Portable
+  # CTR (3DS)
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/psp-static.yml'
+    file: '/ctr-static-cmake.yml'
 
-  # PlayStation Vita
+  # PSP
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/vita-static.yml'
+    file: '/psp-static-cmake.yml'
 
-  # Nintendo 3DS
+  # PS2
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/ctr-static.yml'
-    
-  # Nintendo GameCube
-  - project: 'libretro-infrastructure/ci-templates'
-    file: '/ngc-static.yml'
+    file: '/ps2-static-cmake.yml'
 
-  # Nintendo Wii
+  # VITA
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/wii-static.yml'
+    file: '/vita-static-cmake.yml'
 
-  # Nintendo WiiU
+  # Dingux
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/wiiu-static.yml'
+    file: '/dingux-cmake.yml'
 
-  # Nintendo Switch
+  # WiiU
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/libnx-static.yml'
+    file: '/wiiu-static-cmake.yml'
 
-  # OpenDingux
+  # Wii
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/dingux-mips32.yml'
+    file: '/wii-static-cmake.yml'
 
-  # OpenDingux (ARM)
+  # Gamecube
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/dingux-arm32.yml'
+    file: '/ngc-static-cmake.yml'
 
-  # tvOS (AppleTV)
+  # tvOS
   - project: 'libretro-infrastructure/ci-templates'
-    file: '/tvos-arm64.yml'
+    file: '/tvos-cmake.yml'
 
-  #################################### MISC ##################################
+  ################################## MISC ####################################
+  # Emscripten
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/emscripten-static-cmake.yml'
 
 # Stages for building
 stages:
@@ -111,151 +112,180 @@ stages:
 # Windows 64-bit
 libretro-build-windows-x64:
   extends:
-    - .libretro-windows-x64-mingw-make-default
+    - .libretro-windows-cmake-x86_64
     - .core-defs
-    
+
 # Windows 32-bit
 libretro-build-windows-i686:
   extends:
-    - .libretro-windows-i686-mingw-make-default
+    - .libretro-windows-cmake-x86
+    - .core-defs
+
+# DJGPP
+libretro-build-djgpp-i586:
+  extends:
+    - .libretro-djgpp-static-cmake-retroarch-master
     - .core-defs
 
 # Linux 64-bit
 libretro-build-linux-x64:
   extends:
-    - .libretro-linux-x64-make-default
+    - .libretro-linux-cmake-x86_64
     - .core-defs
 
 # Linux 32-bit
 libretro-build-linux-i686:
   extends:
-    - .libretro-linux-i686-make-default
+    - .libretro-linux-cmake-x86
     - .core-defs
+
+# MacOS 32-bit
+libretro-build-osx-x86:
+  extends:
+    - .libretro-osx-cmake-x86
+    - .core-defs-osx
 
 # MacOS 64-bit
 libretro-build-osx-x64:
   extends:
-    - .libretro-osx-x64-make-default
-    - .core-defs
+    - .libretro-osx-cmake-x86_64
+    - .core-defs-osx
 
-# MacOS ARM 64-bit
+# MacOS ARM64
 libretro-build-osx-arm64:
   extends:
-    - .libretro-osx-arm64-make-default
+    - .libretro-osx-cmake-arm64
+    - .core-defs-osx
+
+# MacOS PPC
+libretro-build-osx-ppc:
+  extends:
+    - .libretro-osx-cmake-ppc
     - .core-defs
 
 ################################### CELLULAR #################################
 # Android ARMv7a
 android-armeabi-v7a:
   extends:
-    - .libretro-android-jni-armeabi-v7a
+    - .libretro-android-cmake-armeabi-v7a
     - .core-defs
 
 # Android ARMv8a
 android-arm64-v8a:
   extends:
-    - .libretro-android-jni-arm64-v8a
+    - .libretro-android-cmake-arm64-v8a
     - .core-defs
 
 # Android 64-bit x86
 android-x86_64:
   extends:
-    - .libretro-android-jni-x86_64
+    - .libretro-android-cmake-x86_64
     - .core-defs
-    
+
 # Android 32-bit x86
 android-x86:
   extends:
-    - .libretro-android-jni-x86
+    - .libretro-android-cmake-x86
     - .core-defs
 
-# iOS
+# iOS arm64
 libretro-build-ios-arm64:
   extends:
-    - .libretro-ios-arm64-make-default
+    - .libretro-ios-cmake-arm64
     - .core-defs
 
-# iOS (armv7) [iOS 9 and up]
+# iOS armv7
 libretro-build-ios9:
   extends:
-    - .libretro-ios9-make-default
-    - .core-defs
-    
-# tvOS
-libretro-build-tvos-arm64:
-  extends:
-    - .libretro-tvos-arm64-make-default
+    - .libretro-ios-cmake-ios9
     - .core-defs
 
 ################################### CONSOLES #################################
-# Nintendo 3DS
-libretro-build-ctr:
-  extends:
-    - .libretro-ctr-static-retroarch-master
-    - .core-defs
-    
-# Nintendo GameCube
-libretro-build-ngc:
-  extends:
-    - .libretro-ngc-static-retroarch-master
-    - .core-defs
-
-# Nintendo Wii
-libretro-build-wii:
-  extends:
-    - .libretro-wii-static-retroarch-master
-    - .core-defs
-
-# Nintendo WiiU
-libretro-build-wiiu:
-  extends:
-    - .libretro-wiiu-static-retroarch-master
-    - .core-defs
-
-# Nintendo Switch
+# Libnx
 libretro-build-libnx-aarch64:
   extends:
-    - .libretro-libnx-static-retroarch-master
+    - .libretro-libnx-static-cmake-retroarch-master
     - .core-defs
 
-# PlayStation 2
-libretro-build-ps2:
+# CTR (3ds)
+libretro-build-ctr:
   extends:
-    - .libretro-ps2-static-retroarch-master
+    - .libretro-ctr-static-cmake-retroarch-master
     - .core-defs
 
-# PlayStation Portable
+# PSP
 libretro-build-psp:
   extends:
-    - .libretro-psp-static-retroarch-master
+    - .libretro-psp-static-cmake-retroarch-master
     - .core-defs
 
-# PlayStation Vita
+# PS2
+libretro-build-ps2:
+  extends:
+    - .libretro-ps2-static-cmake-retroarch-master
+    - .core-defs
+
+# Wii
+libretro-build-wii:
+  extends:
+    - .libretro-wii-static-cmake-retroarch-master
+    - .core-defs
+
+# Gamecube
+libretro-build-ngc:
+  extends:
+    - .libretro-ngc-static-cmake-retroarch-master
+    - .core-defs
+
+# VITA
 libretro-build-vita:
   extends:
-    - .libretro-vita-static-retroarch-master
+    - .libretro-vita-static-cmake-retroarch-master
     - .core-defs
 
-# RetroFW
-libretro-build-retrofw-mips32:
-  extends:
-    - .libretro-retrofw-mips32-make-default
-    - .core-defs
-    
-# Miyoo
-libretro-build-miyoo-arm32:
-  extends:
-    - .libretro-miyoo-arm32-make-default
-    - .core-defs
-
-# OpenDingux
+# Dingux
 libretro-build-dingux-mips32:
   extends:
-    - .libretro-dingux-mips32-make-default
+    - .libretro-dingux-cmake-mips32
     - .core-defs
 
-# OpenDingux Beta
 libretro-build-dingux-odbeta-mips32:
   extends:
-    - .libretro-dingux-odbeta-mips32-make-default
+    - .libretro-dingux-odbeta-cmake-mips32
     - .core-defs
+
+libretro-build-rs90-odbeta-mips32:
+  extends:
+    - .libretro-rs90-odbeta-cmake-mips32
+    - .core-defs
+
+libretro-build-retrofw-mips32:
+  extends:
+    - .libretro-retrofw-odbeta-cmake-mips32
+    - .core-defs
+
+libretro-build-miyoo-arm32:
+  extends:
+    - .libretro-miyoo-cmake-arm32
+    - .core-defs
+
+# iOS arm64
+libretro-build-tvos-arm64:
+  extends:
+    - .libretro-tvos-cmake-arm64
+    - .core-defs
+
+# WiiU
+libretro-build-wiiu:
+  extends:
+    - .libretro-wiiu-static-cmake-retroarch-master
+    - .core-defs
+
+################################### MISC #####################################
+
+# Emscripten
+libretro-build-emscripten:
+  extends:
+    - .libretro-emscripten-static-cmake-retroarch-master
+    - .core-defs
+
