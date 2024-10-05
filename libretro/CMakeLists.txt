@@ -43,6 +43,8 @@ target_include_directories(bennugd_libretro PRIVATE
     ${libretro-common_SOURCE_DIR}/include
 )
 
+set_target_properties(bennugd_libretro PROPERTIES PREFIX "")
+
 target_link_libraries(bennugd_libretro bgdi)
 
 target_compile_definitions(bennugd_libretro PRIVATE HAVE_POSIX_MEMALIGN=${HAVE_POSIX_MEMALIGN})

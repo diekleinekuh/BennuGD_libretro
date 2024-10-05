@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Debug",
             "program": "retroarch",
-            "args": ["-L","${workspaceFolder}/build/lib/libbennugd_libretro.so", 
+            "args": ["-L","${workspaceFolder}/build/lib/bennugd_libretro.so", 
                 "${env:HOME}/SORR/SorR.dat"],
             "cwd": "${workspaceFolder}"
         },
@@ -18,7 +18,7 @@
             "request": "launch",
             "name": "Debug (OSX)",
             "program": "/Applications/RetroArch.app/Contents/MacOS/RetroArch",
-            "args": ["-L","${workspaceFolder}/build/lib/libbennugd_libretro.dylib", 
+            "args": ["-L","${workspaceFolder}/build/lib/bennugd_libretro.dylib", 
                 "${env:HOME}/Downloads/SORR/SorR.dat"],
             "cwd": "${workspaceFolder}"
         },        
