@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22...3.24)
+cmake_minimum_required(VERSION 3.20...3.24)
 project(bennugd_libretro C)
 set (CMAKE_C_STANDARD 11)
 
