@@ -7,12 +7,12 @@
       "exe": "${env.USERPROFILE}\\Downloads\\RetroArch-Win64\\RetroArch.exe",
       "args": [
         "-L",
-        "${cmake.buildRoot}\\bin\\retro_BennuGD.dll",
+        "${cmake.buildRoot}\\bin\\bennugd_libretro.dll",
         "${env.USERPROFILE}\\Downloads\\SORRv52\\SorR.dat"
       ],
       "project": "CMakeLists.txt",
-      "projectTarget": "retro_BennuGD.dll (bin\\retro_BennuGD.dll)",
-      "name": "retro_BennuGD.dll (bin\\retro_BennuGD.dll)"
+      "projectTarget": "bennugd_libretro.dll (bin\\bennugd_libretro.dll)",
+      "name": "bennugd_libretro.dll (bin\\bennugd_libretro.dll)"
     }
   ]
 }

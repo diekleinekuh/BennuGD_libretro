@@ -14,7 +14,7 @@ FetchContent_MakeAvailable(  libretro-common )
 include_directories(${libretro-common_SOURCE_DIR}/include)
 add_subdirectory(sdl-libretro)
 
-add_library(retro_BennuGD SHARED
+add_library(bennugd_libretro SHARED
     ${libretro-common_SOURCE_DIR}/libco/libco.c
     ${libretro-common_SOURCE_DIR}/vfs/vfs_implementation.c
     ${libretro-common_SOURCE_DIR}/file/file_path.c
@@ -39,13 +39,13 @@ if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
     set_source_files_properties(${libretro-common_SOURCE_DIR}/libco/libco.c PROPERTIES COMPILE_OPTIONS "/wd4005")
 endif()
 
-target_include_directories(retro_BennuGD PRIVATE 
+target_include_directories(bennugd_libretro PRIVATE 
     ${libretro-common_SOURCE_DIR}/include
 )
 
-target_link_libraries(retro_BennuGD bgdi)
+target_link_libraries(bennugd_libretro bgdi)
 
-target_compile_definitions(retro_BennuGD PRIVATE HAVE_POSIX_MEMALIGN=${HAVE_POSIX_MEMALIGN})
+target_compile_definitions(bennugd_libretro PRIVATE HAVE_POSIX_MEMALIGN=${HAVE_POSIX_MEMALIGN})
 
 include_directories(${sdl-libretro_SOURCE_DIR}/include)
 
