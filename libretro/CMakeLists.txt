@@ -44,6 +44,8 @@ target_include_directories(bennugd_libretro PRIVATE
 )
 
 set_target_properties(bennugd_libretro PROPERTIES PREFIX "")
+set_target_properties(bennugd_libretro PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set_target_properties(bennugd_libretro PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 target_link_libraries(bennugd_libretro bgdi)
 
