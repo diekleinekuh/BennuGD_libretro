@@ -177,37 +177,6 @@ static void update_variables()
 void retro_set_environment(retro_environment_t cb)
 {
     environ_cb = cb;
-
-    struct retro_log_callback logging;
-
-    if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
-    {
-        log_cb = logging.log;
-    }
-    else
-    {
-        log_cb = default_log;
-    }
-
-    unsigned int core_options_version = 0;
-    if (!environ_cb(RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION, &core_options_version))
-    {
-        core_options_version = 0;
-    }
-
-    const char * frame_limiter_default = retro_enable_frame_limiter ? "true" : "false";
-
-    struct retro_variable variables[] =
-    {
-        {
-            .key = "frame_limiter",
-            .value = retro_enable_frame_limiter ? "true" : "false"
-        },
-        { NULL, NULL}
-    };
-    environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
-
-    update_variables();
 }
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
@@ -290,6 +259,33 @@ static void run_bennugd(void)
 
 void retro_init(void)
 {
+    struct retro_log_callback logging;
+
+    if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
+    {
+        log_cb = logging.log;
+    }
+    else
+    {
+        log_cb = default_log;
+    }  
+
+    struct retro_variable variables[] =
+    {
+        {
+            .key = "frame_limiter",
+            .value = "Internal frame limiter; false|true"
+        },
+        { NULL, NULL}
+    };
+    if (!environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables))
+    {
+        log_cb(RETRO_LOG_WARN, "RETRO_ENVIRONMENT_SET_VARIABLES failed");
+    }
+
+    update_variables();
+
+
     last_av_info.geometry.base_width   = libretro_width;
     last_av_info.geometry.base_height  = libretro_height;
     last_av_info.geometry.max_width    = libretro_width;
@@ -439,11 +435,11 @@ void retro_run(void)
                 last_av_info.geometry.max_height = s->h;
                 last_av_info.timing.fps = fps_value;
                 last_av_info.timing.sample_rate = sample_rate;
-                environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &last_av_info);
+                //environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &last_av_info);
             }
             else
             {
-                 environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &last_av_info.geometry);
+                 //environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &last_av_info.geometry);
             }
         }
 
