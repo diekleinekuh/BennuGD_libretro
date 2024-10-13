@@ -435,11 +435,11 @@ void retro_run(void)
                 last_av_info.geometry.max_height = s->h;
                 last_av_info.timing.fps = fps_value;
                 last_av_info.timing.sample_rate = sample_rate;
-                //environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &last_av_info);
+                environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &last_av_info);
             }
             else
             {
-                 //environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &last_av_info.geometry);
+                 environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &last_av_info.geometry);
             }
         }
 
