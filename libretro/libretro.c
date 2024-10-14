@@ -238,7 +238,7 @@ static void run_bennugd(void)
 
     if (extension)
     {
-        if (0==strcasecmp(extension, ".dat"))
+        if (strcasecmp(extension, ".exe"))
         {
             arg1 = arg0;
             arg0="bgdi";
@@ -345,10 +345,13 @@ void retro_init(void)
     audio_mixbuf = malloc(audio_mixbuf_frames*audio_frame_size);
     sdl_libretro_init_audio();
 
-    environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &(struct retro_audio_callback){
+    if (!environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &(struct retro_audio_callback){
         &retro_audio_callback,
         &retro_audio_set_state_callback
-        } );
+        } ))
+    {
+        log_cb(RETRO_LOG_WARN, "RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK failed");
+    }
 
     if (!main_thread)
     {
