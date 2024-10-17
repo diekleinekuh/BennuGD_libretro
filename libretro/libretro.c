@@ -160,13 +160,13 @@ static void update_variables()
     struct retro_variable frame_limiter = { "frame_limiter", NULL };
     if ( environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &frame_limiter) )
     {
-        if ( frame_limiter.value && strcmp(frame_limiter.value, "false")==0 )
+        if ( frame_limiter.value )
         {
-            if (strcmp(frame_limiter.value, "false"))
+            if (0==strcmp(frame_limiter.value, "false"))
             {
                 retro_enable_frame_limiter = false;
             }
-            else if (strcmp(frame_limiter.value, "true"))
+            else if (0==strcmp(frame_limiter.value, "true"))
             {
                 retro_enable_frame_limiter = true;
             }
