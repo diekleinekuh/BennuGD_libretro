@@ -10,6 +10,7 @@
 
 extern const struct trans_stream_backend zlib_deflate_backend;
 extern const struct trans_stream_backend zlib_inflate_backend;
+extern struct RFILE * fopen_libretro ( const char * filename, const char * mode );
 
 #define BUFFER_SIZE 4096
 #define WINDOW_BITS 31
@@ -21,7 +22,7 @@ struct gzFile_libretro
     const struct trans_stream_backend* backend;
     int64_t uncompressed_data_pos;
     unsigned int buffer_start_pos;
-    unsigned int buffer_end_pos;    
+    unsigned int buffer_end_pos;
     uint8_t buffer[BUFFER_SIZE];
 };
 
@@ -52,9 +53,16 @@ gzFile_libretro* gzopen_libretro(const char* path, const char* mode)
         return NULL;
     }
 
-    RFILE* filestream=rfopen(path, mode);
+    RFILE* filestream=fopen_libretro(path, mode);
     if (!filestream)
     {
+        return NULL;
+    }
+
+    uint8_t header[2];
+    if (2!=rfread(header, 1, 2, filestream) || header[0]!=0x1F || header[1]!=0x8B || 0 != rfseek(filestream, 0, SEEK_SET))
+    {
+        rfclose(filestream);
         return NULL;
     }
 
@@ -166,7 +174,7 @@ int64_t gzread_libretro(gzFile_libretro* file, void* buf, size_t len)
 
         // Read from buffer, write to buf
         file->backend->set_in(file->stream, file->buffer+file->buffer_start_pos, file->buffer_end_pos -file->buffer_start_pos );
-        file->backend->set_out(file->stream, buf, len);        
+        file->backend->set_out(file->stream, buf, len-bytes_read_overall);
         
         uint32_t bytes_read=0, bytes_written=0;
         enum trans_stream_error error;
