@@ -67,7 +67,8 @@ int libretro_width=320;
 int libretro_height=200;
 int libretro_depth=16;
 char* libretro_base_dir;
-bool retro_enable_frame_limiter=false;
+bool retro_enable_frame_limiter=true;
+bool force_frame_limiter=false;
 
 static struct retro_system_av_info last_av_info;
 static bool bgd_finished = false;
@@ -151,18 +152,18 @@ void retro_set_input_state(retro_input_state_t cb) { input_state_cb = cb; }
 
 static void update_variables()
 {
-    struct retro_variable frame_limiter = { "frame_limiter", NULL };
-    if ( environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &frame_limiter) )
+    struct retro_variable force_frame_limiter_option = { "force_frame_limiter", NULL };
+    if ( environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &force_frame_limiter_option) )
     {
-        if ( frame_limiter.value )
+        if ( force_frame_limiter_option.value )
         {
-            if (0==strcmp(frame_limiter.value, "false"))
+            if (0==strcmp(force_frame_limiter_option.value, "false"))
             {
-                retro_enable_frame_limiter = false;
+                force_frame_limiter = false;
             }
-            else if (0==strcmp(frame_limiter.value, "true"))
+            else if (0==strcmp(force_frame_limiter_option.value, "true"))
             {
-                retro_enable_frame_limiter = true;
+                force_frame_limiter = true;
             }
         }
     }
@@ -267,8 +268,8 @@ void retro_init(void)
     struct retro_variable variables[] =
     {
         {
-            .key = "frame_limiter",
-            .value = "Internal frame limiter; false|true"
+            .key = "force_frame_limiter",
+            .value = "Force internal frame limiter even if content and frontend frame rate matches; false|true"
         },
         { NULL, NULL}
     };
@@ -465,7 +466,7 @@ void retro_run(void)
             }
         }
 
-        if (fps_value != last_av_info.timing.fps)
+        if (fps_value != last_av_info.timing.fps || force_frame_limiter)
         {
             retro_enable_frame_limiter = true;
         }
