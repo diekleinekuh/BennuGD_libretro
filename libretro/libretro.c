@@ -30,12 +30,6 @@ uint64_t retro_get_microseconds()
     return 0;
 }
 
-// static inline bool string_starts_with_size(const char *str, const char *prefix,
-//       size_t size)
-// {
-//    return (str && prefix) ? !strncmp(prefix, str, size) : false;
-// }
-
 unsigned retro_api_version(void)
 {
    return RETRO_API_VERSION;
@@ -285,14 +279,19 @@ void retro_init(void)
 
     update_variables();
 
-
     last_av_info.geometry.base_width   = libretro_width;
     last_av_info.geometry.base_height  = libretro_height;
     last_av_info.geometry.max_width    = libretro_width;
     last_av_info.geometry.max_height   = libretro_height;
     last_av_info.geometry.aspect_ratio = 0.0f;
     last_av_info.timing.sample_rate = 44100;
-    last_av_info.timing.fps = 25; // default value in bgd
+    last_av_info.timing.fps = 60;
+    
+    float frontend_refresh_rate = 0;
+    if (environ_cb(RETRO_ENVIRONMENT_GET_TARGET_REFRESH_RATE, &frontend_refresh_rate))
+    {
+        last_av_info.timing.fps = frontend_refresh_rate;
+    }
 
     if (environ_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &retro_vfs_interface_info))
     {
@@ -425,25 +424,54 @@ void retro_run(void)
     {
         int sample_rate = sdl_libretro_get_sample_rate();
 
-        if (s->w != last_av_info.geometry.base_width ||  s->h != last_av_info.geometry.base_height || fps_value!=last_av_info.timing.fps ||
+        if (s->w != last_av_info.geometry.base_width ||  s->h != last_av_info.geometry.base_height || fps_value>last_av_info.timing.fps ||
             last_av_info.timing.sample_rate != sample_rate)
         {
             last_av_info.geometry.base_width = s->w;
             last_av_info.geometry.base_height = s->h;
 
-            if (s->w > last_av_info.geometry.max_width || s->h > last_av_info.geometry.max_height || fps_value!=last_av_info.timing.fps ||
-                last_av_info.timing.sample_rate != sample_rate)
+            bool submit_new_avinfo = false;
+            if (s->w > last_av_info.geometry.max_width)
             {
                 last_av_info.geometry.max_width = s->w;
+                submit_new_avinfo = true;
+            }
+
+            if (s->h > last_av_info.geometry.max_height)
+            {
                 last_av_info.geometry.max_height = s->h;
+                submit_new_avinfo = true;
+            }
+
+            if (fps_value>last_av_info.timing.fps)
+            {
                 last_av_info.timing.fps = fps_value;
+                submit_new_avinfo = true;
+            }
+
+            if (last_av_info.timing.sample_rate != sample_rate)
+            {
                 last_av_info.timing.sample_rate = sample_rate;
+                submit_new_avinfo = true;
+            }
+
+            if (submit_new_avinfo)
+            {
                 environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &last_av_info);
             }
             else
             {
-                 environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &last_av_info.geometry);
+                environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &last_av_info.geometry);
             }
+        }
+
+        if (fps_value != last_av_info.timing.fps)
+        {
+            retro_enable_frame_limiter = true;
+        }
+        else
+        {
+            retro_enable_frame_limiter = false;
         }
 
         video_cb(s->pixels, s->w, s->h, s->pitch);
