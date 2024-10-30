@@ -321,6 +321,29 @@ void retro_init(void)
         }
     }
 
+
+    static const struct retro_controller_description controller_descriptions[4] =
+    {
+        { "Retropad", RETRO_DEVICE_JOYPAD },
+        { "Keyboard", RETRO_DEVICE_KEYBOARD },
+        { "Mouse", RETRO_DEVICE_MOUSE },
+        { "None", RETRO_DEVICE_NONE }
+    };    
+
+    static struct retro_controller_info controller_info[] =
+    {
+        { controller_descriptions, 4 },
+        { controller_descriptions, 4 },
+        { controller_descriptions, 4 },
+        { controller_descriptions, 4 },
+        { NULL, 0 }
+    };
+
+    if (!environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, controller_info))
+    {
+        log_cb(RETRO_LOG_ERROR, "RETRO_ENVIRONMENT_SET_CONTROLLER_INFO failed");
+    }
+
     // struct retro_input_descriptor input_descriptors[] =
     // {
     //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "A" },
