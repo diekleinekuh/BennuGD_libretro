@@ -9,6 +9,8 @@
 #include "filesystem.h"
 #include "compat/posix_string.h"
 #include <assert.h>
+#include <math.h>
+#include <string/stdstring.h>
 
 static struct retro_vfs_interface_info retro_vfs_interface_info = { 3, NULL};
 
@@ -444,12 +446,12 @@ static bool get_boolean_option(const char* option_name, bool default_value)
     const char * value = get_option_value(option_name);
     if (value)
     {
-        if (stricmp(value, "true")==0)
+        if (string_is_equal_case_insensitive(value, "true")==0)
         {
             return true;
         }
 
-        if (stricmp(value, "false")==0)
+        if (string_is_equal_case_insensitive(value, "false")==0)
         {
             return false;
         }
@@ -468,7 +470,7 @@ static void update_mouse_button_option(mouse_button_mapping_t* mapping)
     {
         for (int i=0; i<sizeof(button_inputs)/sizeof(button_inputs[0]); ++i)
         {
-            if (0==stricmp(value, button_inputs[i].option_value))
+            if (0==string_is_equal_case_insensitive(value, button_inputs[i].option_value))
             {
                 mouse_emulation_mappings[mapping->mouse_button_id] = button_inputs[i].id;
                 return;
@@ -488,15 +490,15 @@ static void update_variables()
     const char* mouse_emulation_option=get_option_value(mouse_emulation_opt);
     if (mouse_emulation_option)
     {
-        if (0==stricmp(mouse_emulation_option, mouse_emulation_off_optval))
+        if (0==string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_off_optval))
         {
             mouse_emulation = MOUSE_EMULATION_OFF;
         }
-        else if (0==stricmp(mouse_emulation_option, mouse_emulation_left_analog_optval))
+        else if (0==string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_left_analog_optval))
         {
             mouse_emulation = MOUSE_EMULATION_LEFT_ANALOG;
         }
-        else if (0==stricmp(mouse_emulation_option, mouse_emulation_right_analog_optval))
+        else if (0==string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_right_analog_optval))
         {
             mouse_emulation = MOUSE_EMULATION_RIGHT_ANALOG;
         }
