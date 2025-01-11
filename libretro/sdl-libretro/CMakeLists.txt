@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 project(sdl-libretro C)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -97,6 +97,7 @@ FetchContent_Declare(
   GIT_TAG        7cf42ea17aef7bc1b7b21af70724840a96c2e7d0
   #GIT_SHALLOW TRUE
   PATCH_COMMAND "${CMAKE_COMMAND}" "-D" "PATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/patches/patch_ogg_min_required_version.patch" "-P" "${CMAKE_CURRENT_SOURCE_DIR}/patches/ApplyPatch.cmake"
+  EXCLUDE_FROM_ALL
 )
 
 FetchContent_Declare(
