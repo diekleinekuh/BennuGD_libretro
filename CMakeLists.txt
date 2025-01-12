@@ -73,6 +73,7 @@ set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 # libressl
 set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
 set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
+set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
 FetchContent_Declare( libressl 
     URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
 )

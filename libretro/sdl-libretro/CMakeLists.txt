@@ -80,10 +80,6 @@ add_compile_definitions(__LIBRETRO__ LSB_FIRST )
 add_library( sdl-libretro STATIC ${SDL-src})
 target_link_libraries(sdl-libretro Threads::Threads)
 
-if (WIN32)
-    target_link_libraries(sdl-libretro Winmm.lib)
-endif()
-
 include_directories(include)
 
 
