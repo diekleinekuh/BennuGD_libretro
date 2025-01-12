@@ -29,7 +29,9 @@ extern uint64_t retro_get_microseconds();
 #include <stdio.h>
 //#include <sys/time.h>
 //#include <signal.h>
-#ifndef _WIN32
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
 #endif
 #include <string.h>
