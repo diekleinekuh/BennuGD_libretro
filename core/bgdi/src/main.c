@@ -48,6 +48,8 @@
 #include "xstrings.h"
 #include "dirs.h"
 
+#include "bgd_version.h"
+
 /* ---------------------------------------------------------------------- */
 
 static char * dcb_exts[] = { ".dcb", ".dat", ".bin", NULL };
@@ -200,7 +202,7 @@ int main( int argc, char *argv[] )
 
         if ( !filename )
         {
-            printf( BGDI_VERSION "\n"
+            printf(  "%s\n"
                     "Bennu Game Development Interpreter\n"
                     "\n"
                     "Copyright (c) 2006-2019 SplinterGU (Fenix/BennuGD)\n"
@@ -230,6 +232,7 @@ int main( int argc, char *argv[] )
                     "\n"
                     "   3. This notice may not be removed or altered from any source\n"
                     "   distribution.\n"
+                    , bgd_getversion()
                     , appexename ) ;
 
             ret = -1;
