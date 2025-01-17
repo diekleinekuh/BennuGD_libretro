@@ -91,7 +91,6 @@ FetchContent_Declare(
   ogg
   GIT_REPOSITORY https://gitlab.xiph.org/xiph/ogg.git
   GIT_TAG        7cf42ea17aef7bc1b7b21af70724840a96c2e7d0
-  #GIT_SHALLOW TRUE
   PATCH_COMMAND "${CMAKE_COMMAND}" "-D" "PATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/patches/patch_ogg_min_required_version.patch" "-P" "${CMAKE_CURRENT_SOURCE_DIR}/patches/ApplyPatch.cmake"
   EXCLUDE_FROM_ALL
 )
