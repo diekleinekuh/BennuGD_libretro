@@ -27,8 +27,7 @@ set(BGDRTM_SRC
 FetchContent_Declare(
     rpmalloc
     GIT_REPOSITORY "https://github.com/mjansson/rpmalloc.git"
-    GIT_SHALLOW TRUE
-    GIT_TAG "1.4.5"
+    GIT_TAG "e4393ff85585d91400bcbad2e7266c011075b673" # 1.4.5
 )
 
 FetchContent_Declare(cmake_git_version_tracking                   

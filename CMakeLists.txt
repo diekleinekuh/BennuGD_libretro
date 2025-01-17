@@ -76,6 +76,7 @@ set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
 set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
 FetchContent_Declare( libressl 
     URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
+    URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
 )
 FetchContent_MakeAvailable(libressl)
 
@@ -95,8 +96,7 @@ set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "Build test binaries")
 set(ZLIB_COMPAT ON CACHE BOOL "Compile with zlib compatible API" FORCE)
 FetchContent_Declare(zlib-ng
     GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
-    GIT_TAG        2.2.1
-    GIT_SHALLOW TRUE    
+    GIT_TAG        cbb6ec1d74e8061efdf7251f8c2dae778bed14fd # 2.2.3
 )
 FetchContent_MakeAvailable(zlib-ng)
 disable_all_warnings(zlib)
@@ -111,8 +111,7 @@ add_library(ZLIB::ZLIB ALIAS zlib)
 
 FetchContent_Declare( libpng 
     GIT_REPOSITORY https://github.com/pnggroup/libpng.git
-    GIT_TAG v1.6.43
-    GIT_SHALLOW TRUE
+    GIT_TAG 51f5bd68b9b806d2c92b4318164d28b49357da31 # 1.6.45
 )
 FetchContent_MakeAvailable(libpng)
 set (PNG_LIBRARIES png_static)
