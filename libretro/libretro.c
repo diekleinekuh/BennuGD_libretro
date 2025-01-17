@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <math.h>
 #include <string/stdstring.h>
+#include <bgd_version.h>
 
 static struct retro_vfs_interface_info retro_vfs_interface_info = { 3, NULL};
 
@@ -50,7 +51,7 @@ void retro_get_system_info(struct retro_system_info *info)
 {
    memset(info, 0, sizeof(*info));
    info->library_name     = "BennuGD";
-   info->library_version  = "0.1";
+   info->library_version  = bgd_getversion();
    info->need_fullpath    = true;
    info->valid_extensions = "dat|exe";
 }
