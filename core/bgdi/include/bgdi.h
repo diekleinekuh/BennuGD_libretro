@@ -35,12 +35,6 @@
  */
 
 /*
- *  VERSION
- */
-
-#define BGDI_VERSION     "BGDI " VERSION " (" __DATE__ " " __TIME__ ")"
-
-/*
  *  HEADER FILES
  */
 

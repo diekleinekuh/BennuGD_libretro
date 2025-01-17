@@ -6,10 +6,6 @@ else()
     add_executable(bgdi "src/main.c")
 endif()
 
-target_compile_definitions(bgdi 
-    PRIVATE VERSION="1.0.0"
-)
-
 target_include_directories(bgdi PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
