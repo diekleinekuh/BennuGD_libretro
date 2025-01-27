@@ -1,0 +1,25 @@
+[
+    {
+        "name": "zig x86_64-windows-gnu",
+        "toolchainFile": "${workspaceFolder}/cmake/zig.toolchain.x86_64-windows-gnu"
+    },
+    {
+        "name": "zig x86_64-linux-gnu",
+        "toolchainFile": "${workspaceFolder}/cmake/zig.toolchain.x86_64-linux-gnu"
+    },
+    {
+        "name": "zig aarch64-linux-gnu",
+        "toolchainFile": "${workspaceFolder}/cmake/zig.toolchain.aarch64-linux-gnu"
+    },
+    {
+        "name": "zig arm-linux-gnueabihf",
+        "toolchainFile": "${workspaceFolder}/cmake/zig.toolchain.arm-linux-gnueabihf"
+    },
+    {
+        "name": "miyoomini",
+        "toolchainFile": "${env:HOME}/miyoomini-toolchain/miyoomini-toolchain.cmake",
+        "cmakeSettings": {
+            "WITH_ACLE" : "OFF"
+        }
+    }
+]
