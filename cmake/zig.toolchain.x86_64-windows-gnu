@@ -1,4 +1,4 @@
-set(ZIG_TARGET x86_64-windows-gnu )
+set(ZIG_TARGET x86_64-windows.vista-gnu )
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR amd64)
 
