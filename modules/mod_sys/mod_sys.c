@@ -65,7 +65,7 @@ static int modsys_exec( INSTANCE * my, int * params )
 
     // Execute program
 #ifdef WIN32
-    status = spawnvp( mode, filename, ( const char ** )argv );
+    status = spawnvp( mode, filename, argv );
 #else
     if (( child = fork() ) == -1 )
     {
