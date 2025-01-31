@@ -39,14 +39,13 @@
 #include "libvideo.h"
 
 #ifdef _WIN32
-#include <initguid.h>
-#include "ddraw.h"
 
 #if LIBRETRO_CORE
 // assume we have compiled in compat_posix_string
 extern char *retro_strtok_r__(char *str, const char *delim, char **saveptr);
 #define strtok_r retro_strtok_r__
-#else
+
+#else //LIBRETRO_CORE
 static char *strtok_r(char *str, const char *delim, char **saveptr)
 {
    char *first = NULL;
@@ -77,7 +76,11 @@ static char *strtok_r(char *str, const char *delim, char **saveptr)
 
    return first;
 }
-#endif
+
+#include <initguid.h>
+#include "ddraw.h"
+
+#endif 
 #endif
 
 /* --------------------------------------------------------------------------- */
@@ -159,6 +162,7 @@ DLVARFIXUP __bgdexport( libvideo, globals_fixup )[] =
 
 /* --------------------------------------------------------------------------- */
 
+#if !LIBRETRO_CORE
 #ifdef _WIN32
 /* Based allegro */
 
@@ -184,7 +188,7 @@ int init_dx( void )
     hr = _DirectDrawCreate( NULL, &directdraw1, NULL );
     if ( FAILED( hr ) ) return -1;
 
-    hr = IDirectDraw_QueryInterface( directdraw1, &IID_IDirectDraw2, &directdraw );
+    hr = IDirectDraw_QueryInterface( directdraw1, &IID_IDirectDraw2, (void**)&directdraw );
     if ( FAILED( hr ) ) return -1;
 
     IDirectDraw_Release( directdraw1 );
@@ -200,13 +204,15 @@ int init_dx( void )
     return 0;
 }
 #endif
-
+#endif // !LIBRETRO_CORE
 /* --------------------------------------------------------------------------- */
 
 void gr_wait_vsync()
 {
+#if !LIBRETRO_CORE
 #ifdef _WIN32
     if ( directdraw ) IDirectDraw2_WaitForVerticalBlank( directdraw, DDWAITVB_BLOCKBEGIN, NULL );
+#endif
 #endif
 }
 
@@ -597,8 +603,10 @@ void __bgdexport( libvideo, module_initialize )()
 
     if ( !SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_InitSubSystem( SDL_INIT_VIDEO );
 
+#if !LIBRETRO_CORE
 #ifdef _WIN32
     if ( !directdraw ) init_dx();
+#endif
 #endif
     apptitle = appname;
 
@@ -626,6 +634,7 @@ extern int libretro_height;
 
 void __bgdexport( libvideo, module_finalize )()
 {
+#if !LIBRETRO_CORE
 #ifdef _WIN32
     if ( directdraw )
     {
@@ -637,6 +646,7 @@ void __bgdexport( libvideo, module_finalize )()
 
         directdraw = NULL;
     }
+#endif
 #endif
     if ( SDL_WasInit( SDL_INIT_VIDEO ) ) SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }
