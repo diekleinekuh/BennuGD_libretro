@@ -29,7 +29,7 @@ extern char* retro_save_directory;
 extern  size_t retro_save_directory_len;
 
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define THREAD_LOCAL __declspec(thread)
 #else
 #define THREAD_LOCAL _Thread_local
