@@ -1,0 +1,37 @@
+{
+    "buildType": {
+        "default": "debug",
+        "description": "Build type",
+        "choices": {
+            "debug": {
+                "short": "Debug",
+                "long": "Build with debugging information",
+                "buildType": "Debug"
+            },
+            "release":{
+                "short": "Release",
+                "long": "Build optimized binaries",
+                "buildType": "Release"
+            }
+        }
+    },
+    "targetType":{
+        "default": "libretro_core",
+        "choices": {
+            "libretro_core":{
+                "short": "libretro core",
+                "long": "Build as libretro core",
+                "settings": {
+                    "libretro_core" : true
+                }
+            },
+            "standalone":{
+                "short": "standalone",
+                "long": "Build standalone interpreter",
+                "settings": {
+                    "libretro_core": false
+                }
+            }
+        }
+    }
+}
