@@ -138,8 +138,8 @@ static int bgd_get_window_pos( INSTANCE * my, int * params )
 
     if ( GetWindowRect( wminfo.window, &Rect ) )
     {
-        if ( params[0] ) *(( int * )( params[0] ) ) = Rect.left;
-        if ( params[1] ) *(( int * )( params[1] ) ) = Rect.top;
+        if ( params[0] ) *(( int * )ptr_from_int( params[0] ) ) = Rect.left;
+        if ( params[1] ) *(( int * )ptr_from_int( params[1] ) ) = Rect.top;
     }
 #elif __linux
 #ifdef SDL_VIDEO_DRIVER_X11
@@ -160,8 +160,8 @@ static int bgd_get_window_pos( INSTANCE * my, int * params )
             res = XGetWindowAttributes( wminfo.info.x11.display, parent, &wattr );
             if ( res != BadDrawable && res != BadWindow )
             {
-                if ( params[0] ) *(( int * )( params[0] ) ) = wattr.x;
-                if ( params[1] ) *(( int * )( params[1] ) ) = wattr.y;
+                if ( params[0] ) *(( int * )ptr_from_int( params[0] ) ) = wattr.x;
+                if ( params[1] ) *(( int * )ptr_from_int( params[1] ) ) = wattr.y;
             }
         }
     }
@@ -191,13 +191,13 @@ static int bgd_get_window_size( INSTANCE * my, int * params )
 
     if ( GetWindowRect( wminfo.window, &Rect ) )
     {
-        if ( params[0] ) *(( int * )( params[0] ) ) = Rect.right - Rect.left;
-        if ( params[1] ) *(( int * )( params[1] ) ) = Rect.bottom - Rect.top;
+        if ( params[0] ) *(( int * )ptr_from_int( params[0] ) ) = Rect.right - Rect.left;
+        if ( params[1] ) *(( int * )ptr_from_int( params[1] ) ) = Rect.bottom - Rect.top;
 
         if ( GetClientRect( wminfo.window, &Rect ) )
         {
-            if ( params[2] ) *(( int * )( params[2] ) ) = Rect.right - Rect.left;
-            if ( params[3] ) *(( int * )( params[3] ) ) = Rect.bottom - Rect.top;
+            if ( params[2] ) *(( int * )ptr_from_int( params[2] ) ) = Rect.right - Rect.left;
+            if ( params[3] ) *(( int * )ptr_from_int( params[3] ) ) = Rect.bottom - Rect.top;
         }
     }
 #elif __linux
@@ -216,8 +216,8 @@ static int bgd_get_window_size( INSTANCE * my, int * params )
         res = XGetWindowAttributes( wminfo.info.x11.display, parent, &wattr );
         if ( res != BadDrawable && res != BadWindow )
         {
-            if ( params[2] ) *(( int * )( params[2] ) ) = wattr.width;
-            if ( params[3] ) *(( int * )( params[3] ) ) = wattr.height;
+            if ( params[2] ) *(( int * )ptr_from_int( params[2] ) ) = wattr.width;
+            if ( params[3] ) *(( int * )ptr_from_int( params[3] ) ) = wattr.height;
 
             if ( XQueryTree( wminfo.info.x11.display, parent, &root, &parent, &children, &children_count ) != BadWindow )
             {
@@ -226,8 +226,8 @@ static int bgd_get_window_size( INSTANCE * my, int * params )
                 res = XGetWindowAttributes( wminfo.info.x11.display, parent, &wattr );
                 if ( res != BadDrawable && res != BadWindow )
                 {
-                    if ( params[0] ) *(( int * )( params[0] ) ) = wattr.width;
-                    if ( params[1] ) *(( int * )( params[1] ) ) = wattr.height;
+                    if ( params[0] ) *(( int * )ptr_from_int( params[0] ) ) = wattr.width;
+                    if ( params[1] ) *(( int * )ptr_from_int( params[1] ) ) = wattr.height;
                 }
             }
         }
@@ -250,8 +250,8 @@ static int bgd_get_desktop_size( INSTANCE * my, int * params )
 
     if ( GetClientRect( GetDesktopWindow(), &Rect ) )
     {
-        *(( int * )( params[0] ) ) = Rect.right - Rect.left;
-        *(( int * )( params[1] ) ) = Rect.bottom - Rect.top;
+        *(( int * )ptr_from_int( params[0] ) ) = Rect.right - Rect.left;
+        *(( int * )ptr_from_int( params[1] ) ) = Rect.bottom - Rect.top;
     }
 #elif __linux
 #ifdef SDL_VIDEO_DRIVER_X11
@@ -273,8 +273,8 @@ static int bgd_get_desktop_size( INSTANCE * my, int * params )
         res = XGetWindowAttributes( wminfo.info.x11.display, root, &wattr );
         if ( res != BadDrawable && res != BadWindow )
         {
-            if ( params[0] ) *(( int * )( params[0] ) ) = wattr.width;
-            if ( params[1] ) *(( int * )( params[1] ) ) = wattr.height;
+            if ( params[0] ) *(( int * )ptr_from_int( params[0] ) ) = wattr.width;
+            if ( params[1] ) *(( int * )ptr_from_int( params[1] ) ) = wattr.height;
         }
     }
     wminfo.info.x11.unlock_func();
