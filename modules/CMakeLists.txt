@@ -1,4 +1,3 @@
-include_directories(${SDL_INCLUDE_DIR})
 include(CheckSymbolExists)
 
 function(add_mod deps)
