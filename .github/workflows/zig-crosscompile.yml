@@ -20,7 +20,7 @@ jobs:
         target:
           - x86_64-linux-gnu
           - aarch64-linux-gnu
-          - x86_64-windows-gnu
+          #- x86_64-windows-gnu
           - arm-linux-gnueabihf
         build_type: [Release]
 
@@ -50,3 +50,32 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
+    - name: Achive build results
+      uses: actions/upload-artifact@v4
+      with:
+        name: bennugd_libretro.${{ matrix.target }}.${{ matrix.build_type }}
+        path: ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro*.*
+  master-branch-release:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    if: github.ref == 'refs/heads/master'
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: delete previous release
+      shell: bash
+      run: |
+        gh release delete mainline-latest --yes --cleanup-tag || true
+    - name: download artifacts
+      uses: actions/download-artifact@v4
+    - name: compress artifacts
+      shell: bash
+      run: |
+        for d in ./bennugd_libretro.*.*/ ; do (cd "$d" && tar czvf "../$(basename $d).tgz" .); done
+    - name: create new release
+      shell: bash
+      run: |
+        gh release create mainline-latest --draft --latest=false --title "Mainline latest" --notes "Latest manline prerelease" --target ${{ github.sha }} --prerelease ./bennugd_libretro.*.*.tgz
