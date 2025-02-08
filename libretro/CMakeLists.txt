@@ -13,6 +13,7 @@ FetchContent_MakeAvailable(  libretro-common )
 
 include_directories(${libretro-common_SOURCE_DIR}/include)
 add_subdirectory(sdl-libretro)
+add_subdirectory(sdl_mixer-libretro)
 
 add_library(bennugd_libretro SHARED
     ${libretro-common_SOURCE_DIR}/libco/libco.c
@@ -35,6 +36,8 @@ add_library(bennugd_libretro SHARED
     filestream_gzip.c
 )
 
+target_include_directories(bennugd_libretro PRIVATE "${libretro-common_SOURCE_DIR}/include")
+
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
     set_source_files_properties(${libretro-common_SOURCE_DIR}/libco/libco.c PROPERTIES COMPILE_OPTIONS "/wd4005")
 endif()
@@ -51,8 +54,6 @@ set_target_properties(bennugd_libretro PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEA
 target_link_libraries(bennugd_libretro bgdi)
 
 target_compile_definitions(bennugd_libretro PRIVATE HAVE_POSIX_MEMALIGN=${HAVE_POSIX_MEMALIGN})
-
-include_directories(${sdl-libretro_SOURCE_DIR}/include)
 
 set(SDL_LIBRARIES "sdl-libretro" PARENT_SCOPE)
 set(SDL_MIXER_LIBRARIES "sdl_mixer-libretro" PARENT_SCOPE)

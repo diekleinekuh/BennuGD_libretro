@@ -1,0 +1,10 @@
+--- CMakeLists.txt	2024-09-06 13:54:24.170193908 +0200
++++ CMakeLists.txt.changed	2024-09-06 13:57:41.045645317 +0200
+@@ -1,5 +1,5 @@
+-cmake_minimum_required(VERSION 2.8.12)
+-project(vorbis)
++cmake_minimum_required(VERSION 3.5)
++project(vorbis C)
+ 
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
