@@ -6,8 +6,11 @@ endif()
 
 set(CMAKE_C_COMPILER "${CMAKE_CURRENT_LIST_DIR}/zigcc.${ZIG_EXT}")
 set(CMAKE_C_COMPILER_ID "Clang")
-set(CMAKE_C_FLAGS_INIT "-target ${ZIG_TARGET}")
+set(CMAKE_C_FLAGS_INIT "-target ${ZIG_TARGET} -fno-sanitize=all")
 
+set(CMAKE_CXX_COMPILER "${CMAKE_CURRENT_LIST_DIR}/zigc++.${ZIG_EXT}")
+set(CMAKE_CXX_COMPILER_ID "Clang")
+set(CMAKE_CXX_FLAGS_INIT "-target ${ZIG_TARGET} -fno-sanitize=all")
 
 set(CMAKE_AR "${CMAKE_CURRENT_LIST_DIR}/zigar.${ZIG_EXT}")
 set(CMAKE_RANLIB "${CMAKE_CURRENT_LIST_DIR}/zigranlib.${ZIG_EXT}")
