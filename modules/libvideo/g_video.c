@@ -46,6 +46,8 @@ extern char *retro_strtok_r__(char *str, const char *delim, char **saveptr);
 #define strtok_r retro_strtok_r__
 
 #else //LIBRETRO_CORE
+
+#ifdef _MSC_VER
 static char *strtok_r(char *str, const char *delim, char **saveptr)
 {
    char *first = NULL;
@@ -76,6 +78,7 @@ static char *strtok_r(char *str, const char *delim, char **saveptr)
 
    return first;
 }
+#endif
 
 #include <initguid.h>
 #include "ddraw.h"
