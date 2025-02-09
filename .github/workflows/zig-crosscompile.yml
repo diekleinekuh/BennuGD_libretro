@@ -20,7 +20,7 @@ jobs:
         target:
           - x86_64-linux-gnu
           - aarch64-linux-gnu
-          #- x86_64-windows-gnu
+          - x86_64-windows-gnu
           - arm-linux-gnueabihf
         build_type: [Release]
 
