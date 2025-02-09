@@ -78,4 +78,4 @@ jobs:
     - name: create new release
       shell: bash
       run: |
-        gh release create mainline-latest --latest=false --title "Mainline latest" --notes "Latest manline prerelease" --target ${{ github.sha }} --prerelease=true ./bennugd_libretro.*.*.tgz
+        gh release create mainline-latest --latest=false --title "Mainline latest" --notes "Latest manline release" --target ${{ github.sha }} --prerelease=true ./bennugd_libretro.*.*.tgz
