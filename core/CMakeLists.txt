@@ -70,7 +70,7 @@ target_include_directories(core PRIVATE ${LIBRETRO_INCLUDE_DIR} ${SDL_INCLUDE_DI
 
 target_link_libraries(core
     ${OPENSSL_CRYPTO_LIBRARY}
-    zlib
+    ZLIB::ZLIB
     ${SDL_LIBRARIES}
     cmake_git_version_tracking)
 

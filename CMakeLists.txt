@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14...3.24)
 project(bennugd_libretro C)
 set (CMAKE_C_STANDARD 11)
 
+option(NO_SYSTEM_DEPENDENCIES "Don't search dependencies but build them locally" ON)
 option(libretro_core "build libretro_core instead of standalone version" ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
@@ -15,48 +16,52 @@ if (NOT BUILD_SHARED_LIBS)
     add_compile_definitions(__STATIC__=1)
 endif()
 
-include(CheckLinkerFlag)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18.0")
+    include(CheckLinkerFlag)
+endif()
+
 include(CheckCCompilerFlag)
 
 function(disable_all_warnings target)
-    # Simply adding "/w" causes D9025 because /w overrides any /W1, /W2, /W3 or /W4 the target might have defined.
-    # Some targets add those in CMAKE_C_FLAGS which makes it hard to override.
-    # Adding the disabled warnings to COMPILE_OPTIONS applies them also to assembler files 
-    # where they are not supported causing new warnings. 
-    # So this disables warnings individually :-/
-    if (CMAKE_C_COMPILER_ID MATCHES "Clang")
-        set(disabled_warnings "")
-    elseif (CMAKE_C_COMPILER_ID MATCHES "GNU")
-        set(disabled_warnings "-Wno-attributes;-Wno-stringop-truncation")
-    elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-        set(disabled_warnings "/wd4132;/wd4189;/wd4206;/wd4210;/wd4295;/wd4701;/wd4702;/wd4334;/wd4244")
-    endif()
-    get_target_property(target_source_dir ${target} SOURCE_DIR)
-    cmake_path(SET target_path ${target_source_dir})
-    get_target_property(target_sources ${target} SOURCES)
-    foreach( src IN LISTS target_sources)
-        cmake_path(APPEND target_path ${src} OUTPUT_VARIABLE src_path)
-        cmake_path(GET src_path EXTENSION LAST_ONLY src_ext)
-        if(src_ext MATCHES "^\.[Cc]$")
-            get_source_file_property(src_compile_options ${src_path} COMPILE_OPTIONS)
-            if (NOT src_compile_options)
-                set(src_compile_options)
-            endif()
-            list(APPEND src_compile_options ${disabled_warnings})
-            set_source_files_properties( "${src_path}" TARGET_DIRECTORY ${target} PROPERTIES COMPILE_OPTIONS "${src_compile_options}" )
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20.0")
+        # Simply adding "/w" causes D9025 because /w overrides any /W1, /W2, /W3 or /W4 the target might have defined.
+        # Some targets add those in CMAKE_C_FLAGS which makes it hard to override.
+        # Adding the disabled warnings to COMPILE_OPTIONS applies them also to assembler files 
+        # where they are not supported causing new warnings. 
+        # So this disables warnings individually :-/
+        if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+            set(disabled_warnings "")
+        elseif (CMAKE_C_COMPILER_ID MATCHES "GNU")
+            set(disabled_warnings "-Wno-attributes;-Wno-stringop-truncation")
+        elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+            set(disabled_warnings "/wd4132;/wd4189;/wd4206;/wd4210;/wd4295;/wd4701;/wd4702;/wd4334;/wd4244")
         endif()
-    endforeach()
+        get_target_property(target_source_dir ${target} SOURCE_DIR)
+        cmake_path(SET target_path ${target_source_dir})
+        get_target_property(target_sources ${target} SOURCES)
+        foreach( src IN LISTS target_sources)
+            cmake_path(APPEND target_path ${src} OUTPUT_VARIABLE src_path)
+            cmake_path(GET src_path EXTENSION LAST_ONLY src_ext)
+            if(src_ext MATCHES "^\.[Cc]$")
+                get_source_file_property(src_compile_options ${src_path} COMPILE_OPTIONS)
+                if (NOT src_compile_options)
+                    set(src_compile_options)
+                endif()
+                list(APPEND src_compile_options ${disabled_warnings})
+                set_source_files_properties( "${src_path}" TARGET_DIRECTORY ${target} PROPERTIES COMPILE_OPTIONS "${src_compile_options}" )
+            endif()
+        endforeach()
+    endif()
 endfunction()
 
-if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")    
-    check_linker_flag("C" "-Wl,--no-undefined" HAS_NO_UNDEFINED)
-    if (HAS_NO_UNDEFINED)
-        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
-    endif()
+if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
 
-    check_linker_flag("C" "-Wl,-Bsymbolic-functions" HAS_SYMBOLIC_FUNCTIONS)
-    if (HAS_SYMBOLIC_FUNCTIONS)
-        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic-functions")
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18.0")
+        check_linker_flag("C" "-Wl,--no-undefined" HAS_NO_UNDEFINED)
+        if (HAS_NO_UNDEFINED)
+            string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--no-undefined")
+        endif()
     endif()
 endif()
 
@@ -71,54 +76,71 @@ set(BUILD_SHARED_LIBS_backup "$CACHE{BUILD_SHARED_LIBS}")
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 
 # libressl
-set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
-set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
-set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
-FetchContent_Declare( libressl 
-    URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
-    URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
-)
-FetchContent_MakeAvailable(libressl)
+if (NOT NO_SYSTEM_DEPENDENCIES)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+    find_package(OpenSSL)
+    find_package(ZLIB)
+    find_package(PNG)
+endif()
 
-disable_all_warnings(crypto_obj)
-disable_all_warnings(compat_obj)
-disable_all_warnings(crypto)
-disable_all_warnings(ssl_obj)
-disable_all_warnings(bs_obj)
-disable_all_warnings(ssl)
-disable_all_warnings(tls_obj)
-disable_all_warnings(tls_compat_obj)
-disable_all_warnings(tls)
-set(OPENSSL_CRYPTO_LIBRARY crypto)
+if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
+    set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
+    set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
+    set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
+    FetchContent_Declare( libressl 
+        URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
+        URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
+    )
+    FetchContent_MakeAvailable(libressl)
+
+    disable_all_warnings(crypto_obj)
+    disable_all_warnings(compat_obj)
+    disable_all_warnings(crypto)
+    disable_all_warnings(ssl_obj)
+    disable_all_warnings(bs_obj)
+    disable_all_warnings(ssl)
+    disable_all_warnings(tls_obj)
+    disable_all_warnings(tls_compat_obj)
+    disable_all_warnings(tls)
+    set(OPENSSL_CRYPTO_LIBRARY crypto)
+else()
+    set(OPENSSL_CRYPTO_LIBRARY OpenSSL::Crypto)
+endif()
 
 # zlib
-set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "Build test binaries")
-set(ZLIB_COMPAT ON CACHE BOOL "Compile with zlib compatible API" FORCE)
-FetchContent_Declare(zlib-ng
-    GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
-    GIT_TAG        cbb6ec1d74e8061efdf7251f8c2dae778bed14fd # 2.2.3
-)
-FetchContent_MakeAvailable(zlib-ng)
-disable_all_warnings(zlib)
+if (NO_SYSTEM_DEPENDENCIES OR NOT ZLIB_FOUND)
+    set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "Build test binaries")
+    set(ZLIB_COMPAT ON CACHE BOOL "Compile with zlib compatible API" FORCE)
+    FetchContent_Declare(zlib-ng
+        GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
+        GIT_TAG        cbb6ec1d74e8061efdf7251f8c2dae778bed14fd # 2.2.3
+    )
+    FetchContent_MakeAvailable(zlib-ng)
+    disable_all_warnings(zlib)
+    add_library(ZLIB::ZLIB ALIAS zlib)
+endif()
 
 # libpng
-set(PNG_SHARED OFF CACHE BOOL "Build libpng as a shared library" FORCE)
-set(PNG_TESTS OFF CACHE BOOL "Build the libpng tests" FORCE)
-set(PNG_TOOLS OFF CACHE BOOL "" FORCE)
-set(ZLIB_LIBRARY ZLIB::ZLIB CACHE STRING "Path to zlib library" FORCE)
-set(ZLIB_INCLUDE_DIR ${zlib-ng_BINARY_DIR} CACHE STRING "Include directory for zlib" FORCE)
-add_library(ZLIB::ZLIB ALIAS zlib)
+if (NO_SYSTEM_DEPENDENCIES OR NOT PNG_FOUND)
+    set(PNG_SHARED OFF CACHE BOOL "Build libpng as a shared library" FORCE)
+    set(PNG_TESTS OFF CACHE BOOL "Build the libpng tests" FORCE)
+    set(PNG_TOOLS OFF CACHE BOOL "" FORCE)
+    set(ZLIB_LIBRARY ZLIB::ZLIB CACHE STRING "Path to zlib library" FORCE)
+    set(ZLIB_INCLUDE_DIR ${zlib-ng_BINARY_DIR} CACHE STRING "Include directory for zlib" FORCE)
 
-FetchContent_Declare( libpng 
-    GIT_REPOSITORY https://github.com/pnggroup/libpng.git
-    GIT_TAG 51f5bd68b9b806d2c92b4318164d28b49357da31 # 1.6.45
-)
-FetchContent_MakeAvailable(libpng)
-set (PNG_LIBRARIES png_static)
-add_library(mypng INTERFACE)
-target_link_libraries(mypng INTERFACE png_static)
-target_include_directories(mypng INTERFACE "${libpng_BINARY_DIR};${libpng_SOURCE_DIR}")
-add_library(PNG::PNG ALIAS mypng)
+    FetchContent_Declare( libpng 
+        GIT_REPOSITORY https://github.com/pnggroup/libpng.git
+        GIT_TAG 51f5bd68b9b806d2c92b4318164d28b49357da31 # 1.6.45
+    )
+    FetchContent_MakeAvailable(libpng)
+    set (PNG_LIBRARIES png_static)
+    add_library(mypng INTERFACE)
+    target_link_libraries(mypng INTERFACE png_static)
+    target_include_directories(mypng INTERFACE "${libpng_BINARY_DIR};${libpng_SOURCE_DIR}")
+    add_library(PNG::PNG ALIAS mypng)
+else()
+    set (PNG_LIBRARIES png)
+endif()
 
 # restore state of BUILD_SHARED_LIBS
 set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_backup} CACHE INTERNAL "" FORCE)

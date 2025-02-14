@@ -5,6 +5,11 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 include(FetchContent)
 
+if (NOT NO_SYSTEM_DEPENDENCIES)
+  find_package(Ogg)
+  find_package(Vorbis)
+endif()
+
 set(BUILD_TESTING_backup ${BUILD_TESTING})
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
@@ -39,11 +44,22 @@ set(ENABLE_WAV OFF CACHE BOOL "Support for output to a .wav file" FORCE)
 set(ENABLE_RAW OFF CACHE BOOL "Support for output raw pcm data to a file" FORCE)
 set(ENABLE_DOC OFF CACHE BOOL "" FORCE)
 set(ENABLE_SHARED OFF CACHE BOOL "Whether to build the shared library" FORCE)
+
+
+# cmake 3.18 introduced the SOURCE_SUBDIR but in 3.14 it's not avaiable, this is a workaround
+FetchContent_Declare(
+  mikmod-dummy
+  GIT_REPOSITORY https://github.com/sezero/mikmod.git
+  GIT_TAG 56af6ef8d596e5aa885475cdb40b76ff063707cc
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+)
+FetchContent_MakeAvailable( mikmod-dummy )
+
 FetchContent_Declare(
     mikmod
-    GIT_REPOSITORY https://github.com/sezero/mikmod.git
-    GIT_TAG 56af6ef8d596e5aa885475cdb40b76ff063707cc            
-    SOURCE_SUBDIR libmikmod
+    SOURCE_DIR "${mikmod-dummy_SOURCE_DIR}/libmikmod"
 )
 
 FetchContent_MakeAvailable( ogg vorbis mikmod )
@@ -80,6 +96,6 @@ set (SDL_mixer-src
 add_library( sdl_mixer-libretro STATIC ${SDL_mixer-src})
 
 target_link_libraries(sdl_mixer-libretro Vorbis::vorbis;Vorbis::vorbisfile;Ogg::ogg;mikmod-static;sdl-libretro )
-target_include_directories(sdl_mixer-libretro PRIVATE "${mikmod_SOURCE_DIR}/libmikmod/include;${SDL_INCLUDE_DIR}")
+target_include_directories(sdl_mixer-libretro PRIVATE "${mikmod-dummy_SOURCE_DIR}/libmikmod/include;${SDL_INCLUDE_DIR}")
 target_include_directories(sdl_mixer-libretro PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_definitions(sdl_mixer-libretro PRIVATE "MIKMOD_STATIC=1")
