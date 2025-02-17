@@ -55,7 +55,9 @@ function(disable_all_warnings target)
 endfunction()
 
 if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
+    if (UNIX)
+        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
+    endif()
 
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18.0")
         check_linker_flag("C" "-Wl,--no-undefined" HAS_NO_UNDEFINED)
