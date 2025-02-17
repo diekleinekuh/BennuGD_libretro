@@ -55,7 +55,7 @@ function(disable_all_warnings target)
 endfunction()
 
 if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
-    if (UNIX)
+    if (UNIX AND NOT APPLE)
         string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
     endif()
 
