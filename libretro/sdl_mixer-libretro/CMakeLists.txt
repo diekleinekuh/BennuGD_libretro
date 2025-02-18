@@ -5,13 +5,9 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 include(FetchContent)
 
-if (NOT NO_SYSTEM_DEPENDENCIES)
-  find_package(Ogg)
-  find_package(Vorbis)
-endif()
-
 set(BUILD_TESTING_backup ${BUILD_TESTING})
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
   ogg
   GIT_REPOSITORY https://gitlab.xiph.org/xiph/ogg.git
@@ -25,6 +21,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://gitlab.xiph.org/xiph/vorbis.git
   GIT_TAG        84c023699cdf023a32fa4ded32019f194afcdad0
   PATCH_COMMAND "${CMAKE_COMMAND}" "-D" "PATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/patches/patch_vorbis_min_required_version.patch" "-P" "${CMAKE_CURRENT_SOURCE_DIR}/patches/ApplyPatch.cmake"
+  EXCLUDE_FROM_ALL
 )
 
 set(ENABLE_ALSA OFF CACHE BOOL "Include the ALSA driver" FORCE)
@@ -45,21 +42,11 @@ set(ENABLE_RAW OFF CACHE BOOL "Support for output raw pcm data to a file" FORCE)
 set(ENABLE_DOC OFF CACHE BOOL "" FORCE)
 set(ENABLE_SHARED OFF CACHE BOOL "Whether to build the shared library" FORCE)
 
-
-# cmake 3.18 introduced the SOURCE_SUBDIR but in 3.14 it's not avaiable, this is a workaround
-FetchContent_Declare(
-  mikmod-dummy
-  GIT_REPOSITORY https://github.com/sezero/mikmod.git
-  GIT_TAG 56af6ef8d596e5aa885475cdb40b76ff063707cc
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-)
-FetchContent_MakeAvailable( mikmod-dummy )
-
 FetchContent_Declare(
     mikmod
-    SOURCE_DIR "${mikmod-dummy_SOURCE_DIR}/libmikmod"
+    GIT_REPOSITORY https://github.com/sezero/mikmod.git
+    GIT_TAG 56af6ef8d596e5aa885475cdb40b76ff063707cc            
+    SOURCE_SUBDIR libmikmod
 )
 
 FetchContent_MakeAvailable( ogg vorbis mikmod )
@@ -96,6 +83,6 @@ set (SDL_mixer-src
 add_library( sdl_mixer-libretro STATIC ${SDL_mixer-src})
 
 target_link_libraries(sdl_mixer-libretro Vorbis::vorbis;Vorbis::vorbisfile;Ogg::ogg;mikmod-static;sdl-libretro )
-target_include_directories(sdl_mixer-libretro PRIVATE "${mikmod-dummy_SOURCE_DIR}/libmikmod/include;${SDL_INCLUDE_DIR}")
+target_include_directories(sdl_mixer-libretro PRIVATE "${mikmod_SOURCE_DIR}/libmikmod/include;${SDL_INCLUDE_DIR}")
 target_include_directories(sdl_mixer-libretro PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_definitions(sdl_mixer-libretro PRIVATE "MIKMOD_STATIC=1")
