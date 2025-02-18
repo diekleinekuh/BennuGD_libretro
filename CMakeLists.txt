@@ -92,6 +92,7 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
     FetchContent_Declare( libressl 
         URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
         URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
+        EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(libressl)
 
@@ -116,10 +117,20 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT ZLIB_FOUND)
     FetchContent_Declare(zlib-ng
         GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
         GIT_TAG        cbb6ec1d74e8061efdf7251f8c2dae778bed14fd # 2.2.3
+        EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(zlib-ng)
-    disable_all_warnings(zlib)
-    add_library(ZLIB::ZLIB ALIAS zlib)
+
+    set(ZLIB_LIBRARY zlib CACHE STRING "Path to zlib library" FORCE)
+    set(ZLIB_INCLUDE_DIR ${zlib-ng_BINARY_DIR} CACHE STRING "Include directory for zlib" FORCE)
+    add_library(myzlib INTERFACE )
+    install(TARGETS myzlib EXPORT ZLIB)
+
+    target_link_libraries(myzlib INTERFACE zlib)
+    target_include_directories(myzlib INTERFACE $<BUILD_INTERFACE:${zlib-ng_BINARY_DIR}> )
+    add_library(ZLIB::ZLIB ALIAS myzlib)
+
+    find_package(ZLIB)
 endif()
 
 # libpng
@@ -127,12 +138,11 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT PNG_FOUND)
     set(PNG_SHARED OFF CACHE BOOL "Build libpng as a shared library" FORCE)
     set(PNG_TESTS OFF CACHE BOOL "Build the libpng tests" FORCE)
     set(PNG_TOOLS OFF CACHE BOOL "" FORCE)
-    set(ZLIB_LIBRARY ZLIB::ZLIB CACHE STRING "Path to zlib library" FORCE)
-    set(ZLIB_INCLUDE_DIR ${zlib-ng_BINARY_DIR} CACHE STRING "Include directory for zlib" FORCE)
 
     FetchContent_Declare( libpng 
         GIT_REPOSITORY https://github.com/pnggroup/libpng.git
         GIT_TAG 51f5bd68b9b806d2c92b4318164d28b49357da31 # 1.6.45
+        EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(libpng)
     set (PNG_LIBRARIES png_static)
