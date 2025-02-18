@@ -33,6 +33,10 @@
 #include "b_crypt.h"
 #include "allocator.h"
 
+#if __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 /* ------------------------------------------------------------------------- */
 
 crypt_handle * crypt_create( int method, char * key )
@@ -135,3 +139,7 @@ int crypt_data( crypt_handle * ch, char * in, char * out, int size, int enc )
 }
 
 /* ------------------------------------------------------------------------- */
+
+#if __GNUC__
+#pragma GCC diagnostic pop
+#endif
