@@ -73,8 +73,6 @@ set_target_properties(bennugd_libretro PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEA
 
 target_link_libraries(bennugd_libretro bgdi)
 
-target_compile_definitions(bennugd_libretro PRIVATE HAVE_POSIX_MEMALIGN=${HAVE_POSIX_MEMALIGN})
-
 set(SDL_LIBRARIES "sdl-libretro" PARENT_SCOPE)
 set(SDL_INCLUDE_DIR "${sdl-libretro_SOURCE_DIR}/include" PARENT_SCOPE)
 
