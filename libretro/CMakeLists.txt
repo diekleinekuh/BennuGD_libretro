@@ -1,4 +1,5 @@
 include(FetchContent)
+include(CheckSymbolExists)
 
 FetchContent_Declare(
   libretro-common
@@ -45,6 +46,15 @@ add_library(bennugd_libretro SHARED
     filesystem.c
     filestream_gzip.c
 )
+
+# libco expects HAVE_POSIX_MEMALIGN to be defined
+check_symbol_exists(posix_memalign stdlib.h BENNUGD_LIBRETRO_HAVE_POSIX_MEMALIGN)
+if (BENNUGD_LIBRETRO_HAVE_POSIX_MEMALIGN)
+    target_compile_definitions(bennugd_libretro PRIVATE HAVE_POSIX_MEMALIGN=1 )
+else()
+    target_compile_definitions(bennugd_libretro PRIVATE HAVE_POSIX_MEMALIGN=0 )
+endif()
+
 
 target_include_directories(bennugd_libretro PRIVATE "${libretro-common_SOURCE_DIR}/include")
 
