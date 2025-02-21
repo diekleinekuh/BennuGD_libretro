@@ -1,1 +1,1 @@
-add_mod("grbase;${SDL_LIBRARIES}")
+add_mod("grbase;SDL::SDL")

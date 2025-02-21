@@ -6,4 +6,4 @@ if (NOT libretro_core)
     endif()
 endif()
 
-add_mod("video;${SDL_LIBRARIES};${LIBMOD_PLATFORM_LIBS}")
+add_mod("video;SDL::SDL;${LIBMOD_PLATFORM_LIBS}")

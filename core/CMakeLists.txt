@@ -66,11 +66,11 @@ target_include_directories(core PUBLIC
     "${buddy-alloc_SOURCE_DIR}"
 )
 
-target_include_directories(core PRIVATE ${LIBRETRO_INCLUDE_DIR} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
+target_include_directories(core PRIVATE )
 
 target_link_libraries(core
     ${OPENSSL_CRYPTO_LIBRARY}
     ZLIB::ZLIB
-    ${SDL_LIBRARIES}
+    SDL::SDL
     cmake_git_version_tracking)
 
