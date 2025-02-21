@@ -1,1 +1,1 @@
-add_mod("${SDL_LIBRARIES};core")
+add_mod("SDL::SDL;core")

@@ -106,31 +106,33 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
     disable_all_warnings(tls_compat_obj)
     disable_all_warnings(tls)
     set(OPENSSL_CRYPTO_LIBRARY crypto)
+    message("using internal libcrypto")
 else()
     set(OPENSSL_CRYPTO_LIBRARY OpenSSL::Crypto)
 endif()
 
 # zlib
 if (NO_SYSTEM_DEPENDENCIES OR NOT ZLIB_FOUND)
-    set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "Build test binaries")
+    set(ZLIB_ENABLE_TESTS OFF CACHE BOOL "Build test binaries" FORCE)
     set(ZLIB_COMPAT ON CACHE BOOL "Compile with zlib compatible API" FORCE)
-    FetchContent_Declare(zlib-ng
+    set(SKIP_INSTALL_ALL TRUE)
+    FetchContent_Declare(zlib
         GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
         GIT_TAG        cbb6ec1d74e8061efdf7251f8c2dae778bed14fd # 2.2.3
         EXCLUDE_FROM_ALL
+        OVERRIDE_FIND_PACKAGE
     )
-    FetchContent_MakeAvailable(zlib-ng)
+    FetchContent_MakeAvailable(zlib)
 
-    set(ZLIB_LIBRARY zlib CACHE STRING "Path to zlib library" FORCE)
-    set(ZLIB_INCLUDE_DIR ${zlib-ng_BINARY_DIR} CACHE STRING "Include directory for zlib" FORCE)
-    add_library(myzlib INTERFACE )
-    install(TARGETS myzlib EXPORT ZLIB)
+    add_library(zlib_interface INTERFACE)
+    target_link_libraries(zlib_interface INTERFACE zlib)
+    target_include_directories(zlib_interface INTERFACE ${zlib_BINARY_DIR})
+    add_library(ZLIB::ZLIB ALIAS zlib_interface)
 
-    target_link_libraries(myzlib INTERFACE zlib)
-    target_include_directories(myzlib INTERFACE $<BUILD_INTERFACE:${zlib-ng_BINARY_DIR}> )
-    add_library(ZLIB::ZLIB ALIAS myzlib)
-
-    find_package(ZLIB)
+    set(ZLIB_LIBRARY ZLIB::ZLIB)
+    set(ZLIB_LIBRARIES ZLIB::ZLIB)
+    set(ZLIB_INCLUDE_DIRS ${zlib_BINARY_DIR})
+    message("using internal zlib")
 endif()
 
 # libpng
@@ -150,6 +152,7 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT PNG_FOUND)
     target_link_libraries(mypng INTERFACE png_static)
     target_include_directories(mypng INTERFACE "${libpng_BINARY_DIR};${libpng_SOURCE_DIR}")
     add_library(PNG::PNG ALIAS mypng)
+    message("using internal libpng")
 else()
     set (PNG_LIBRARIES png)
 endif()
@@ -164,6 +167,13 @@ else()
     set(SDL_BUILDING_LIBRARY TRUE)
     find_package(SDL 1.2 REQUIRED)
     find_package(SDL_mixer REQUIRED)
+    if (NOT TARGET SDL::SDL) # The modules was changed in cmake 3.19
+        add_library(sdl_interface INTERFACE)
+        target_link_libraries(sdl_interface INTERFACE "${SDL_LIBRARY}")
+        target_include_directories(sdl_interface INTERFACE "${SDL_INCLUDE_DIR}")
+        add_library(SDL::SDL ALIAS sdl_interface)
+    endif()
+    set (SDL_LIBRARIES SDL::SDL)
 endif()
 
 add_subdirectory(core)

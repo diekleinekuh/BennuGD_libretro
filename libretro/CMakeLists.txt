@@ -15,16 +15,8 @@ FetchContent_MakeAvailable(  libretro-common )
 include_directories(${libretro-common_SOURCE_DIR}/include)
 add_subdirectory(sdl-libretro)
 
-if (NOT NO_SYSTEM_DEPENDENCIES)
-    find_package(SDL_mixer)
-endif()
-
-if (NO_SYSTEM_DEPENDENCIES OR NOT SDL_mixer_FOUND)
-    add_subdirectory(sdl_mixer-libretro)
-    set(SDL_MIXER_LIBRARIES "sdl_mixer-libretro" PARENT_SCOPE)
-else()
-    set(SDL_MIXER_LIBRARIES "${SDL_MIXER_LIBRARIES}" PARENT_SCOPE)
-endif()
+add_subdirectory(sdl_mixer-libretro)
+set(SDL_MIXER_LIBRARIES "sdl_mixer-libretro" PARENT_SCOPE)
 
 add_library(bennugd_libretro SHARED
     ${libretro-common_SOURCE_DIR}/libco/libco.c
@@ -73,7 +65,4 @@ set_target_properties(bennugd_libretro PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEA
 
 target_link_libraries(bennugd_libretro bgdi)
 
-set(SDL_LIBRARIES "sdl-libretro" PARENT_SCOPE)
-set(SDL_INCLUDE_DIR "${sdl-libretro_SOURCE_DIR}/include" PARENT_SCOPE)
-
-set(LIBRETRO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libretro-common/include" PARENT_SCOPE)
+add_library(SDL::SDL ALIAS sdl-libretro)
