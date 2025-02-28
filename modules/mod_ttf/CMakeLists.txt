@@ -11,8 +11,8 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT Freetype_FOUND)
     set(FT_DISABLE_BROTLI ON CACHE BOOL "" FORCE)
 
     FetchContent_Declare(freetype
-        GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
-        GIT_TAG e2bcca40ca0d82ae64ba25e5c5e252dc0d083162
+        GIT_REPOSITORY https://github.com/freetype/freetype.git
+        GIT_TAG 5d4e649f740c675426fbe4cdaffc53ee2a4cb954
     )
     FetchContent_MakeAvailable(freetype)
 else()

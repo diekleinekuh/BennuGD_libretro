@@ -1,8 +1,10 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index fe20f2d..ff9f766 100644
+index 907dba8..ab931c3 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -1,2 +1,2 @@
+@@ -1,4 +1,4 @@
 -cmake_minimum_required(VERSION 3.0)
-+cmake_minimum_required(VERSION 3.5)
++cmake_minimum_required(VERSION 3.0...3.31)
  
+ # Extract project version from configure.ac
+ file(READ configure.ac CONFIGURE_AC_CONTENTS)

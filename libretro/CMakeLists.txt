@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.14...3.31)
 include(FetchContent)
 include(CheckSymbolExists)
 
@@ -5,9 +6,9 @@ FetchContent_Declare(
   libretro-common
   GIT_REPOSITORY https://github.com/libretro/libretro-common.git
   GIT_TAG        0abedaac6a795c093f2e1a22f3028fca9efdf3c9
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
+  CONFIGURE_COMMAND " "
+  BUILD_COMMAND " "
+  INSTALL_COMMAND " "
 )
 
 FetchContent_MakeAvailable(  libretro-common )
