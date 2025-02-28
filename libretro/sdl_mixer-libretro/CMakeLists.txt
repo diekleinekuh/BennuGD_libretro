@@ -61,10 +61,10 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT Mikmod_FOUND)
   FetchContent_Declare(
     mikmod-dummy
     GIT_REPOSITORY https://github.com/sezero/mikmod.git
-    GIT_TAG 56af6ef8d596e5aa885475cdb40b76ff063707cc
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
+    GIT_TAG 72424e1bebab470fbf8a2914dcd7903b742205e6 #libmikmod-3.3.12
+    CONFIGURE_COMMAND " "
+    BUILD_COMMAND " "
+    INSTALL_COMMAND " "
   )
   FetchContent_MakeAvailable( mikmod-dummy )
 
