@@ -23,10 +23,9 @@
 
 #ifdef SDL_JOYSTICK_LIBRETRO
 #include "../../video/libretro/libretro.h"
-
-//extern retro_input_state_t input_state_cb;
 extern short int libretro_input_state_cb(unsigned port,unsigned device,unsigned index,unsigned id);
-//#define libretro_input_state_cb  input_state_cb
+#define MAX_JOYS 32
+
 /* This is the system specific header for the SDL joystick API */
 
 #include "SDL_events.h"
@@ -54,7 +53,7 @@ struct joystick_hwdata
     int an[4];// 0/1 left analog 2/3 right analog
 };
 
-static SDL_LIBRETRO_JoyData joy_data[4];
+static SDL_LIBRETRO_JoyData joy_data[MAX_JOYS];
 
 //   RETRO        B    Y    SLT  STA  UP   DWN  LEFT RGT  A    X    L    R    L2   R2   L3   R3
 //   retro index  0    1    2    3    4    5    6    7    8    9    10   11   12   13   14   15
@@ -75,7 +74,7 @@ int
 SDL_SYS_JoystickInit(void)
 {
 	int i = 0;
-	SDL_numjoysticks = 4;
+	SDL_numjoysticks = MAX_JOYS;
 
 	SDL_zero( joy_data);
 
