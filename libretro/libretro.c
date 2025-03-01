@@ -53,7 +53,7 @@ void retro_get_system_info(struct retro_system_info *info)
    info->library_name     = "BennuGD";
    info->library_version  = bgd_getversion();
    info->need_fullpath    = true;
-   info->valid_extensions = "dat|exe";
+   info->valid_extensions = "dat|dcb";
 }
 
 retro_log_printf_t log_cb=&default_log;
@@ -682,52 +682,57 @@ void retro_init(void)
         }
     }
 
-
-    static const struct retro_controller_description controller_descriptions[] =
     {
-        { "Retropad", RETRO_DEVICE_JOYPAD },
-        { "Keyboard", RETRO_DEVICE_KEYBOARD },
-        { "Mouse", RETRO_DEVICE_MOUSE },
-        { "Analog", RETRO_DEVICE_ANALOG },
-        { "None", RETRO_DEVICE_NONE }
-    };
+        #define MAX_JOYS 32 // matching same value in sdl-libretro and mod_joy
 
-#define NUM_CONTROLLER_DESCRIPTION_ENTRIES (sizeof(controller_descriptions)/sizeof(controller_descriptions[0]))
-    static struct retro_controller_info controller_info[] =
-    {
-        { controller_descriptions, NUM_CONTROLLER_DESCRIPTION_ENTRIES },
-        { controller_descriptions, NUM_CONTROLLER_DESCRIPTION_ENTRIES },
-        { controller_descriptions, NUM_CONTROLLER_DESCRIPTION_ENTRIES },
-        { controller_descriptions, NUM_CONTROLLER_DESCRIPTION_ENTRIES },
-        { NULL, 0 }
-    };
-#undef NUM_CONTROLLER_DESCRIPTION_ENTRIES
+        const struct retro_controller_description controller_descriptions[] =
+        {
+            { "Retropad", RETRO_DEVICE_JOYPAD },
+            { "Keyboard", RETRO_DEVICE_KEYBOARD },
+            { "Mouse", RETRO_DEVICE_MOUSE },
+            { "Analog", RETRO_DEVICE_ANALOG },
+            { "None", RETRO_DEVICE_NONE }
+        };
+   
+        struct retro_controller_info controller_info[MAX_JOYS+1];
+        for (int i=0; i<MAX_JOYS; ++i)
+        {
+            controller_info[i] = (struct retro_controller_info) { controller_descriptions, sizeof(controller_descriptions)/sizeof(controller_descriptions[0])};
+        }
+        controller_info[MAX_JOYS] = (struct retro_controller_info) { NULL, 0 };
 
-    if (!environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, controller_info))
-    {
-        log_cb(RETRO_LOG_ERROR, "RETRO_ENVIRONMENT_SET_CONTROLLER_INFO failed");
+        if (!environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, controller_info))
+        {
+            log_cb(RETRO_LOG_ERROR, "RETRO_ENVIRONMENT_SET_CONTROLLER_INFO failed");
+        }
+
+        struct retro_input_descriptor input_descriptors[MAX_JOYS*16+1];
+        int idx = 0;
+        #define ADD_INPUT_DESC(port,device,index,id,desc) input_descriptors[idx++] = (struct retro_input_descriptor){ port, device, index, id, desc}
+        for (int i=0; i<MAX_JOYS; ++i)
+        {
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A,         "Joy 0"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B,         "Joy 1"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X,         "Joy 2"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y,         "Joy 3"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L,         "Joy 4"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R,         "Joy 5"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT,    "Joy 6"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START,     "Joy 7"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3,        "Joy 8"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3,        "Joy 9"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2,        "Joy 10" );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2,        "Joy 11" );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP,        "Hat Up"    );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN,      "Hat Down"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,      "Hat Left"  );
+            ADD_INPUT_DESC(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT,     "Hat Right" );
+        };
+        ADD_INPUT_DESC(0,0,0,0,NULL);
+        #undef ADD_INPUT_DESC
+        #undef MAX_JOYS
+        environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, &input_descriptors);
     }
-
-    // struct retro_input_descriptor input_descriptors[] =
-    // {
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "A" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "B" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "X" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Y" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Select" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "L" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2, "L2" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3" },
-    //     { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3" }
-    // };
-    // environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, &input_descriptors);
 
     audio_mixbuf = malloc(audio_mixbuf_frames*audio_frame_size);
     sdl_libretro_init_audio();
