@@ -74,6 +74,16 @@ char* libretro_base_dir;
 bool retro_enable_frame_limiter=true;
 bool force_frame_limiter=false;
 
+enum enum_libretro_scale_mode_override
+{
+    libretro_scale_mode_override_off = -1,
+    libretro_scale_mode_override_1x,
+    libretro_scale_mode_override_2x,
+    libretro_scale_mode_override_2xhq,
+    libretro_scale_mode_override_2xscanlines,
+    libretro_scale_mode_override_2xunfiltered
+} libretro_scale_override = libretro_scale_mode_override_off;
+
 static struct retro_system_av_info last_av_info;
 static bool bgd_finished = false;
 static bool game_unloading = false;
@@ -120,6 +130,15 @@ typedef struct mouse_button_mapping
 #define BGD_CORE_OPTION(a) "bennugd_"a
 
 const char * force_frame_limiter_opt = BGD_CORE_OPTION("force_frame_limiter");
+
+const char* override_scaling_opt = BGD_CORE_OPTION("override_scaling");
+const char* override_scaling_off_optval = "off";
+const char* override_scaling_1x_optval = "1x";
+const char* override_scaling_2x_optval = "2x";
+const char* override_scaling_2xhq_optval = "2xhq";
+const char* override_scaling_2xscanlines_optval = "2xscanlines";
+const char* override_scaling_2xunfiltered_optval = "2xunfiltered";
+
 const char * mouse_emulation_opt = BGD_CORE_OPTION("mouse_emulation");
 const char * mouse_emulation_off_optval = "off";
 const char * mouse_emulation_left_analog_optval = "left analog";
@@ -250,6 +269,21 @@ static void set_core_options()
             .info = "Force internal frame limiter even if content and frontend frame rate matches",
             .default_value = "false",
             .values = { { "true", "True"}, { "false", "False"}, { NULL, NULL} }
+        },
+        {
+            .key =  override_scaling_opt,
+            .desc= "Override content scaling",
+            .info = "Override internal scaler",
+            .default_value = "off",
+            .values = { 
+                { override_scaling_off_optval, "Off"},
+                { override_scaling_1x_optval, "1X"},
+                { override_scaling_2x_optval, "2X"},
+                { override_scaling_2xhq_optval, "2X HQ"},
+                { override_scaling_2xscanlines_optval, "2X Scanlines"},
+                { override_scaling_2xunfiltered_optval, "2X Unfiltered"},
+                { NULL, NULL}
+            }
         },
         {
             .key = mouse_emulation_opt,
@@ -487,26 +521,72 @@ static void update_variables()
     // Frame limiter
     force_frame_limiter = get_boolean_option(force_frame_limiter_opt, false);
 
-    // Mouse emulation mode
-    const char* mouse_emulation_option=get_option_value(mouse_emulation_opt);
-    if (mouse_emulation_option)
+    // Scale override
     {
-        if (0==string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_off_optval))
+        const char* override_scaling_option=get_option_value(override_scaling_opt);
+        if (override_scaling_option)
+        {
+            if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_off_optval))
+            {
+                libretro_scale_override = libretro_scale_mode_override_off;
+            }
+            else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_1x_optval))
+            {
+                libretro_scale_override = libretro_scale_mode_override_1x;
+            }
+            else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2x_optval))
+            {
+                libretro_scale_override = libretro_scale_mode_override_2x;
+            }
+            else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2xhq_optval))
+            {
+                libretro_scale_override = libretro_scale_mode_override_2xhq;
+            }
+            else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2xscanlines_optval))
+            {
+                libretro_scale_override = libretro_scale_mode_override_2xscanlines;
+            }
+            else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2xunfiltered_optval))
+            {
+                libretro_scale_override = libretro_scale_mode_override_2xunfiltered;
+            }
+            else
+            {
+                libretro_scale_override = libretro_scale_mode_override_off;
+            }
+        }
+        else
+        {
+            libretro_scale_override = libretro_scale_mode_override_off;
+        }
+    }
+
+    // Mouse emulation mode
+    {
+        const char* mouse_emulation_option=get_option_value(mouse_emulation_opt);
+        if (mouse_emulation_option)
+        {
+            if (string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_off_optval))
+            {
+                mouse_emulation = MOUSE_EMULATION_OFF;
+            }
+            else if (string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_left_analog_optval))
+            {
+                mouse_emulation = MOUSE_EMULATION_LEFT_ANALOG;
+            }
+            else if (string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_right_analog_optval))
+            {
+                mouse_emulation = MOUSE_EMULATION_RIGHT_ANALOG;
+            }
+            else
+            {
+                mouse_emulation = MOUSE_EMULATION_OFF;
+            }
+        }
+        else
         {
             mouse_emulation = MOUSE_EMULATION_OFF;
         }
-        else if (0==string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_left_analog_optval))
-        {
-            mouse_emulation = MOUSE_EMULATION_LEFT_ANALOG;
-        }
-        else if (0==string_is_equal_case_insensitive(mouse_emulation_option, mouse_emulation_right_analog_optval))
-        {
-            mouse_emulation = MOUSE_EMULATION_RIGHT_ANALOG;
-        }
-    }
-    else
-    {
-         mouse_emulation = MOUSE_EMULATION_OFF;
     }
 
     // Mouse emulation analog stick dead zone
