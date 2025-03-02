@@ -349,6 +349,7 @@ static void * dlibaddr( void * handle, const char * symbol )
     if ( !strcmp( symbol, "process_exec_hook"         ) ) return ( fdl->process_exec_hook );
     if ( !strcmp( symbol, "handler_hooks"             ) ) return ( fdl->handler_hooks );
     if ( !strcmp( symbol, "modules_dependency"        ) ) return ( fdl->modules_dependency );
+    if ( !strcmp( symbol, "module_config"             ) ) return ( fdl->module_config );
 
     return NULL;
 }

@@ -84,6 +84,7 @@ make_fake_dl_lib()
     a14=$(make_fake_dl_item $1 process_exec_hook)
     a15=$(make_fake_dl_item $1 handler_hooks)
     a16=$(make_fake_dl_item $1 modules_dependency)
+    a17=$(make_fake_dl_item $1 module_config)
 
     if [ "$a01" != "" ] || [ "$a02" != "" ] || [ "$a03" != "" ] || [ "$a04" != "" ] || [ "$a05" != "" ] || [ "$a06" != "" ] || [ "$a07" != "" ] || [ "$a08" != "" ] || [ "$a09" != "" ] || [ "$a10" != "" ] || [ "$a11" != "" ] || [ "$a12" != "" ] || [ "$a13 != "" ] || [ "$a14 != "" ] || [ "$a15 != "" ] || [ "$a16 != "" ]; then
         echo " "
@@ -126,6 +127,7 @@ make_fake_dl_lib()
         echo "    __fake_dl[$count].handler_hooks                = $a15;" | sed -r 's/= ;/= NULL;/g'
         echo "#endif"
         echo "    __fake_dl[$count].modules_dependency           = $a16;" | sed -r 's/= ;/= NULL;/g'
+        echo "    __fake_dl[$count].module_config                = $a17;" | sed -r 's/= ;/= NULL;/g'
         echo " "
         count=$(($count + 1))
     fi
@@ -172,6 +174,7 @@ make_fake_dl()
     echo "    __fake_dl[$count].process_exec_hook            = NULL;"
     echo "    __fake_dl[$count].handler_hooks                = NULL;"
     echo "    __fake_dl[$count].modules_dependency           = NULL;"
+    echo "    __fake_dl[$count].module_config                = NULL;"
     echo " "
     echo "}"
     echo " "
@@ -215,6 +218,7 @@ search_symbols void instance_pos_execute_hook '( INSTANCE * )'  >> $FAKE_DL_FNAM
 search_symbols void process_exec_hook '( INSTANCE * )'          >> $FAKE_DL_FNAME
 search_symbols HOOK handler_hooks '[]'                          >> $FAKE_DL_FNAME
 search_symbols "char *" modules_dependency '[]'                 >> $FAKE_DL_FNAME
+search_symbols void module_config '(int, const char*, const char*, const char*)' >> $FAKE_DL_FNAME
 echo "#endif"                                                   >> $FAKE_DL_FNAME
 
 cat >> $FAKE_DL_FNAME <<EOT
@@ -240,6 +244,7 @@ typedef struct __FAKE_DL
     void            (* process_exec_hook)(INSTANCE *);
     HOOK            * handler_hooks;
     char           ** modules_dependency;
+    void            (* module_config)(int, const char *, const char *, const char * );
 } __FAKE_DL;
 
 EOT

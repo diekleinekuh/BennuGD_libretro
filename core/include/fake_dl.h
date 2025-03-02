@@ -232,6 +232,10 @@ extern char * mod_ttf_modules_dependency[];
 extern char * mod_video_modules_dependency[];
 extern char * mod_wm_modules_dependency[];
  
+/* ---------- module_config ---------- */
+ 
+extern void libvideo_module_config(int, const char*, const char*, const char*);
+ 
 #endif
 
 /* ---------- structs ---------- */
@@ -255,6 +259,7 @@ typedef struct __FAKE_DL
     void            (* process_exec_hook)(INSTANCE *);
     HOOK            * handler_hooks;
     char           ** modules_dependency;
+    void            (* module_config)(int, const char *, const char *, const char * );
 } __FAKE_DL;
 
 /* ---------- FAKE DYNAMIC LIBRARY ---------- */
@@ -305,6 +310,7 @@ void fake_dl_init()
     __fake_dl[0].handler_hooks                = NULL;
 #endif
     __fake_dl[0].modules_dependency           = NULL;
+    __fake_dl[0].module_config                = NULL;
   
     /* -------------------- libblit -------------------- */
  
@@ -345,6 +351,7 @@ void fake_dl_init()
     __fake_dl[1].handler_hooks                = NULL;
 #endif
     __fake_dl[1].modules_dependency           = NULL;
+    __fake_dl[1].module_config                = NULL;
   
     /* -------------------- libdraw -------------------- */
  
@@ -385,6 +392,7 @@ void fake_dl_init()
     __fake_dl[2].handler_hooks                = NULL;
 #endif
     __fake_dl[2].modules_dependency           = NULL;
+    __fake_dl[2].module_config                = NULL;
   
     /* -------------------- libfont -------------------- */
  
@@ -425,6 +433,7 @@ void fake_dl_init()
     __fake_dl[3].handler_hooks                = NULL;
 #endif
     __fake_dl[3].modules_dependency           = libfont_modules_dependency;
+    __fake_dl[3].module_config                = NULL;
   
     /* -------------------- libgrbase -------------------- */
  
@@ -465,6 +474,7 @@ void fake_dl_init()
     __fake_dl[4].handler_hooks                = NULL;
 #endif
     __fake_dl[4].modules_dependency           = NULL;
+    __fake_dl[4].module_config                = NULL;
   
     /* -------------------- libjoy -------------------- */
  
@@ -505,6 +515,7 @@ void fake_dl_init()
     __fake_dl[5].handler_hooks                = NULL;
 #endif
     __fake_dl[5].modules_dependency           = libjoy_modules_dependency;
+    __fake_dl[5].module_config                = NULL;
   
     /* -------------------- libkey -------------------- */
  
@@ -545,6 +556,7 @@ void fake_dl_init()
     __fake_dl[6].handler_hooks                = libkey_handler_hooks;
 #endif
     __fake_dl[6].modules_dependency           = libkey_modules_dependency;
+    __fake_dl[6].module_config                = NULL;
   
     /* -------------------- libmouse -------------------- */
  
@@ -585,6 +597,7 @@ void fake_dl_init()
     __fake_dl[7].handler_hooks                = libmouse_handler_hooks;
 #endif
     __fake_dl[7].modules_dependency           = libmouse_modules_dependency;
+    __fake_dl[7].module_config                = NULL;
   
     /* -------------------- librender -------------------- */
  
@@ -625,6 +638,7 @@ void fake_dl_init()
     __fake_dl[8].handler_hooks                = librender_handler_hooks;
 #endif
     __fake_dl[8].modules_dependency           = librender_modules_dependency;
+    __fake_dl[8].module_config                = NULL;
   
     /* -------------------- libscroll -------------------- */
  
@@ -665,6 +679,7 @@ void fake_dl_init()
     __fake_dl[9].handler_hooks                = NULL;
 #endif
     __fake_dl[9].modules_dependency           = libscroll_modules_dependency;
+    __fake_dl[9].module_config                = NULL;
   
     /* -------------------- libsdlhandler -------------------- */
  
@@ -705,6 +720,7 @@ void fake_dl_init()
     __fake_dl[10].handler_hooks                = libsdlhandler_handler_hooks;
 #endif
     __fake_dl[10].modules_dependency           = NULL;
+    __fake_dl[10].module_config                = NULL;
   
     /* -------------------- libtext -------------------- */
  
@@ -745,6 +761,7 @@ void fake_dl_init()
     __fake_dl[11].handler_hooks                = NULL;
 #endif
     __fake_dl[11].modules_dependency           = libtext_modules_dependency;
+    __fake_dl[11].module_config                = NULL;
   
     /* -------------------- libvideo -------------------- */
  
@@ -785,6 +802,7 @@ void fake_dl_init()
     __fake_dl[12].handler_hooks                = NULL;
 #endif
     __fake_dl[12].modules_dependency           = libvideo_modules_dependency;
+    __fake_dl[12].module_config                = libvideo_module_config;
   
     /* -------------------- libwm -------------------- */
  
@@ -825,6 +843,7 @@ void fake_dl_init()
     __fake_dl[13].handler_hooks                = libwm_handler_hooks;
 #endif
     __fake_dl[13].modules_dependency           = libwm_modules_dependency;
+    __fake_dl[13].module_config                = NULL;
   
     /* -------------------- mod_blendop -------------------- */
  
@@ -865,6 +884,7 @@ void fake_dl_init()
     __fake_dl[14].handler_hooks                = NULL;
 #endif
     __fake_dl[14].modules_dependency           = mod_blendop_modules_dependency;
+    __fake_dl[14].module_config                = NULL;
   
     /* -------------------- mod_cd -------------------- */
  
@@ -905,6 +925,7 @@ void fake_dl_init()
     __fake_dl[15].handler_hooks                = NULL;
 #endif
     __fake_dl[15].modules_dependency           = NULL;
+    __fake_dl[15].module_config                = NULL;
   
     /* -------------------- mod_crypt -------------------- */
  
@@ -945,6 +966,7 @@ void fake_dl_init()
     __fake_dl[16].handler_hooks                = NULL;
 #endif
     __fake_dl[16].modules_dependency           = NULL;
+    __fake_dl[16].module_config                = NULL;
   
     /* -------------------- mod_debug -------------------- */
  
@@ -985,6 +1007,7 @@ void fake_dl_init()
     __fake_dl[17].handler_hooks                = mod_debug_handler_hooks;
 #endif
     __fake_dl[17].modules_dependency           = mod_debug_modules_dependency;
+    __fake_dl[17].module_config                = NULL;
   
     /* -------------------- mod_dir -------------------- */
  
@@ -1025,6 +1048,7 @@ void fake_dl_init()
     __fake_dl[18].handler_hooks                = NULL;
 #endif
     __fake_dl[18].modules_dependency           = NULL;
+    __fake_dl[18].module_config                = NULL;
   
     /* -------------------- mod_draw -------------------- */
  
@@ -1065,6 +1089,7 @@ void fake_dl_init()
     __fake_dl[19].handler_hooks                = NULL;
 #endif
     __fake_dl[19].modules_dependency           = mod_draw_modules_dependency;
+    __fake_dl[19].module_config                = NULL;
   
     /* -------------------- mod_effects -------------------- */
  
@@ -1105,6 +1130,7 @@ void fake_dl_init()
     __fake_dl[20].handler_hooks                = NULL;
 #endif
     __fake_dl[20].modules_dependency           = mod_effects_modules_dependency;
+    __fake_dl[20].module_config                = NULL;
   
     /* -------------------- mod_file -------------------- */
  
@@ -1145,6 +1171,7 @@ void fake_dl_init()
     __fake_dl[21].handler_hooks                = NULL;
 #endif
     __fake_dl[21].modules_dependency           = NULL;
+    __fake_dl[21].module_config                = NULL;
   
     /* -------------------- mod_flic -------------------- */
  
@@ -1185,6 +1212,7 @@ void fake_dl_init()
     __fake_dl[22].handler_hooks                = NULL;
 #endif
     __fake_dl[22].modules_dependency           = NULL;
+    __fake_dl[22].module_config                = NULL;
   
     /* -------------------- mod_grproc -------------------- */
  
@@ -1225,6 +1253,7 @@ void fake_dl_init()
     __fake_dl[23].handler_hooks                = NULL;
 #endif
     __fake_dl[23].modules_dependency           = mod_grproc_modules_dependency;
+    __fake_dl[23].module_config                = NULL;
   
     /* -------------------- mod_joy -------------------- */
  
@@ -1265,6 +1294,7 @@ void fake_dl_init()
     __fake_dl[24].handler_hooks                = NULL;
 #endif
     __fake_dl[24].modules_dependency           = mod_joy_modules_dependency;
+    __fake_dl[24].module_config                = NULL;
   
     /* -------------------- mod_key -------------------- */
  
@@ -1305,6 +1335,7 @@ void fake_dl_init()
     __fake_dl[25].handler_hooks                = NULL;
 #endif
     __fake_dl[25].modules_dependency           = mod_key_modules_dependency;
+    __fake_dl[25].module_config                = NULL;
   
     /* -------------------- mod_m7 -------------------- */
  
@@ -1345,6 +1376,7 @@ void fake_dl_init()
     __fake_dl[26].handler_hooks                = NULL;
 #endif
     __fake_dl[26].modules_dependency           = mod_m7_modules_dependency;
+    __fake_dl[26].module_config                = NULL;
   
     /* -------------------- mod_map -------------------- */
  
@@ -1385,6 +1417,7 @@ void fake_dl_init()
     __fake_dl[27].handler_hooks                = NULL;
 #endif
     __fake_dl[27].modules_dependency           = mod_map_modules_dependency;
+    __fake_dl[27].module_config                = NULL;
   
     /* -------------------- mod_math -------------------- */
  
@@ -1425,6 +1458,7 @@ void fake_dl_init()
     __fake_dl[28].handler_hooks                = NULL;
 #endif
     __fake_dl[28].modules_dependency           = NULL;
+    __fake_dl[28].module_config                = NULL;
   
     /* -------------------- mod_mathi -------------------- */
  
@@ -1465,6 +1499,7 @@ void fake_dl_init()
     __fake_dl[29].handler_hooks                = NULL;
 #endif
     __fake_dl[29].modules_dependency           = NULL;
+    __fake_dl[29].module_config                = NULL;
   
     /* -------------------- mod_mem -------------------- */
  
@@ -1505,6 +1540,7 @@ void fake_dl_init()
     __fake_dl[30].handler_hooks                = NULL;
 #endif
     __fake_dl[30].modules_dependency           = NULL;
+    __fake_dl[30].module_config                = NULL;
   
     /* -------------------- mod_mouse -------------------- */
  
@@ -1545,6 +1581,7 @@ void fake_dl_init()
     __fake_dl[31].handler_hooks                = NULL;
 #endif
     __fake_dl[31].modules_dependency           = mod_mouse_modules_dependency;
+    __fake_dl[31].module_config                = NULL;
   
     /* -------------------- mod_path -------------------- */
  
@@ -1585,6 +1622,7 @@ void fake_dl_init()
     __fake_dl[32].handler_hooks                = NULL;
 #endif
     __fake_dl[32].modules_dependency           = mod_path_modules_dependency;
+    __fake_dl[32].module_config                = NULL;
   
     /* -------------------- mod_proc -------------------- */
  
@@ -1625,6 +1663,7 @@ void fake_dl_init()
     __fake_dl[33].handler_hooks                = NULL;
 #endif
     __fake_dl[33].modules_dependency           = NULL;
+    __fake_dl[33].module_config                = NULL;
   
     /* -------------------- mod_rand -------------------- */
  
@@ -1665,6 +1704,7 @@ void fake_dl_init()
     __fake_dl[34].handler_hooks                = NULL;
 #endif
     __fake_dl[34].modules_dependency           = NULL;
+    __fake_dl[34].module_config                = NULL;
   
     /* -------------------- mod_regex -------------------- */
  
@@ -1705,6 +1745,7 @@ void fake_dl_init()
     __fake_dl[35].handler_hooks                = NULL;
 #endif
     __fake_dl[35].modules_dependency           = NULL;
+    __fake_dl[35].module_config                = NULL;
   
     /* -------------------- mod_say -------------------- */
  
@@ -1745,6 +1786,7 @@ void fake_dl_init()
     __fake_dl[36].handler_hooks                = NULL;
 #endif
     __fake_dl[36].modules_dependency           = NULL;
+    __fake_dl[36].module_config                = NULL;
   
     /* -------------------- mod_screen -------------------- */
  
@@ -1785,6 +1827,7 @@ void fake_dl_init()
     __fake_dl[37].handler_hooks                = NULL;
 #endif
     __fake_dl[37].modules_dependency           = mod_screen_modules_dependency;
+    __fake_dl[37].module_config                = NULL;
   
     /* -------------------- mod_scroll -------------------- */
  
@@ -1825,6 +1868,7 @@ void fake_dl_init()
     __fake_dl[38].handler_hooks                = NULL;
 #endif
     __fake_dl[38].modules_dependency           = mod_scroll_modules_dependency;
+    __fake_dl[38].module_config                = NULL;
   
     /* -------------------- mod_sort -------------------- */
  
@@ -1865,6 +1909,7 @@ void fake_dl_init()
     __fake_dl[39].handler_hooks                = NULL;
 #endif
     __fake_dl[39].modules_dependency           = NULL;
+    __fake_dl[39].module_config                = NULL;
   
     /* -------------------- mod_sound -------------------- */
  
@@ -1905,6 +1950,7 @@ void fake_dl_init()
     __fake_dl[40].handler_hooks                = NULL;
 #endif
     __fake_dl[40].modules_dependency           = NULL;
+    __fake_dl[40].module_config                = NULL;
   
     /* -------------------- mod_string -------------------- */
  
@@ -1945,6 +1991,7 @@ void fake_dl_init()
     __fake_dl[41].handler_hooks                = NULL;
 #endif
     __fake_dl[41].modules_dependency           = NULL;
+    __fake_dl[41].module_config                = NULL;
   
     /* -------------------- mod_sys -------------------- */
  
@@ -1985,6 +2032,7 @@ void fake_dl_init()
     __fake_dl[42].handler_hooks                = NULL;
 #endif
     __fake_dl[42].modules_dependency           = NULL;
+    __fake_dl[42].module_config                = NULL;
   
     /* -------------------- mod_text -------------------- */
  
@@ -2025,6 +2073,7 @@ void fake_dl_init()
     __fake_dl[43].handler_hooks                = NULL;
 #endif
     __fake_dl[43].modules_dependency           = mod_text_modules_dependency;
+    __fake_dl[43].module_config                = NULL;
   
     /* -------------------- mod_time -------------------- */
  
@@ -2065,6 +2114,7 @@ void fake_dl_init()
     __fake_dl[44].handler_hooks                = NULL;
 #endif
     __fake_dl[44].modules_dependency           = NULL;
+    __fake_dl[44].module_config                = NULL;
   
     /* -------------------- mod_timers -------------------- */
  
@@ -2105,6 +2155,7 @@ void fake_dl_init()
     __fake_dl[45].handler_hooks                = mod_timers_handler_hooks;
 #endif
     __fake_dl[45].modules_dependency           = NULL;
+    __fake_dl[45].module_config                = NULL;
   
     /* -------------------- mod_ttf -------------------- */
  
@@ -2145,6 +2196,7 @@ void fake_dl_init()
     __fake_dl[46].handler_hooks                = NULL;
 #endif
     __fake_dl[46].modules_dependency           = mod_ttf_modules_dependency;
+    __fake_dl[46].module_config                = NULL;
   
     /* -------------------- mod_video -------------------- */
  
@@ -2185,6 +2237,7 @@ void fake_dl_init()
     __fake_dl[47].handler_hooks                = NULL;
 #endif
     __fake_dl[47].modules_dependency           = mod_video_modules_dependency;
+    __fake_dl[47].module_config                = NULL;
   
     /* -------------------- mod_wm -------------------- */
  
@@ -2225,6 +2278,7 @@ void fake_dl_init()
     __fake_dl[48].handler_hooks                = NULL;
 #endif
     __fake_dl[48].modules_dependency           = mod_wm_modules_dependency;
+    __fake_dl[48].module_config                = NULL;
  
     /* -------------------- LAST -------------------- */
  
@@ -2245,6 +2299,7 @@ void fake_dl_init()
     __fake_dl[49].process_exec_hook            = NULL;
     __fake_dl[49].handler_hooks                = NULL;
     __fake_dl[49].modules_dependency           = NULL;
+    __fake_dl[49].module_config                = NULL;
  
 }
  
