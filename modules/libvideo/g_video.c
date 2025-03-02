@@ -299,6 +299,15 @@ extern int libretro_depth;
 
     if ( scale_resolution_orientation < 0 || scale_resolution_orientation > 4 ) scale_resolution_orientation = 0;
 
+#if LIBRETRO_CORE
+    extern int libretro_scale_override;
+    if (libretro_scale_override>=0)
+    {
+        scale_mode = libretro_scale_override;
+        
+    }
+#endif
+
     if ( !depth )
     {
         enable_32bits = ( GLODWORD( libvideo, GRAPH_MODE ) & MODE_32BITS ) ? 1 : 0 ;
