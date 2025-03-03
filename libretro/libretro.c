@@ -70,11 +70,13 @@ static retro_input_state_t input_state_cb;
 int libretro_width=320;
 int libretro_height=200;
 int libretro_depth=16;
+int bennugd_content_width=0;
+int bennugd_content_height=0;
 char* libretro_base_dir;
 bool retro_enable_frame_limiter=true;
 bool force_frame_limiter=false;
 
-enum enum_libretro_scale_mode_override
+typedef enum enum_libretro_scale_mode_override
 {
     libretro_scale_mode_override_off = -1,
     libretro_scale_mode_override_1x,
@@ -82,7 +84,10 @@ enum enum_libretro_scale_mode_override
     libretro_scale_mode_override_2xhq,
     libretro_scale_mode_override_2xscanlines,
     libretro_scale_mode_override_2xunfiltered
-} libretro_scale_override = libretro_scale_mode_override_off;
+} enum_libretro_scale_mode_override_t;
+
+enum_libretro_scale_mode_override_t scale_override = libretro_scale_mode_override_off;
+enum_libretro_scale_mode_override_t libretro_scale_override = libretro_scale_mode_override_off;
 
 static struct retro_system_av_info last_av_info;
 static bool bgd_finished = false;
@@ -528,36 +533,36 @@ static void update_variables()
         {
             if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_off_optval))
             {
-                libretro_scale_override = libretro_scale_mode_override_off;
+                scale_override = libretro_scale_mode_override_off;
             }
             else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_1x_optval))
             {
-                libretro_scale_override = libretro_scale_mode_override_1x;
+                scale_override = libretro_scale_mode_override_1x;
             }
             else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2x_optval))
             {
-                libretro_scale_override = libretro_scale_mode_override_2x;
+                scale_override = libretro_scale_mode_override_2x;
             }
             else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2xhq_optval))
             {
-                libretro_scale_override = libretro_scale_mode_override_2xhq;
+                scale_override = libretro_scale_mode_override_2xhq;
             }
             else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2xscanlines_optval))
             {
-                libretro_scale_override = libretro_scale_mode_override_2xscanlines;
+                scale_override = libretro_scale_mode_override_2xscanlines;
             }
             else if (string_is_equal_case_insensitive(override_scaling_option, override_scaling_2xunfiltered_optval))
             {
-                libretro_scale_override = libretro_scale_mode_override_2xunfiltered;
+                scale_override = libretro_scale_mode_override_2xunfiltered;
             }
             else
             {
-                libretro_scale_override = libretro_scale_mode_override_off;
+                scale_override = libretro_scale_mode_override_off;
             }
         }
         else
         {
-            libretro_scale_override = libretro_scale_mode_override_off;
+            scale_override = libretro_scale_mode_override_off;
         }
     }
 
@@ -720,6 +725,8 @@ void retro_init(void)
     set_core_options();
 
     update_variables();
+
+    libretro_scale_override = scale_override;
 
     last_av_info.geometry.base_width   = libretro_width;
     last_av_info.geometry.base_height  = libretro_height;
@@ -888,6 +895,13 @@ void retro_run(void)
         if (update_varaibles)
         {
             update_variables();
+            if (libretro_scale_override!=scale_override)
+            {
+                const enum_libretro_scale_mode_override_t old_libretro_scale_override = libretro_scale_override;
+                libretro_scale_override = scale_override;
+                extern int gr_set_mode( int width, int height, int depth );
+                gr_set_mode(bennugd_content_width, bennugd_content_height, libretro_depth);
+            }
         }
     }
 
