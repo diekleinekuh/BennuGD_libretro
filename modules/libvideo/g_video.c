@@ -269,7 +269,12 @@ int gr_set_mode( int width, int height, int depth )
 {
 #if LIBRETRO_CORE
 extern int libretro_depth;
+extern int bennugd_content_width;
+extern int bennugd_content_height;
+
     depth=libretro_depth;
+    bennugd_content_width = width;
+    bennugd_content_height = height;
 #endif
     int n ;
     int sdl_flags = 0;
@@ -304,7 +309,6 @@ extern int libretro_depth;
     if (libretro_scale_override>=0)
     {
         scale_mode = libretro_scale_override;
-        
     }
 #endif
 
