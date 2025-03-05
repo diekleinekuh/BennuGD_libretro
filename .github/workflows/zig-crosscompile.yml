@@ -28,7 +28,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: mlugg/setup-zig@a67e68dc5c8281d9608136d3d7ca1b282213e4ac
       with:
-        version: 0.14.0-dev.2649+77273103a
+        version: 0.14.0
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
