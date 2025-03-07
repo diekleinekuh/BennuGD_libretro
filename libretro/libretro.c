@@ -889,6 +889,7 @@ unsigned retro_get_region(void)
 
 void retro_run(void)
 {
+    input_poll_cb();
     bool update_varaibles = false;
     if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &update_varaibles))
     {
