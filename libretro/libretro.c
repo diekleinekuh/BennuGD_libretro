@@ -772,7 +772,7 @@ void retro_init(void)
     {
         #define MAX_JOYS 32 // matching same value in sdl-libretro and mod_joy
 
-        const struct retro_controller_description controller_descriptions[] =
+        static const struct retro_controller_description controller_descriptions[] =
         {
             { "Retropad", RETRO_DEVICE_JOYPAD },
             { "Keyboard", RETRO_DEVICE_KEYBOARD },
@@ -781,7 +781,7 @@ void retro_init(void)
             { "None", RETRO_DEVICE_NONE }
         };
    
-        struct retro_controller_info controller_info[MAX_JOYS+1];
+        static struct retro_controller_info controller_info[MAX_JOYS+1];
         for (int i=0; i<MAX_JOYS; ++i)
         {
             controller_info[i] = (struct retro_controller_info) { controller_descriptions, sizeof(controller_descriptions)/sizeof(controller_descriptions[0])};
@@ -793,7 +793,7 @@ void retro_init(void)
             log_cb(RETRO_LOG_ERROR, "RETRO_ENVIRONMENT_SET_CONTROLLER_INFO failed");
         }
 
-        struct retro_input_descriptor input_descriptors[MAX_JOYS*16+1];
+        static struct retro_input_descriptor input_descriptors[MAX_JOYS*16+1];
         int idx = 0;
         #define ADD_INPUT_DESC(port,device,index,id,desc) input_descriptors[idx++] = (struct retro_input_descriptor){ port, device, index, id, desc}
         for (int i=0; i<MAX_JOYS; ++i)
