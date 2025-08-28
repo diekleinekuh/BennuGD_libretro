@@ -510,7 +510,7 @@ static void update_mouse_button_option(mouse_button_mapping_t* mapping)
     {
         for (int i=0; i<sizeof(button_inputs)/sizeof(button_inputs[0]); ++i)
         {
-            if (0==string_is_equal_case_insensitive(value, button_inputs[i].option_value))
+            if (string_is_equal_case_insensitive(value, button_inputs[i].option_value))
             {
                 mouse_emulation_mappings[mapping->mouse_button_id] = button_inputs[i].id;
                 return;
