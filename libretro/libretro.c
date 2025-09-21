@@ -744,12 +744,12 @@ void retro_init(void)
 
     if (environ_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &retro_vfs_interface_info))
     {
-        log_cb(RETRO_LOG_INFO, "Using vfs interface");
+        log_cb(RETRO_LOG_INFO, "Using vfs interface\n");
     }
 
     if (environ_cb(RETRO_ENVIRONMENT_GET_PERF_INTERFACE, &retro_perf_interface))
     {
-        log_cb(RETRO_LOG_INFO, "retrieved perf interface");
+        log_cb(RETRO_LOG_INFO, "retrieved perf interface\n");
     }
 
 
@@ -790,7 +790,7 @@ void retro_init(void)
 
         if (!environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, controller_info))
         {
-            log_cb(RETRO_LOG_ERROR, "RETRO_ENVIRONMENT_SET_CONTROLLER_INFO failed");
+            log_cb(RETRO_LOG_ERROR, "RETRO_ENVIRONMENT_SET_CONTROLLER_INFO failed\n");
         }
 
         static struct retro_input_descriptor input_descriptors[MAX_JOYS*16+1];
@@ -829,7 +829,7 @@ void retro_init(void)
         &retro_audio_set_state_callback
         } ))
     {
-        log_cb(RETRO_LOG_WARN, "RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK failed");
+        log_cb(RETRO_LOG_WARN, "RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK failed\n");
     }
 
     if (!main_thread)

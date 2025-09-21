@@ -208,7 +208,7 @@ RFILE * fopen_libretro ( const char * filename, const char * mode )
     const char* retro_filename = to_retro_path(resolve_bgd_path(filename));
     if (!retro_filename)
     {
-        log_cb(RETRO_LOG_ERROR, "fopen_libretro: Could not find file %s", filename);
+        log_cb(RETRO_LOG_ERROR, "fopen_libretro: Could not find file %s\n", filename);
         return NULL;
     }
 
