@@ -1,0 +1,8 @@
+set(ZIG_TARGET aarch64-macos )
+set(CMAKE_SYSTEM_NAME Darwin)
+set(CMAKE_SYSTEM_PROCESSOR aarch64)
+set(CMAKE_INSTALL_NAME_TOOL "/HopefullyNotNeeded")
+
+include_directories(SYSTEM "${CMAKE_CURRENT_LIST_DIR}/macos_fake_headers")
+
+include( "${CMAKE_CURRENT_LIST_DIR}/zig.toolchain.cmake" )
