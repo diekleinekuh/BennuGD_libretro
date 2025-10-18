@@ -979,7 +979,7 @@ int file_exists( const char * filename )
 {
     file * fp ;
 
-    fp = file_open( filename, "rb" ) ;
+    fp = file_open( filename, "rb0" ) ;
     if ( fp )
     {
         file_close( fp ) ;
