@@ -1,16 +1,15 @@
 #include "filestream_gzip.h"
 #include "streams/trans_stream.h"
-#include "streams/file_stream.h"
 #include <zlib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "filesystem.h"
 #define SKIP_STDIO_REDEFINES 1
 #include "streams/file_stream_transforms.h"
 
 extern const struct trans_stream_backend zlib_deflate_backend;
 extern const struct trans_stream_backend zlib_inflate_backend;
-extern struct RFILE * fopen_libretro ( const char * filename, const char * mode );
 
 #define BUFFER_SIZE 4096
 #define WINDOW_BITS 31
@@ -60,9 +59,9 @@ gzFile_libretro* gzopen_libretro(const char* path, const char* mode)
     }
 
     uint8_t header[2];
-    if (2!=rfread(header, 1, 2, filestream) || header[0]!=0x1F || header[1]!=0x8B || 0 != rfseek(filestream, 0, SEEK_SET))
+    if (2!=fread_libretro(header, 1, 2, filestream) || header[0]!=0x1F || header[1]!=0x8B || 0 != fseek_libretro(filestream, 0, SEEK_SET))
     {
-        rfclose(filestream);
+        fclose_libretro(filestream);
         return NULL;
     }
 
@@ -111,7 +110,7 @@ int gzclose_libretro(gzFile_libretro* file)
 
             if (error == TRANS_STREAM_ERROR_NONE || error == TRANS_STREAM_ERROR_BUFFER_FULL)
             {
-                if (file->buffer_start_pos != rfwrite(file->buffer, 1, file->buffer_start_pos, file->filestream))
+                if (file->buffer_start_pos != fwrite_libretro(file->buffer, 1, file->buffer_start_pos, file->filestream))
                 {
                     ret = -1;
                     break;
@@ -137,7 +136,7 @@ int gzclose_libretro(gzFile_libretro* file)
         }
     }
 
-    ret = rfclose(file->filestream);
+    ret = fclose_libretro(file->filestream);
     file->backend->stream_free(file->stream);
     free(file);
 
@@ -168,7 +167,7 @@ int64_t gzread_libretro(gzFile_libretro* file, void* buf, size_t len)
         // Read new data if the input buffer is empty
         if (file->buffer_start_pos==file->buffer_end_pos)
         {
-            file->buffer_end_pos = rfread(file->buffer, 1, BUFFER_SIZE, file->filestream);
+            file->buffer_end_pos = fread_libretro(file->buffer, 1, BUFFER_SIZE, file->filestream);
             file->buffer_start_pos = 0;
         }
 
@@ -260,7 +259,7 @@ int64_t gzwrite_libretro(gzFile_libretro* file, const void* buf, size_t len)
 
         if (error==TRANS_STREAM_ERROR_BUFFER_FULL)
         {
-            if (file->buffer_start_pos!=rfwrite(file->buffer, 1, file->buffer_start_pos, file->filestream))
+            if (file->buffer_start_pos!=fwrite_libretro(file->buffer, 1, file->buffer_start_pos, file->filestream))
             {
                 // Could not write data, disk full?
                 return -1;
@@ -325,7 +324,7 @@ long int gzseek_libretro(gzFile_libretro* file, long int offset, int whence)
         if (target_pos < file->uncompressed_data_pos || file->stream==NULL)
         {
             // Seek back the underlying file to the beginning
-            if (rfseek(file->filestream, 0, SEEK_SET)!=0)
+            if (fseek_libretro(file->filestream, 0, SEEK_SET)!=0)
             {
                 return -1;
             }
