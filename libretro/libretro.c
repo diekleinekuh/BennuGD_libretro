@@ -499,12 +499,12 @@ static bool get_boolean_option(const char* option_name, bool default_value)
     const char * value = get_option_value(option_name);
     if (value)
     {
-        if (string_is_equal_case_insensitive(value, "true")==0)
+        if (string_is_equal_case_insensitive(value, "true"))
         {
             return true;
         }
 
-        if (string_is_equal_case_insensitive(value, "false")==0)
+        if (string_is_equal_case_insensitive(value, "false"))
         {
             return false;
         }
