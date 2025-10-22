@@ -28,6 +28,8 @@ char * retro_save_dir=NULL;
 extern char* retro_save_directory;
 extern  size_t retro_save_directory_len;
 
+static bool case_insensitive_io = false;
+
 
 #ifdef _MSC_VER
 #define THREAD_LOCAL __declspec(thread)
@@ -46,6 +48,11 @@ extern  size_t retro_save_directory_len;
 
 static const char* casepath(char const *path, size_t start_offset)
 {
+    if (!case_insensitive_io)
+    {
+        return path;
+    }
+
     if (filestream_exists(path))
     {
         return path;
@@ -68,7 +75,6 @@ static const char* casepath(char const *path, size_t start_offset)
     while(*current)
     {
         struct RDIR* dir = retro_opendir_include_hidden(buffer, true);
-        //DIR* dir = opendir(buffer);
         if (!dir)
         {
             return path;
@@ -85,8 +91,7 @@ static const char* casepath(char const *path, size_t start_offset)
         bool read_entry = false;
         while((read_entry = retro_readdir(dir)))
         {
-            const char * filename = retro_dirent_get_name(dir);            
-
+            const char * filename = retro_dirent_get_name(dir);
             if (strcasecmp(dest, filename) == 0)
             {
                 strncpy(dest, filename, element_length);
@@ -123,8 +128,10 @@ static const char* casepath(char const *path, size_t start_offset)
 #endif
 
 
-void init_filesystem(const char * content_path, const char * save_dir, struct retro_vfs_interface_info* vfs_info)
+void init_filesystem(const char * content_path, const char * save_dir, struct retro_vfs_interface_info* vfs_info, bool in_case_insensitive_io)
 {
+    case_insensitive_io = in_case_insensitive_io;
+
     filestream_vfs_init(vfs_info);
     path_vfs_init(vfs_info);
     dirent_vfs_init(vfs_info);
@@ -213,29 +220,6 @@ RFILE * fopen_libretro ( const char * filename, const char * mode )
     }
 
     return rfopen(retro_filename, mode);
-
-    // int open_mode=0;
-    // for (const char* item = mode; *item!=0; ++item )
-    // {
-    //     switch(*item)
-    //     {
-    //         case 'r':
-    //             open_mode |= RETRO_VFS_FILE_ACCESS_READ;
-    //             break;
-    //         case 'w':
-    //             open_mode |= RETRO_VFS_FILE_ACCESS_WRITE;
-    //             break;
-    //         case 'a':
-    //             open_mode |= RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING;
-    //             break;
-    //         case 't':
-    //             log_cb(RETRO_LOG_ERROR, "fopen_libretro: invalid open mode, text mode not supported by vfs, filename: %s, mode: %s", filename, mode);
-    //             return NULL;
-    //             break;
-    //     };
-    // }
-
-    // return filestream_open(retro_filename, open_mode, RETRO_VFS_FILE_ACCESS_HINT_NONE);
 }
 
 int fclose_libretro( RFILE* file)
@@ -245,12 +229,12 @@ int fclose_libretro( RFILE* file)
 
 int feof_libretro(RFILE *stream)
 {
-    return rfeof(stream);    
+    return rfeof(stream);
 }
 
 int fflush_libretro(RFILE *stream)
 {
-    return rfflush(stream);    
+    return rfflush(stream);
 }
 
 size_t fread_libretro(void *ptr, size_t size, size_t nmemb, RFILE *stream)
@@ -265,7 +249,7 @@ int fseek_libretro(RFILE *stream, long int offset, int whence)
 
 long int ftell_libretro(RFILE *stream)
 {
-    return rftell(stream);    
+    return rftell(stream);
 }
 
 size_t fwrite_libretro(const void *ptr, size_t size, size_t nmemb, RFILE *stream)
@@ -282,7 +266,7 @@ int remove_libretro(const char *filename)
 int rename_libretro(const char *old_filename, const char *new_filename)
 {
     const char * retro_old = to_retro_path(resolve_bgd_path(old_filename));
-    const char * retro_new = to_retro_path(resolve_bgd_path(new_filename));    
+    const char * retro_new = to_retro_path(resolve_bgd_path(new_filename));
 
     return retro_old && retro_new ? filestream_rename( old_filename, new_filename) : -1;
 }

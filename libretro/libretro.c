@@ -75,6 +75,7 @@ int bennugd_content_height=0;
 char* libretro_base_dir;
 bool retro_enable_frame_limiter=true;
 bool force_frame_limiter=false;
+bool case_insensitive_file_io=true;
 
 typedef enum enum_libretro_scale_mode_override
 {
@@ -135,6 +136,8 @@ typedef struct mouse_button_mapping
 #define BGD_CORE_OPTION(a) "bennugd_"a
 
 const char * force_frame_limiter_opt = BGD_CORE_OPTION("force_frame_limiter");
+
+const char * case_insensitive_file_io_opt = BGD_CORE_OPTION("case_insensitive_file_io");
 
 const char* override_scaling_opt = BGD_CORE_OPTION("override_scaling");
 const char* override_scaling_off_optval = "off";
@@ -289,6 +292,16 @@ static void set_core_options()
                 { override_scaling_2xunfiltered_optval, "2X Unfiltered"},
                 { NULL, NULL}
             }
+        },
+        {
+            .key =  case_insensitive_file_io_opt,
+            .desc= "Emulate case insensitive filesystem",
+            .info = "Emulate dealing with file names a case insensitive way even though the underlying filesystem is case sensitive.\n"
+                    "Changes take affect when reloading content.\n"
+                    "This can hurt io performance.\n"
+            ,
+            .default_value = "true",
+            .values = { { "true", "True"}, { "false", "False"}, { NULL, NULL} }
         },
         {
             .key = mouse_emulation_opt,
@@ -486,12 +499,12 @@ static bool get_boolean_option(const char* option_name, bool default_value)
     const char * value = get_option_value(option_name);
     if (value)
     {
-        if (string_is_equal_case_insensitive(value, "true")==0)
+        if (string_is_equal_case_insensitive(value, "true"))
         {
             return true;
         }
 
-        if (string_is_equal_case_insensitive(value, "false")==0)
+        if (string_is_equal_case_insensitive(value, "false"))
         {
             return false;
         }
@@ -565,6 +578,9 @@ static void update_variables()
             scale_override = libretro_scale_mode_override_off;
         }
     }
+
+    // Case insensitive file io emulation
+    case_insensitive_file_io = get_boolean_option(case_insensitive_file_io_opt, true);
 
     // Mouse emulation mode
     {
@@ -853,7 +869,7 @@ bool retro_load_game(const struct retro_game_info *info)
         environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &save_dir);
     }
 
-    init_filesystem( info->path, save_dir, &retro_vfs_interface_info );
+    init_filesystem( info->path, save_dir, &retro_vfs_interface_info, case_insensitive_file_io);
 
     environ_cb(RETRO_ENVIRONMENT_SET_FRAME_TIME_CALLBACK, &(struct retro_frame_time_callback)
     {
