@@ -9,6 +9,7 @@
 #include "retro_miscellaneous.h"
 #include "compat/strl.h"
 #include <assert.h>
+#include <ctype.h>
 
 #define SKIP_STDIO_REDEFINES 1
 #include "streams/file_stream_transforms.h"
@@ -45,6 +46,86 @@ static bool case_insensitive_io = false;
 #include <errno.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include "rthreads/rthreads.h"
+#include "array/rhmap.h"
+
+static slock_t* directory_entries_map_lock=NULL;
+
+typedef struct file_map
+{
+    char* real_name;
+} file_map_t;
+
+typedef struct directory_entries
+{
+    file_map_t* filemap;
+} directory_entries_t;
+
+directory_entries_t* directory_entries_map = NULL;
+
+
+static bool fix_directory_entry(const char * directory_name, char* file_name)
+{
+    // file info is stored with lowercae filename as key.
+    for (char* c=file_name; *c; ++c)
+    {
+        *c=tolower(*c);
+    }
+
+    //lookup list of files
+    slock_lock(directory_entries_map_lock);
+    ptrdiff_t idx_entries=RHMAP_IDX_STR(directory_entries_map, directory_name);
+    directory_entries_t* entries;
+    if (idx_entries<0)
+    {
+        entries = RHMAP_PTR_STR(directory_entries_map, directory_name);
+        assert(entries);
+
+        entries->filemap = NULL;
+        // Populate filemap
+        struct RDIR* dir = retro_opendir_include_hidden(directory_name, true);
+        if (dir)
+        {
+            while((retro_readdir(dir)))
+            {
+                const char* filename = retro_dirent_get_name(dir);
+                char* lower_filename=strdup(filename);
+                for (char* c=lower_filename; *c; ++c)
+                {
+                    *c=tolower(*c);
+                }
+                file_map_t new_entry;
+                new_entry.real_name=strdup(filename);
+                RHMAP_SET_STR(entries->filemap, lower_filename, new_entry);
+            }
+
+            retro_closedir(dir);         
+        }
+        //RHMAP_SET_STR(directory_entries_map, directory_name, entries);
+    }
+    else
+    {
+        entries=directory_entries_map+idx_entries;
+    }
+
+    file_map_t found_entry = RHMAP_GET_STR(entries->filemap, file_name);
+    slock_unlock(directory_entries_map_lock);
+
+    if (found_entry.real_name)
+    {
+        while(*file_name)
+        {
+            assert(*found_entry.real_name);
+            *file_name = *found_entry.real_name;
+            ++file_name;
+            ++found_entry.real_name;
+        }
+
+        return true;
+    }
+
+    return false;
+}
 
 static const char* casepath(char const *path, size_t start_offset)
 {
@@ -58,64 +139,39 @@ static const char* casepath(char const *path, size_t start_offset)
         return path;
     }
 
-    _Thread_local static char buffer[PATH_MAX_LENGTH];
+    _Thread_local static char buffer[PATH_MAX_LENGTH]={};
 
     size_t l = strlen(path);
-    if (start_offset>l )
+    if (start_offset>l || l>=sizeof(buffer) || start_offset==0)
     {
+        assert(false);
         return path;
-    }    
+    }
 
-    strncpy(buffer, path, start_offset);
-    char* dest = buffer + start_offset;
-    *dest = 0;
-
-    const char* current = path+start_offset;
+    strncpy(buffer, path, l+1);
     
-    while(*current)
+    char * filename = buffer + start_offset;
+    
+    while(filename<buffer+l)
     {
-        struct RDIR* dir = retro_opendir_include_hidden(buffer, true);
-        if (!dir)
+        char* directory_end = filename - 1;
+        *directory_end=0;
+        // search for the next directory separator
+        char * filename_end = filename;
+        while(*filename_end && *filename_end!='/' && *filename_end!='\\')
+        {
+            ++filename_end;
+        }
+        *filename_end=0; // clear directory seperator
+
+        if (!fix_directory_entry(buffer, filename))
         {
             return path;
         }
 
-        const char* next=current;
-        
-        while(*next && *next!='/' && *next!='\\') ++next;
-        const size_t element_length=next-current;
-        
-        strncpy(dest, current, element_length);
-        dest[element_length]=0;
-
-        bool read_entry = false;
-        while((read_entry = retro_readdir(dir)))
-        {
-            const char * filename = retro_dirent_get_name(dir);
-            if (strcasecmp(dest, filename) == 0)
-            {
-                strncpy(dest, filename, element_length);
-                dest+=element_length;
-                break;
-            }
-        }
-
-        retro_closedir(dir);
-
-        if (!read_entry)
-        {            
-            return path;
-        }
-
-        if (*next)
-        {
-            *dest = *next;
-            ++next;
-            ++dest;
-            *dest=0;
-        }
-
-        current = next;
+        // copy separator back from source
+        *directory_end = path[directory_end-buffer];
+        filename = filename_end+1;      
     }
 
     return buffer;
@@ -155,7 +211,9 @@ void init_filesystem(const char * content_path, const char * save_dir, struct re
         retro_save_dir=malloc(save_dir_length+2);
         strlcpy(retro_save_dir, save_dir, buffer_size);
         fill_pathname_slash(retro_save_dir, buffer_size);
-    }   
+    }
+
+    directory_entries_map_lock = slock_new();
 }
 
 void cleanup_filesystem()
@@ -165,6 +223,24 @@ void cleanup_filesystem()
     free(retro_dir_root);
     free(retro_current_dir);
     free(retro_save_dir);
+
+    for (size_t dir_idx = 0, dir_cap = RHMAP_CAP(directory_entries_map); dir_idx != dir_cap; dir_idx++)
+    {
+        if (RHMAP_KEY(directory_entries_map, dir_idx))
+        {
+            file_map_t* filemap = directory_entries_map[dir_idx].filemap;
+            for (size_t file_idx = 0, file_cap = RHMAP_CAP(filemap); file_idx != file_cap; file_idx++)
+            {
+                if ( RHMAP_KEY(filemap, file_idx))
+                {
+                    free(filemap[file_idx].real_name);
+                }
+            }
+            RHMAP_FREE(filemap);
+        }
+    }
+    RHMAP_FREE(directory_entries_map);
+    slock_free(directory_entries_map_lock);
 }
 
 char* get_content_basename()
