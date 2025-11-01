@@ -22,7 +22,7 @@ jobs:
         run: |
           set -e
           sudo apt update -y
-          sudo apt install -y wget bzip2 cmake build-essential
+          sudo apt install -y wget bzip2 cmake file
 
       - name: Download and extract WebOS SDK
         run: |
@@ -48,11 +48,12 @@ jobs:
           export WEBOS_SDK_BUILDROOT=$WEBOS_SDK_DIR
           cmake -B build -DCMAKE_TOOLCHAIN_FILE=$WEBOS_SDK_BUILDROOT/share/buildroot/toolchainfile.cmake
           cmake --build build
+          file build/bennugd_libretro.so
 
-      - name: Upload static libraries
+      - name: Upload files
         uses: actions/upload-artifact@v5
         with:
-          name: bennugd-libs
+          name: bennugd-libretro-webos
           path: |
             build/lib/*.a
-            build/bennugd_libretro.a
+            build/bennugd_libretro.so
