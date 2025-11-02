@@ -3,6 +3,7 @@
 name: Cross Compile
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master" ]
   pull_request:
@@ -26,7 +27,7 @@ jobs:
         build_type: [Release]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: mlugg/setup-zig@a67e68dc5c8281d9608136d3d7ca1b282213e4ac
       with:
         version: 0.14.0
@@ -52,7 +53,7 @@ jobs:
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
     - name: Achive build results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: bennugd_libretro.${{ matrix.target }}.${{ matrix.build_type }}
         path: ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro*.*
@@ -69,7 +70,7 @@ jobs:
         build_type: [Release]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
@@ -91,10 +92,72 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
     - name: Achive build results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: bennugd_libretro.android-${{ matrix.abi }}.${{ matrix.build_type }}
         path: ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro*.*
+
+  webos-build:
+    runs-on: ubuntu-24.04-arm
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - armv7
+        build_type: [Release]
+
+    env:
+      WEBOS_SDK_URL: https://github.com/webosbrew/native-toolchain/releases/download/webos-d7ed7ee.6/arm-webos-linux-gnueabi_sdk-buildroot_linux-aarch64.tar.bz2
+      WEBOS_SDK_DIR: ${{ github.workspace }}/arm-webos-linux-gnueabi_sdk-buildroot
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: |
+          sudo apt update -y
+          sudo apt install -y wget bzip2 cmake file
+
+      - name: Download and extract WebOS SDK
+        run: |
+          wget $WEBOS_SDK_URL
+          tar xvfj $(basename $WEBOS_SDK_URL)
+          rm $(basename $WEBOS_SDK_URL)
+
+      - name: Relocate WebOS SDK
+        run: |
+          cd $WEBOS_SDK_DIR
+          ./relocate-sdk.sh
+
+      - name: Configure CMake
+        run: >
+          cmake
+          -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_TOOLCHAIN_FILE=${{ env.WEBOS_SDK_DIR }}/share/buildroot/toolchainfile.cmake
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -S ${{ github.workspace }}
+
+      - name: Build
+        run: >
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+      - name: Inspect built file
+        run: file ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro.so
+
+      - name: Archive build results
+        uses: actions/upload-artifact@v5
+        with:
+          name: bennugd_libretro.webos-${{ matrix.arch }}.${{ matrix.build_type }}
+          path: |
+            ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro.so
+
   master-branch-release:
     runs-on: ubuntu-latest
     needs: [zig-build,android-build]
@@ -104,13 +167,13 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: delete previous release
       shell: bash
       run: |
         gh release delete mainline-latest --yes --cleanup-tag || true
     - name: download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v6
     - name: compress artifacts
       shell: bash
       run: |
