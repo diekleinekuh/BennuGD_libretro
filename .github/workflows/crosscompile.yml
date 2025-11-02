@@ -105,7 +105,7 @@ jobs:
       matrix:
         arch:
           - armv7
-        build_type: [Release]
+        build_type: [Release, Debug]
 
     env:
       WEBOS_SDK_URL: https://github.com/webosbrew/native-toolchain/releases/download/webos-d7ed7ee.6/arm-webos-linux-gnueabi_sdk-buildroot_linux-aarch64.tar.bz2
