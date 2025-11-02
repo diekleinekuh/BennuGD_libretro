@@ -86,27 +86,46 @@ if (NOT NO_SYSTEM_DEPENDENCIES)
 endif()
 
 if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
-    set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
-    set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
-    set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
-    FetchContent_Declare( libressl 
-        URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
-        URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
-        EXCLUDE_FROM_ALL
-    )
-    FetchContent_MakeAvailable(libressl)
+    set (WOLFSSL_EXAMPLES "no")
+    set (WOLFSSL_CRYPT_TESTS "no")
+    set (WOLFSSL_DES3 "yes")
+    set (WOLFSSL_OPENSSLEXTRA "yes")
+    set(WOLFSSL_CURL "yes")
+    set(WOLFSSL_FILESYSTEM "no")
+    FetchContent_Declare( wolfssl
+        #GIT_REPOSITORY https://github.com/wolfSSL/wolfssl.git
+        #GIT_TAG decea12e223869c8f8f3ab5a53dc90b69f436eb2 #v5.8.2-stable
+        #GIT_SHALLOW True
+        URL https://github.com/wolfSSL/wolfssl/archive/refs/tags/v5.8.2-stable.tar.gz
+        URL_HASH SHA256=3ef126e3466e2f8f6ebb62b916a7f8fb26c6709dbdf2b63a167759f2fdb53068
+    )    
+    FetchContent_MakeAvailable(wolfssl)
+    set(OPENSSL_CRYPTO_LIBRARY wolfssl::wolfssl)
+    target_compile_definitions(wolfssl PUBLIC USE_WOLFSSL)
+    target_compile_definitions(wolfssl PRIVATE NO_WRITEV)
+    message("using internal wolfssl")
 
-    disable_all_warnings(crypto_obj)
-    disable_all_warnings(compat_obj)
-    disable_all_warnings(crypto)
-    disable_all_warnings(ssl_obj)
-    disable_all_warnings(bs_obj)
-    disable_all_warnings(ssl)
-    disable_all_warnings(tls_obj)
-    disable_all_warnings(tls_compat_obj)
-    disable_all_warnings(tls)
-    set(OPENSSL_CRYPTO_LIBRARY crypto)
-    message("using internal libcrypto")
+    # set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
+    # set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
+    # set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
+    # FetchContent_Declare( libressl 
+    #     URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
+    #     URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
+    #     EXCLUDE_FROM_ALL
+    # )
+    # FetchContent_MakeAvailable(libressl)
+
+    # disable_all_warnings(crypto_obj)
+    # disable_all_warnings(compat_obj)
+    # disable_all_warnings(crypto)
+    # disable_all_warnings(ssl_obj)
+    # disable_all_warnings(bs_obj)
+    # disable_all_warnings(ssl)
+    # disable_all_warnings(tls_obj)
+    # disable_all_warnings(tls_compat_obj)
+    # disable_all_warnings(tls)
+    # set(OPENSSL_CRYPTO_LIBRARY crypto)
+    # message("using internal libcrypto")
 else()
     set(OPENSSL_CRYPTO_LIBRARY OpenSSL::Crypto)
 endif()
