@@ -8,11 +8,11 @@ on:
 
 jobs:
   build-webos:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     env:
-      WEBOS_SDK_URL: https://github.com/humbertodias/native-toolchain/releases/download/webos-d7ed7ee.8/arm-webos-linux-gnueabi_sdk-buildroot_linux-x86_64.tar.bz2
-      WEBOS_SDK_DIR: ${{ github.workspace }}/arm-webos-linux-gnueabi_sdk-buildroot
+      WEBOS_SDK_URL: https://github.com/humbertodias/native-toolchain/releases/download/webos-d7ed7ee.8/arm-webos-linux-gnueabi_sdk-buildroot_linux-aarch64.tar.bz2
+      WEBOS_SDK_BUILDROOT: ${{ github.workspace }}/arm-webos-linux-gnueabi_sdk-buildroot
 
     steps:
       - name: Checkout repository
@@ -33,19 +33,11 @@ jobs:
 
       - name: Relocate WebOS SDK and setup toolchain
         run: |
-          set -e
-          cd $WEBOS_SDK_DIR
+          cd $WEBOS_SDK_BUILDROOT
           ./relocate-sdk.sh
-          cd bin
-          unlink arm-webos-linux-gnueabi-gcc || true
-          unlink arm-webos-linux-gnueabi-g++ || true
-          ln -s arm-webos-linux-gnueabi-gcc.br_real arm-webos-linux-gnueabi-gcc
-          ln -s arm-webos-linux-gnueabi-g++.br_real arm-webos-linux-gnueabi-g++
 
       - name: Build BennuGD
         run: |
-          set -e
-          export WEBOS_SDK_BUILDROOT=$WEBOS_SDK_DIR
           cmake -B build -DCMAKE_TOOLCHAIN_FILE=$WEBOS_SDK_BUILDROOT/share/buildroot/toolchainfile.cmake
           cmake --build build
           file build/bennugd_libretro.so
