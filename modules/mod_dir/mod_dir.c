@@ -41,7 +41,6 @@
 #include <windef.h>
 #else
 #include <unistd.h>
-#include <sys/utsname.h>
 /* BeOS INCLUDES */
 #ifdef TARGET_BEOS
 #include <sys/types.h>
