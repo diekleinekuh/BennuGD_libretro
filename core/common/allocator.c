@@ -8,6 +8,10 @@
 
 uint8_t* allocated_chunk=NULL;
 
+#ifdef __SWITCH__
+#define DISABLE_PLATFORM_DETECTION 1
+#endif
+
 #define __HAIKU__ 1 // This prevents changing the tls-model to initial-exec which doesn't work in a library
 #include "rpmalloc.c"
 #undef __HAIKU__
@@ -22,20 +26,10 @@ static void* bgd_mmap(size_t size, size_t* offset)
 	rpmalloc_assert(size >= _memory_page_size, "Invalid mmap size");
 
     //change offset of address to use
-    void* requested_address;
-    {
-        ptrdiff_t expected = allocation_offset;
-        ptrdiff_t desired;
-
-        do
-        {
-            desired = expected + size + padding;
-        }    
-        while(!atomic_compare_exchange_weak(&allocation_offset, &expected, desired));
-
-        requested_address = allocated_chunk + expected;
-    }
-
+	const size_t allocation_size = size + padding;
+	void* requested_address = allocated_chunk + allocation_size + 
+		atomic_fetch_add_explicit(&allocation_offset, allocation_size,  memory_order_relaxed);
+	
 #if PLATFORM_WINDOWS
 	//Ok to MEM_COMMIT - according to MSDN, "actual physical pages are not allocated unless/until the virtual addresses are actually accessed"
 	void* ptr = VirtualAlloc(requested_address, size + padding, MEM_COMMIT, PAGE_READWRITE);
@@ -43,13 +37,15 @@ static void* bgd_mmap(size_t size, size_t* offset)
         rpmalloc_assert(ptr, "Failed to map virtual memory block");
 		return 0;
 	}
-#else
+#elif PLATFORM_POSIX
     if (mprotect(requested_address, size + padding, PROT_READ | PROT_WRITE))
     {
 		rpmalloc_assert((ptr != MAP_FAILED) && ptr, "Failed to map virtual memory block");
 		return 0;
 	}
     void* ptr = requested_address;
+#else
+	void* ptr = requested_address;
 #endif
 	_rpmalloc_stat_add(&_mapped_pages_os, (int32_t)((size + padding) >> _memory_page_size_shift));
 	if (padding) {
@@ -84,7 +80,7 @@ static void bgd_unmap(void* address, size_t size, size_t offset, size_t release)
     if (!VirtualFree(address, size, MEM_DECOMMIT)) {
 		rpmalloc_assert(0, "Failed to unmap virtual memory block");
 	}
-#else
+#elif PLATFORM_POSIX
 	// if (release) {
 	// 	if (munmap(address, release)) {
 	// 		rpmalloc_assert(0, "Failed to unmap virtual memory block");
@@ -107,23 +103,27 @@ static void bgd_unmap(void* address, size_t size, size_t offset, size_t release)
 			rpmalloc_assert(0, "Failed to madvise virtual memory block as free");
 		}
 	//}
+#else
 #endif
 
 	if (release)
 		_rpmalloc_stat_sub(&_mapped_pages_os, release >> _memory_page_size_shift);
 }
 
-const size_t reseved_address_space = 4294967296ull;
+size_t reseved_address_space = 4294967296ull;
 
 void bgd_malloc_initialize()
 {
     // Reserve (not commit) 4GB address space.
     // Later all allocated memory will be served by pages committed in this window.
     // This makes it posible to use 32 bit offset addressing relative to the start of the window.
-#if PLATFORM_WINDOWS    	
+#if PLATFORM_WINDOWS
 	allocated_chunk = VirtualAlloc(0, reseved_address_space, MEM_RESERVE, PAGE_READWRITE);
-#else
+#elif PLATFORM_POSIX
     allocated_chunk = mmap(NULL, reseved_address_space, PROT_NONE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_UNINITIALIZED, 0, 0 );
+#else
+	reseved_address_space = 1024 * 1024 * 256; // TODO: make this configurable
+	allocated_chunk = malloc(reseved_address_space);
 #endif
 
     assert(allocated_chunk);
@@ -145,11 +145,13 @@ void bgd_malloc_cleanup()
     {
         assert(0);
     }    
-#else
+#elif PLATFORM_POSIX
     if (munmap(allocated_chunk, reseved_address_space))
     {
         assert(0);
     }
+#else
+	free(allocated_chunk);
 #endif
 }
 
