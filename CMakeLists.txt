@@ -20,7 +20,9 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18.0")
     include(CheckLinkerFlag)
 endif()
 
-include(CheckCCompilerFlag)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.19.0")
+    include(CheckCompilerFlag)
+endif()
 
 function(disable_all_warnings target)
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20.0")
@@ -91,7 +93,7 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
     set (WOLFSSL_DES3 "yes")
     set (WOLFSSL_OPENSSLEXTRA "yes")
     set(WOLFSSL_CURL "yes")
-    set(WOLFSSL_FILESYSTEM "no")
+    set(WOLFSSL_FILESYSTEM "yes")
     FetchContent_Declare( wolfssl
         #GIT_REPOSITORY https://github.com/wolfSSL/wolfssl.git
         #GIT_TAG decea12e223869c8f8f3ab5a53dc90b69f436eb2 #v5.8.2-stable
@@ -99,10 +101,14 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
         URL https://github.com/wolfSSL/wolfssl/archive/refs/tags/v5.8.2-stable.tar.gz
         URL_HASH SHA256=3ef126e3466e2f8f6ebb62b916a7f8fb26c6709dbdf2b63a167759f2fdb53068
     )    
-    FetchContent_MakeAvailable(wolfssl)
+    FetchContent_MakeAvailable(wolfssl)    
     set(OPENSSL_CRYPTO_LIBRARY wolfssl::wolfssl)
     target_compile_definitions(wolfssl PUBLIC USE_WOLFSSL)
     target_compile_definitions(wolfssl PRIVATE NO_WRITEV)
+    check_compiler_flag(C -Wno-unused-parameter HAVE_NO_WUNUSED_PARAMETER)
+    if (HAVE_NO_WUNUSED_PARAMETER) 
+        target_compile_options(wolfssl PRIVATE "-Wno-unused-parameter")
+    endif()
     message("using internal wolfssl")
 
     # set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
