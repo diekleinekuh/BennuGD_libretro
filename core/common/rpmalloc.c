@@ -147,12 +147,14 @@
 #define ENABLE_ADAPTIVE_THREAD_CACHE 0
 #endif
 
+#if !DISABLE_PLATFORM_DETECTION
 #if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
 #  define PLATFORM_WINDOWS 1
 #  define PLATFORM_POSIX 0
 #else
 #  define PLATFORM_WINDOWS 0
 #  define PLATFORM_POSIX 1
+#endif
 #endif
 
 /// Platform and arch specifics
@@ -881,7 +883,7 @@ _rpmalloc_thread_destructor(void* value) {
 /// Low level memory map/unmap
 ///
 //////
-
+#if PLATFORM_POSIX
 static void
 _rpmalloc_set_name(void* address, size_t size) {
 #if defined(__linux__) || defined(__ANDROID__)
@@ -896,7 +898,7 @@ _rpmalloc_set_name(void* address, size_t size) {
 	(void)sizeof(address);
 #endif
 }
-
+#endif
 
 //! Map more virtual memory
 //  size is number of bytes to map
@@ -931,6 +933,7 @@ _rpmalloc_unmap(void* address, size_t size, size_t offset, size_t release) {
 	_memory_config.memory_unmap(address, size, offset, release);
 }
 
+#if PLATFORM_WINDOWS || PLATFORM_POSIX
 //! Default implementation to map new pages to virtual memory
 static void*
 _rpmalloc_mmap_os(size_t size, size_t* offset) {
@@ -1050,7 +1053,17 @@ _rpmalloc_unmap_os(void* address, size_t size, size_t offset, size_t release) {
 	if (release)
 		_rpmalloc_stat_sub(&_mapped_pages_os, release >> _memory_page_size_shift);
 }
+#else
+// Those function will never be called
+static void* _rpmalloc_mmap_os(size_t size, size_t* offset)
+{
+	return NULL;
+}
+static void _rpmalloc_unmap_os(void* address, size_t size, size_t offset, size_t release)
+{
+}
 
+#endif
 static void
 _rpmalloc_span_mark_as_subspan_unless_master(span_t* master, span_t* subspan, size_t span_count);
 

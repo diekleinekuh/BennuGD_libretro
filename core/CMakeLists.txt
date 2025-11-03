@@ -24,21 +24,14 @@ set(BGDRTM_SRC
     "bgdrtm/src/varspace_file.c"
 )
 
-FetchContent_Declare(
-    rpmalloc
-    GIT_REPOSITORY "https://github.com/mjansson/rpmalloc.git"
-    GIT_TAG "e4393ff85585d91400bcbad2e7266c011075b673" # 1.4.5
-)
-
 FetchContent_Declare(cmake_git_version_tracking                   
   GIT_REPOSITORY https://github.com/andrew-hardin/cmake-git-version-tracking.git
   GIT_TAG 6c0cb87edd029ddfb403a8e24577c144a03605a6
 )
 
-FetchContent_MakeAvailable(rpmalloc cmake_git_version_tracking)
+FetchContent_MakeAvailable(cmake_git_version_tracking)
 
 add_library(core OBJECT ${COMMON_SRC} ${BGDRTM_SRC})
-target_include_directories(core PRIVATE "${rpmalloc_SOURCE_DIR}/rpmalloc/")
 
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
     set_source_files_properties("common/allocator.c" PROPERTIES COMPILE_OPTIONS "/experimental:c11atomics")
