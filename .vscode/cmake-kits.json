@@ -43,5 +43,15 @@
             "ANDROID_ABI": "arm64-v8a",
             "CMAKE_WARN_DEPRECATED": "false"
         }
+    },
+    {
+        "name": "switch",
+        "toolchainFile": "/opt/devkitpro/cmake/Switch.cmake",
+        "cmakeSettings": {
+            "HAVE_ASPRINTF" : "0"
+        },
+        "environmentVariables": {
+            "CFLAGS" : "-I${workspaceFolder}/cmake/switch/include"
+        }
     }
 ]
