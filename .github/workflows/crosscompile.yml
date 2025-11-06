@@ -98,7 +98,7 @@ jobs:
         path: ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro*.*
 
   webos-build:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
@@ -108,7 +108,7 @@ jobs:
         build_type: [Release, Debug]
 
     env:
-      WEBOS_SDK_URL: https://github.com/webosbrew/native-toolchain/releases/download/webos-d7ed7ee.6/arm-webos-linux-gnueabi_sdk-buildroot_linux-aarch64.tar.bz2
+      WEBOS_SDK_URL: https://github.com/openlgtv/buildroot-nc4/releases/download/webos-a38c582/arm-webos-linux-gnueabi_sdk-buildroot-x86_64.tar.gz
       WEBOS_SDK_DIR: ${{ github.workspace }}/arm-webos-linux-gnueabi_sdk-buildroot
 
     steps:
@@ -128,7 +128,7 @@ jobs:
       - name: Download and extract WebOS SDK
         run: |
           wget $WEBOS_SDK_URL
-          tar xvfj $(basename $WEBOS_SDK_URL)
+          tar xvfz $(basename $WEBOS_SDK_URL)
           rm $(basename $WEBOS_SDK_URL)
 
       - name: Relocate WebOS SDK
