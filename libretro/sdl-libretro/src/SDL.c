@@ -61,6 +61,14 @@ static Uint32 ticks_started = 0;
 #ifdef CHECK_LEAKS
 int surfaces_allocated = 0;
 #endif
+char * SDL_GetVideoDriver()
+{
+#ifdef __WEBOS__
+	// Force SDL video driver to LIBRETROvideo when running on webOS
+	return "LIBRETROvideo";
+#endif
+	return SDL_getenv("SDL_VIDEODRIVER");
+}
 
 int SDL_InitSubSystem(Uint32 flags)
 {
@@ -86,7 +94,7 @@ int SDL_InitSubSystem(Uint32 flags)
 #if !SDL_VIDEO_DISABLED
 	/* Initialize the video/event subsystem */
 	if ( (flags & SDL_INIT_VIDEO) && !(SDL_initialized & SDL_INIT_VIDEO) ) {
-		const char *video_driver = SDL_getenv("SDL_VIDEODRIVER");
+		const char *video_driver = SDL_GetVideoDriver();
 		if ( SDL_VideoInit(video_driver,(flags&SDL_INIT_EVENTTHREAD)) < 0 ) {
 			SDL_SetError("Video initialization failed (driver=%s): %s",video_driver, SDL_GetError());
 			return(-1);
