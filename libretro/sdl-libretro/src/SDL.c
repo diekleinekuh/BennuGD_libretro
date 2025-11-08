@@ -86,8 +86,9 @@ int SDL_InitSubSystem(Uint32 flags)
 #if !SDL_VIDEO_DISABLED
 	/* Initialize the video/event subsystem */
 	if ( (flags & SDL_INIT_VIDEO) && !(SDL_initialized & SDL_INIT_VIDEO) ) {
-		if ( SDL_VideoInit(SDL_getenv("SDL_VIDEODRIVER"),
-		                   (flags&SDL_INIT_EVENTTHREAD)) < 0 ) {
+		const char *video_driver = SDL_getenv("SDL_VIDEODRIVER");
+		if ( SDL_VideoInit(video_driver,(flags&SDL_INIT_EVENTTHREAD)) < 0 ) {
+			SDL_SetError("Video initialization failed (driver=%s): %s",video_driver, SDL_GetError());
 			return(-1);
 		}
 		SDL_initialized |= SDL_INIT_VIDEO;
