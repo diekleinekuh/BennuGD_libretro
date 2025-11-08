@@ -98,11 +98,7 @@
 #define HAVE_REALLOC 1
 #define HAVE_FREE 1
 /* #undef HAVE_ALLOCA */
-#ifndef _WIN32 /* Don't use C runtime versions of these on Windows */
-#define HAVE_GETENV 1
-#define HAVE_PUTENV 1
-/* #undef HAVE_UNSETENV */
-#endif
+
 #define HAVE_QSORT 1
 #define HAVE_ABS 1
 /* #undef HAVE_BCOPY */
