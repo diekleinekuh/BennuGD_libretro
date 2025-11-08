@@ -218,12 +218,6 @@ extern DECLSPEC void SDLCALL SDL_free(void *mem);
 extern DECLSPEC char * SDLCALL SDL_getenv(const char *name);
 #endif
 
-#ifdef HAVE_PUTENV
-#define SDL_putenv	putenv
-#else
-extern DECLSPEC int SDLCALL SDL_putenv(const char *variable);
-#endif
-
 #ifdef HAVE_QSORT
 #define SDL_qsort	qsort
 #else
