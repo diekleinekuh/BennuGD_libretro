@@ -142,6 +142,7 @@ jobs:
           -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_TOOLCHAIN_FILE=${{ env.WEBOS_SDK_DIR }}/share/buildroot/toolchainfile.cmake
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_C_FLAGS="-D__WEBOS__=1" \ 
           -S ${{ github.workspace }}
 
       - name: Build

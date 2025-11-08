@@ -275,6 +275,12 @@ extern int bennugd_content_height;
     depth=libretro_depth;
     bennugd_content_width = width;
     bennugd_content_height = height;
+
+#ifdef __WEBOS__
+    // Force SDL video driver to LIBRETROvideo when running on webOS
+    setenv("SDL_VIDEODRIVER", "LIBRETROvideo", 1);
+#endif
+
 #endif
     int n ;
     int sdl_flags = 0;
@@ -364,7 +370,7 @@ extern int bennugd_content_height;
         }
     }
 
-    /* Inicializa el modo grï¿½fico */
+    /* Inicializa el modo gráfico */
 
     if ( scrbitmap )
     {
