@@ -296,9 +296,8 @@ static void set_core_options()
         {
             .key =  case_insensitive_file_io_opt,
             .desc= "Emulate case insensitive filesystem",
-            .info = "Emulate dealing with file names a case insensitive way even though the underlying filesystem is case sensitive.\n"
+            .info = "Emulate dealing with file names in a case insensitive way even though the underlying filesystem is case sensitive.\n"
                     "Changes take affect when reloading content.\n"
-                    "This can hurt io performance.\n"
             ,
             .default_value = "true",
             .values = { { "true", "True"}, { "false", "False"}, { NULL, NULL} }
