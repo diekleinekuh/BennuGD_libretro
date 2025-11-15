@@ -3,6 +3,7 @@
 #include "dirs.h"
 #include "libretro.h"
 #include "streams/file_stream.h"
+#include "string/stdstring.h"
 #include "filestream_gzip.h"
 #include "file/file_path.h"
 #include "retro_dirent.h"
@@ -24,11 +25,6 @@ char * retro_dir_root = NULL;
 size_t bgd_dir_root_len = 0;
 size_t retro_dir_root_len = 0;
 
-char * retro_save_dir=NULL;
-
-extern char* retro_save_directory;
-extern  size_t retro_save_directory_len;
-
 static bool case_insensitive_io = false;
 
 
@@ -41,7 +37,7 @@ static bool case_insensitive_io = false;
 #if !defined(_WIN32)
 #include <stdlib.h>
 #include <string.h>
-
+#include <compat/strl.h>
 #include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
@@ -49,12 +45,61 @@ static bool case_insensitive_io = false;
 #include "rthreads/rthreads.h"
 #include "array/rhmap.h"
 
-static slock_t* directory_entries_map_lock=NULL;
+static slock_t* file_map_lock=NULL;
 
 typedef struct file_map
 {
     char* real_name;
+    bool is_dir;
 } file_map_t;
+
+static file_map_t* file_map;
+
+
+static void create_file_map(const char* root_dir, char * directory_name, char* buffer, size_t buffer_size )
+{
+    snprintf(buffer, buffer_size, "%s%s", root_dir, directory_name);
+    struct RDIR* dir = retro_opendir_include_hidden(buffer, true);
+    if (dir)
+    {
+        while((retro_readdir(dir)))
+        {
+            const char* entry_name = retro_dirent_get_name(dir);
+            if (strcmp(entry_name, "..")==0 || strcmp(entry_name, ".")==0)
+            {
+                continue;
+            }
+
+            int buffer_used = *directory_name ? snprintf(buffer, buffer_size, "%s/%s", directory_name, entry_name) : snprintf(buffer, buffer_size, "%s", entry_name);
+            string_to_lower(buffer);
+
+            file_map_t* entry = RHMAP_PTR_STR(file_map, buffer);
+            buffer_used = *directory_name ? snprintf(buffer, buffer_size, "%s%s/%s", root_dir, directory_name, entry_name) : snprintf(buffer, buffer_size, "%s%s", root_dir, entry_name);
+            entry->real_name = strldup(buffer, buffer_used);
+            entry->is_dir = retro_dirent_is_dir(dir, NULL);
+
+            if (entry->is_dir)
+            {
+                create_file_map(root_dir, entry->real_name+strlen(root_dir), buffer, buffer_size);
+            }
+        }
+
+        retro_closedir(dir);
+    }
+}
+
+static void destroy_file_map()
+{
+    for (size_t idx = 0, cap = RHMAP_CAP(file_map); idx != cap; idx++)
+    {
+        if (RHMAP_KEY(file_map, idx))
+        {
+            free(file_map[idx].real_name);
+        }
+    }
+    RHMAP_FREE(file_map);
+    file_map = NULL;
+}
 
 typedef struct directory_entries
 {
@@ -63,118 +108,119 @@ typedef struct directory_entries
 
 directory_entries_t* directory_entries_map = NULL;
 
-
-static bool fix_directory_entry(const char * directory_name, char* file_name)
+typedef enum filename_cache_response
 {
-    // file info is stored with lowercae filename as key.
-    for (char* c=file_name; *c; ++c)
-    {
-        *c=tolower(*c);
-    }
+    FCR_NONE,
+    FCR_HIT,
+    FCR_MISS
+} filename_cache_response_t;
 
-    //lookup list of files
-    slock_lock(directory_entries_map_lock);
-    ptrdiff_t idx_entries=RHMAP_IDX_STR(directory_entries_map, directory_name);
-    directory_entries_t* entries;
-    if (idx_entries<0)
+void remove_from_filename_cache(const char* filename)
+{
+    if (path_is_absolute(filename))
     {
-        entries = RHMAP_PTR_STR(directory_entries_map, directory_name);
-        assert(entries);
-
-        entries->filemap = NULL;
-        // Populate filemap
-        struct RDIR* dir = retro_opendir_include_hidden(directory_name, true);
-        if (dir)
+        THREAD_LOCAL static char buffer[PATH_MAX_LENGTH];
+        if (strstr(filename, retro_dir_root)==filename)
         {
-            while((retro_readdir(dir)))
-            {
-                const char* filename = retro_dirent_get_name(dir);
-                char* lower_filename=strdup(filename);
-                for (char* c=lower_filename; *c; ++c)
-                {
-                    *c=tolower(*c);
-                }
-                file_map_t new_entry;
-                new_entry.real_name=strdup(filename);
-                RHMAP_SET_STR(entries->filemap, lower_filename, new_entry);
-            }
-
-            retro_closedir(dir);         
+            snprintf(buffer, PATH_MAX_LENGTH, "%s", filename+retro_dir_root_len);
+            string_to_lower(buffer);
+            
+            slock_lock(file_map_lock);
+            assert(RHMAP_HAS_STR(file_map, buffer));
+            RHMAP_DEL_STR(file_map, buffer);
+            slock_unlock(file_map_lock);
         }
-        //RHMAP_SET_STR(directory_entries_map, directory_name, entries);
     }
     else
     {
-        entries=directory_entries_map+idx_entries;
+        assert(false);
     }
-
-    file_map_t found_entry = RHMAP_GET_STR(entries->filemap, file_name);
-    slock_unlock(directory_entries_map_lock);
-
-    if (found_entry.real_name)
-    {
-        while(*file_name)
-        {
-            assert(*found_entry.real_name);
-            *file_name = *found_entry.real_name;
-            ++file_name;
-            ++found_entry.real_name;
-        }
-
-        return true;
-    }
-
-    return false;
 }
 
-static const char* casepath(char const *path, size_t start_offset)
+void add_filename_to_cache(const char* filename)
+{
+    if (path_is_absolute(filename))
+    {
+        THREAD_LOCAL static char buffer[PATH_MAX_LENGTH];
+        if (strstr(filename, retro_dir_root)==filename)
+        {
+            snprintf(buffer, PATH_MAX_LENGTH, "%s", filename+retro_dir_root_len);
+            string_to_lower(buffer);
+
+            char * real_name = strdup(filename);
+            
+            slock_lock(file_map_lock);
+            assert(!RHMAP_HAS_STR(file_map, buffer));
+
+            file_map_t* entry = RHMAP_PTR_STR(file_map, buffer);
+            entry->real_name = real_name;
+            slock_unlock(file_map_lock);
+        }
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
+static const char* casepath(char const *path, size_t start_offset, bool try_partial_match, filename_cache_response_t* cache_response)
 {
     if (!case_insensitive_io)
     {
+        *cache_response = FCR_NONE;
         return path;
     }
 
-    if (filestream_exists(path))
-    {
-        return path;
-    }
+    THREAD_LOCAL static char buffer[PATH_MAX_LENGTH]={0};
+    const int buffer_used=snprintf(buffer, PATH_MAX_LENGTH, "%s", path+start_offset);
+    char* current_buffer_end = buffer+buffer_used;
 
-    _Thread_local static char buffer[PATH_MAX_LENGTH]={};
-
-    size_t l = strlen(path);
-    if (start_offset>l || l>=sizeof(buffer) || start_offset==0)
-    {
-        assert(false);
-        return path;
-    }
-
-    strncpy(buffer, path, l+1);
+    string_to_lower(buffer);
     
-    char * filename = buffer + start_offset;
-    
-    while(filename<buffer+l)
-    {
-        char* directory_end = filename - 1;
-        *directory_end=0;
-        // search for the next directory separator
-        char * filename_end = filename;
-        while(*filename_end && *filename_end!='/' && *filename_end!='\\')
-        {
-            ++filename_end;
-        }
-        *filename_end=0; // clear directory seperator
+    slock_lock(file_map_lock);
 
-        if (!fix_directory_entry(buffer, filename))
+
+    while(current_buffer_end>buffer)
+    {
+        ptrdiff_t idx_entries=RHMAP_IDX_STR(file_map, buffer);
+        if (idx_entries>=0)
         {
-            return path;
+            int written = snprintf(buffer, PATH_MAX_LENGTH, "%s", file_map[idx_entries].real_name);
+            slock_unlock(file_map_lock);
+
+            const char * unchanged_part=path + written;
+            if (*unchanged_part)
+            {
+                snprintf(buffer+written, PATH_MAX_LENGTH-written, "%s", unchanged_part);
+                *cache_response = FCR_MISS;
+            }
+            else
+            {
+                *cache_response = FCR_HIT;
+            }
+            
+            return buffer;
         }
 
-        // copy separator back from source
-        *directory_end = path[directory_end-buffer];
-        filename = filename_end+1;      
+        if (!try_partial_match)
+        {
+            break;
+        }
+
+        while(current_buffer_end>buffer)
+        {
+            --current_buffer_end;
+            if (*current_buffer_end=='/')
+            {
+                break;
+            }
+        }
+        *current_buffer_end = '\0';
     }
 
-    return buffer;
+    slock_unlock(file_map_lock);
+    *cache_response = FCR_MISS;
+    return path;
 }
 #else
 static const char* casepath(char const *path, size_t start_offset)
@@ -203,17 +249,13 @@ void init_filesystem(const char * content_path, const char * save_dir, struct re
 
     bgd_current_dir=strdup(bgd_dir_root);
 
-    
-    if (save_dir)
+    if (case_insensitive_io)
     {
-        size_t save_dir_length = strlen(save_dir);
-        size_t buffer_size = save_dir_length + 2;
-        retro_save_dir=malloc(save_dir_length+2);
-        strlcpy(retro_save_dir, save_dir, buffer_size);
-        fill_pathname_slash(retro_save_dir, buffer_size);
+        file_map_lock = slock_new();
+        char buffer[4096];
+        size_t buffer_size = sizeof(buffer)/sizeof(buffer[0]);
+        create_file_map(retro_dir_root, "", buffer, buffer_size);
     }
-
-    directory_entries_map_lock = slock_new();
 }
 
 void cleanup_filesystem()
@@ -222,25 +264,9 @@ void cleanup_filesystem()
     free(bgd_current_dir);
     free(retro_dir_root);
     free(retro_current_dir);
-    free(retro_save_dir);
 
-    for (size_t dir_idx = 0, dir_cap = RHMAP_CAP(directory_entries_map); dir_idx != dir_cap; dir_idx++)
-    {
-        if (RHMAP_KEY(directory_entries_map, dir_idx))
-        {
-            file_map_t* filemap = directory_entries_map[dir_idx].filemap;
-            for (size_t file_idx = 0, file_cap = RHMAP_CAP(filemap); file_idx != file_cap; file_idx++)
-            {
-                if ( RHMAP_KEY(filemap, file_idx))
-                {
-                    free(filemap[file_idx].real_name);
-                }
-            }
-            RHMAP_FREE(filemap);
-        }
-    }
-    RHMAP_FREE(directory_entries_map);
-    slock_free(directory_entries_map_lock);
+    destroy_file_map();
+    slock_free(file_map_lock);
 }
 
 char* get_content_basename()
@@ -262,11 +288,11 @@ const char* resolve_bgd_path(const char * dir)
         dir+=2;
     }
     
-    snprintf(buffer, PATH_MAX_LENGTH, "%s/%s", bgd_current_dir, dir);
+    snprintf(buffer, PATH_MAX_LENGTH, "%s%s", bgd_current_dir, dir);
     return buffer;
 }
 
-const char* to_retro_path(const char * dir)
+const char* to_retro_path(const char * dir, bool try_partial_match, filename_cache_response_t* cache_response)
 {
     THREAD_LOCAL static char buffer[PATH_MAX_LENGTH];
 
@@ -276,26 +302,59 @@ const char* to_retro_path(const char * dir)
         if (strstr(dir, bgd_dir_root)==dir)
         {
             snprintf(buffer, PATH_MAX_LENGTH, "%s%s", retro_dir_root, dir+bgd_dir_root_len);
-            return casepath(buffer, retro_dir_root_len+1);
+            return casepath(buffer, retro_dir_root_len, try_partial_match, cache_response);
         }
     }
 
     assert(false);
+    *cache_response = FCR_NONE;
     return dir;
 }
 
 // bgd filesystem forwarded to libretro
+bool can_create_new_file(const char * mode)
+{
+    // expected modes are "rb0", "r+b0", "wb0", "rb", "wb6", not seen anything else in the codebase
+    if (*mode=='w')
+    {
+        return true;
+    }
+
+    return false;
+}
 
 RFILE * fopen_libretro ( const char * filename, const char * mode )
 {
-    const char* retro_filename = to_retro_path(resolve_bgd_path(filename));
-    if (!retro_filename)
+    filename_cache_response_t cache_response;
+
+    const bool mode_can_create_new_file = can_create_new_file(mode);    
+
+    const char* retro_filename = to_retro_path(resolve_bgd_path(filename), mode_can_create_new_file, &cache_response);
+    assert(retro_filename);
+
+    // don't even try to open if the cache says no
+    if (cache_response==FCR_MISS && mode_can_create_new_file==false)
     {
-        log_cb(RETRO_LOG_ERROR, "fopen_libretro: Could not find file %s\n", filename);
         return NULL;
     }
 
-    return rfopen(retro_filename, mode);
+    RFILE* rfile = rfopen(retro_filename, mode);
+
+    if (rfile && cache_response==FCR_MISS)
+    {
+        add_filename_to_cache(retro_filename);
+    }
+
+    if (rfile)
+    {
+        log_cb(RETRO_LOG_DEBUG, "fopen_libretro: Opened file %s(%s)\n", filename, retro_filename);
+    }
+    else
+    {
+        log_cb(RETRO_LOG_INFO, "fopen_libretro: Could not find file %s(%s)\n", filename, retro_filename);
+    }
+
+    return rfile;
 }
 
 int fclose_libretro( RFILE* file)
@@ -334,17 +393,48 @@ size_t fwrite_libretro(const void *ptr, size_t size, size_t nmemb, RFILE *stream
 }
 
 int remove_libretro(const char *filename)
-{    
-    const char * retro_dir = to_retro_path(resolve_bgd_path(filename));
-    return retro_dir ? filestream_delete(retro_dir) : -1;
+{
+    filename_cache_response_t cache_response;
+    const char* resolved_filename = to_retro_path(resolve_bgd_path(filename), false, &cache_response);
+    assert(resolved_filename);
+    if (filestream_delete(resolved_filename)==0)
+    {
+        if (cache_response==FCR_HIT)
+        {
+            remove_from_filename_cache(resolved_filename);
+        }
+
+        return 0;
+    }
+
+    return -1;
 }
 
 int rename_libretro(const char *old_filename, const char *new_filename)
 {
-    const char * retro_old = to_retro_path(resolve_bgd_path(old_filename));
-    const char * retro_new = to_retro_path(resolve_bgd_path(new_filename));
+    filename_cache_response_t cache_response_old, cache_response_new;
+    const char * retro_old = to_retro_path(resolve_bgd_path(old_filename), false, &cache_response_old);
+    const char * retro_new = to_retro_path(resolve_bgd_path(new_filename), true, &cache_response_new);
 
-    return retro_old && retro_new ? filestream_rename( old_filename, new_filename) : -1;
+    assert(retro_old);
+    assert(retro_new);
+
+    if (filestream_rename( old_filename, new_filename)==0)
+    {
+        if (cache_response_old==FCR_HIT)
+        {
+            remove_from_filename_cache(retro_old);
+        }
+
+        if (cache_response_new==FCR_MISS)
+        {
+            add_filename_to_cache(retro_new);
+        }
+
+        return 0;
+    }
+
+    return -1;
 }
 
 char *fgets_libretro(char *str, int n, RFILE *stream)
@@ -360,32 +450,37 @@ const char * get_current_dir_libretro( )
 
 int chdir_libretro( const char * dir)
 {
+    filename_cache_response_t dummy;
     const char* bgd_dir = resolve_bgd_path(dir);
-    const char * retro_dir = to_retro_path(bgd_dir);
+    const char * retro_dir = to_retro_path(bgd_dir, false, &dummy);
 
-    if (retro_dir)
+    assert(retro_dir);
+
+    if (path_is_directory(retro_dir))
     {
-        if (path_is_directory(retro_dir))
-        {
-            free(retro_current_dir);
-            retro_current_dir=strdup(retro_dir);
-            free(bgd_current_dir);
-            bgd_current_dir=strdup(bgd_dir);
-            return 0;
-        }
+        free(retro_current_dir);
+        retro_current_dir=strdup(retro_dir);
+        free(bgd_current_dir);
+        bgd_current_dir=strdup(bgd_dir);
+        return 0;
     }
-
 
     return -1;
 }
 
 int mkdir_libretro( const char * dir )
 {
-    const char * retro_dir = to_retro_path(resolve_bgd_path(dir));
-    if (retro_dir)
+    filename_cache_response_t cache_response;
+    const char * retro_dir = to_retro_path(resolve_bgd_path(dir), true, &cache_response);
+    assert(retro_dir);
+
+    if (path_mkdir( retro_dir ) == 0)
     {
-        // TODO: redirect to savedir
-         return path_mkdir( retro_dir ) ? 0 : -1;
+        if (cache_response == FCR_MISS)
+        {
+            add_filename_to_cache(retro_dir);
+        }
+        return 0;
     }
 
     return -1;
@@ -415,7 +510,8 @@ int diropen_libretro(__DIR_ST * hDir)
     //char slash_char = *last_slash;
     *last_slash = 0;
 
-    const char * retro_dir = to_retro_path(buffer);
+    filename_cache_response_t dummy;
+    const char * retro_dir = to_retro_path(buffer, false, &dummy);
 
     hDir->rdir = retro_opendir_include_hidden(retro_dir, true);
     if (!hDir->rdir)
@@ -458,7 +554,8 @@ int dirread_libretro(__DIR_ST* hdir)
                 hdir->info.attributes |= DIR_FI_ATTR_DIRECTORY;
             }
 
-            const char * retro_filepath_full = to_retro_path(hdir->info.fullpath);
+            filename_cache_response_t dummy;
+            const char * retro_filepath_full = to_retro_path(hdir->info.fullpath, false, &dummy);
             hdir->info.size = path_get_size(retro_filepath_full);
 
             return true;
