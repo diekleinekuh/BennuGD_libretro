@@ -29,6 +29,7 @@ add_library(bennugd_libretro SHARED
     ${libretro-common_SOURCE_DIR}/encodings/encoding_utf.c
     ${libretro-common_SOURCE_DIR}/time/rtime.c
     ${libretro-common_SOURCE_DIR}/compat/compat_strl.c
+    ${libretro-common_SOURCE_DIR}/compat/compat_strldup.c
     ${libretro-common_SOURCE_DIR}/streams/file_stream.c
     ${libretro-common_SOURCE_DIR}/streams/trans_stream_zlib.c
     ${libretro-common_SOURCE_DIR}/streams/file_stream_transforms.c
