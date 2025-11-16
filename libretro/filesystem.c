@@ -29,18 +29,31 @@ static bool case_insensitive_io = false;
 
 
 #ifdef _MSC_VER
-#define THREAD_LOCAL __declspec(thread)
+#   define THREAD_LOCAL __declspec(thread)
 #else
-#define THREAD_LOCAL _Thread_local
+#   define THREAD_LOCAL _Thread_local
 #endif
 
-#if !defined(_WIN32)
+#ifndef CASE_INSENSITIVE_FILESYSTEM_EMULATION
+#   if defined(_WIN32)
+#       define CASE_INSENSITIVE_FILESYSTEM_EMULATION 0
+#   else
+#       define CASE_INSENSITIVE_FILESYSTEM_EMULATION 1
+#   endif
+#endif
+
+typedef enum filename_cache_response
+{
+    FCR_NONE,
+    FCR_HIT,
+    FCR_MISS
+} filename_cache_response_t;
+
+#if CASE_INSENSITIVE_FILESYSTEM_EMULATION
 #include <stdlib.h>
 #include <string.h>
 #include <compat/strl.h>
-#include <dirent.h>
 #include <errno.h>
-#include <unistd.h>
 #include <sys/stat.h>
 #include "rthreads/rthreads.h"
 #include "array/rhmap.h"
@@ -108,14 +121,7 @@ typedef struct directory_entries
 
 directory_entries_t* directory_entries_map = NULL;
 
-typedef enum filename_cache_response
-{
-    FCR_NONE,
-    FCR_HIT,
-    FCR_MISS
-} filename_cache_response_t;
-
-void remove_from_filename_cache(const char* filename)
+static void remove_from_filename_cache(const char* filename)
 {
     if (path_is_absolute(filename))
     {
@@ -137,7 +143,7 @@ void remove_from_filename_cache(const char* filename)
     }
 }
 
-void add_filename_to_cache(const char* filename)
+static void add_filename_to_cache(const char* filename)
 {
     if (path_is_absolute(filename))
     {
@@ -165,12 +171,6 @@ void add_filename_to_cache(const char* filename)
 
 static const char* casepath(char const *path, size_t start_offset, bool try_partial_match, filename_cache_response_t* cache_response)
 {
-    if (!case_insensitive_io)
-    {
-        *cache_response = FCR_NONE;
-        return path;
-    }
-
     THREAD_LOCAL static char buffer[PATH_MAX_LENGTH]={0};
     const int buffer_used=snprintf(buffer, PATH_MAX_LENGTH, "%s", path+start_offset);
     char* current_buffer_end = buffer+buffer_used;
@@ -223,10 +223,8 @@ static const char* casepath(char const *path, size_t start_offset, bool try_part
     return path;
 }
 #else
-static const char* casepath(char const *path, size_t start_offset)
-{
-    return path;
-}
+static void add_filename_to_cache(const char* filename) {}
+static void remove_from_filename_cache(const char* filename) {}
 #endif
 
 
@@ -249,6 +247,7 @@ void init_filesystem(const char * content_path, const char * save_dir, struct re
 
     bgd_current_dir=strdup(bgd_dir_root);
 
+#if CASE_INSENSITIVE_FILESYSTEM_EMULATION
     if (case_insensitive_io)
     {
         file_map_lock = slock_new();
@@ -256,6 +255,7 @@ void init_filesystem(const char * content_path, const char * save_dir, struct re
         size_t buffer_size = sizeof(buffer)/sizeof(buffer[0]);
         create_file_map(retro_dir_root, "", buffer, buffer_size);
     }
+#endif
 }
 
 void cleanup_filesystem()
@@ -265,8 +265,10 @@ void cleanup_filesystem()
     free(retro_dir_root);
     free(retro_current_dir);
 
-    destroy_file_map();
+#if CASE_INSENSITIVE_FILESYSTEM_EMULATION
+    destroy_file_map();    
     slock_free(file_map_lock);
+#endif
 }
 
 char* get_content_basename()
@@ -302,7 +304,17 @@ const char* to_retro_path(const char * dir, bool try_partial_match, filename_cac
         if (strstr(dir, bgd_dir_root)==dir)
         {
             snprintf(buffer, PATH_MAX_LENGTH, "%s%s", retro_dir_root, dir+bgd_dir_root_len);
-            return casepath(buffer, retro_dir_root_len, try_partial_match, cache_response);
+
+            #if CASE_INSENSITIVE_FILESYSTEM_EMULATION
+            if (case_insensitive_io)
+            {
+                string_replace_all_chars(buffer, '\\','/');
+                return casepath(buffer, retro_dir_root_len, try_partial_match, cache_response);
+            }
+            #endif
+
+            *cache_response = FCR_NONE;
+            return buffer;
         }
     }
 
