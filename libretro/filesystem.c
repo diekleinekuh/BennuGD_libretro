@@ -88,7 +88,7 @@ static void create_file_map(const char* root_dir, char * directory_name, char* b
 
             file_map_t* entry = RHMAP_PTR_STR(file_map, buffer);
             buffer_used = *directory_name ? snprintf(buffer, buffer_size, "%s%s/%s", root_dir, directory_name, entry_name) : snprintf(buffer, buffer_size, "%s%s", root_dir, entry_name);
-            entry->real_name = strldup(buffer, buffer_used);
+            entry->real_name = strldup(buffer, buffer_used+1);
             entry->is_dir = retro_dirent_is_dir(dir, NULL);
 
             if (entry->is_dir)
