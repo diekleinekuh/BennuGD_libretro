@@ -48,10 +48,8 @@
         "name": "switch",
         "toolchainFile": "/opt/devkitpro/cmake/Switch.cmake",
         "cmakeSettings": {
-            "HAVE_ASPRINTF" : "0"
-        },
-        "environmentVariables": {
-            "CFLAGS" : "-I${workspaceFolder}/cmake/switch/include"
+            "HAVE_ASPRINTF" : "0",
+            "USE_WOLFSSL" : "1"
         }
     }
 ]

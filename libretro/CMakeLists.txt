@@ -1,24 +1,8 @@
 cmake_minimum_required(VERSION 3.14...3.31)
 include(FetchContent)
 include(CheckSymbolExists)
-
-FetchContent_Declare(
-  libretro-common
-  GIT_REPOSITORY https://github.com/libretro/libretro-common.git
-  GIT_TAG        0abedaac6a795c093f2e1a22f3028fca9efdf3c9
-  CONFIGURE_COMMAND " "
-  BUILD_COMMAND " "
-  INSTALL_COMMAND " "
-)
-
-FetchContent_MakeAvailable(  libretro-common )
-
-include_directories(${libretro-common_SOURCE_DIR}/include)
-add_subdirectory(sdl-libretro)
-
-add_subdirectory(sdl_mixer-libretro)
-set(SDL_MIXER_LIBRARIES "sdl_mixer-libretro" PARENT_SCOPE)
-
+include(ExternalProject)
+include(bundle_static_library)
 
 GET_PROPERTY(TARGET_SUPPORTS_SHARED_LIBS_PROPERTY GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
 
@@ -82,4 +66,21 @@ set_target_properties(bennugd_libretro PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEA
 
 target_link_libraries(bennugd_libretro bgdi)
 
-add_library(SDL::SDL ALIAS sdl-libretro)
+if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
+
+    bundle_static_library(bennugd_libretro bennugd_libretro_merged)
+
+    ExternalProject_Add( retroarch
+        URL https://github.com/libretro/RetroArch/releases/download/v1.22.2/retroarch-sourceonly-1.22.2.tar.xz
+        URL_HASH SHA256=a2c9d7aefdf55996fe59f87dd0acc28e0dfd80f48470813b30494ac6c29d2701
+        CONFIGURE_COMMAND ""
+        BUILD_IN_SOURCE TRUE
+        BUILD_ALWAYS TRUE
+        BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting retroarch build"
+        COMMAND cp "$<TARGET_FILE:bennugd_libretro_merged>" libretro_libnx.a
+        COMMAND make NO_ICON=1 -j -f Makefile.libnx
+        COMMAND cp retroarch_switch.nro ${CMAKE_BINARY_DIR}/bennugd_libretro_libnx.nro
+        INSTALL_COMMAND ""
+        DEPENDS bennugd_libretro_merged
+    )
+endif()
