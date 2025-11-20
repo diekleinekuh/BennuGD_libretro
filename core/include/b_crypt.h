@@ -35,6 +35,9 @@
 #define DES_key_sched       key_sched
 #define DES_ecb_encrypt     des_ecb_encrypt
 #define DES_cblock          des_cblock
+#elif defined USE_WOLFSSL
+#include <wolfssl/options.h>
+#include <wolfssl/openssl/des.h>
 #else
 #include <openssl/des.h>
 #endif

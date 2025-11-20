@@ -47,6 +47,9 @@
 
 static int modsys_exec( INSTANCE * my, int * params )
 {
+#if LIBRETRO_CORE
+    return -1;
+#else
     int mode = params[0];
     char * filename = ( char * ) string_get( params[1] );
     int argc = params[2];
@@ -101,6 +104,7 @@ static int modsys_exec( INSTANCE * my, int * params )
     if ( argv ) bgd_free( argv );
 
     return ( status ) ;
+#endif
 }
 
 /* ---------------------------------------------------------------------- */
@@ -109,12 +113,13 @@ static int modsys_getenv( INSTANCE * my, int * params )
 {
     char *e ;
     int str ;
-
+#if !LIBRETRO_CORE
     if (( e = getenv( string_get( params[0] ) ) ) )
     {
         str = string_new( e ) ;
     }
     else
+#endif
     {
         str = string_new( "" ) ;
     }

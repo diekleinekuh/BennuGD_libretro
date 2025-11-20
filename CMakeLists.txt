@@ -20,7 +20,9 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18.0")
     include(CheckLinkerFlag)
 endif()
 
-include(CheckCCompilerFlag)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.19.0")
+    include(CheckCompilerFlag)
+endif()
 
 function(disable_all_warnings target)
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20.0")
@@ -85,28 +87,53 @@ if (NOT NO_SYSTEM_DEPENDENCIES)
     find_package(PNG)
 endif()
 
-if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
-    set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
-    set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
-    set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
-    FetchContent_Declare( libressl 
-        URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
-        URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
-        EXCLUDE_FROM_ALL
-    )
-    FetchContent_MakeAvailable(libressl)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-bundle_static_library")
 
-    disable_all_warnings(crypto_obj)
-    disable_all_warnings(compat_obj)
-    disable_all_warnings(crypto)
-    disable_all_warnings(ssl_obj)
-    disable_all_warnings(bs_obj)
-    disable_all_warnings(ssl)
-    disable_all_warnings(tls_obj)
-    disable_all_warnings(tls_compat_obj)
-    disable_all_warnings(tls)
-    set(OPENSSL_CRYPTO_LIBRARY crypto)
-    message("using internal libcrypto")
+if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
+
+    if (USE_WOLFSSL)
+        set (WOLFSSL_EXAMPLES "no")
+        set (WOLFSSL_CRYPT_TESTS "no")
+        set (WOLFSSL_DES3 "yes")
+        set (WOLFSSL_OPENSSLEXTRA "yes")
+        set(WOLFSSL_CURL "yes")
+        set(WOLFSSL_FILESYSTEM "yes")
+        FetchContent_Declare( wolfssl
+            URL https://github.com/wolfSSL/wolfssl/archive/refs/tags/v5.8.2-stable.tar.gz
+            URL_HASH SHA256=3ef126e3466e2f8f6ebb62b916a7f8fb26c6709dbdf2b63a167759f2fdb53068
+        )    
+        FetchContent_MakeAvailable(wolfssl)    
+        set(OPENSSL_CRYPTO_LIBRARY wolfssl::wolfssl)
+        target_compile_definitions(wolfssl PUBLIC USE_WOLFSSL)
+        target_compile_definitions(wolfssl PRIVATE NO_WRITEV)
+        check_compiler_flag(C -Wno-unused-parameter HAVE_NO_WUNUSED_PARAMETER)
+        if (HAVE_NO_WUNUSED_PARAMETER) 
+            target_compile_options(wolfssl PRIVATE "-Wno-unused-parameter")
+        endif()
+        message("using internal wolfssl")
+    else()
+        set (LIBRESSL_APPS OFF CACHE BOOL "Build apps" FORCE)
+        set (LIBRESSL_TESTS OFF CACHE BOOL "Build tests" FORCE)
+        set (ENABLE_ASM OFF CACHE BOOL "Enable assembly" FORCE)
+        FetchContent_Declare( libressl 
+            URL https://github.com/libressl/portable/releases/download/v3.9.2/libressl-3.9.2.tar.gz
+            URL_HASH SHA256=7b031dac64a59eb6ee3304f7ffb75dad33ab8c9d279c847f92c89fb846068f97
+            EXCLUDE_FROM_ALL
+        )
+        FetchContent_MakeAvailable(libressl)
+
+        disable_all_warnings(crypto_obj)
+        disable_all_warnings(compat_obj)
+        disable_all_warnings(crypto)
+        disable_all_warnings(ssl_obj)
+        disable_all_warnings(bs_obj)
+        disable_all_warnings(ssl)
+        disable_all_warnings(tls_obj)
+        disable_all_warnings(tls_compat_obj)
+        disable_all_warnings(tls)
+        set(OPENSSL_CRYPTO_LIBRARY crypto)
+        message("using internal libcrypto")
+    endif()
 else()
     set(OPENSSL_CRYPTO_LIBRARY OpenSSL::Crypto)
 endif()
@@ -162,7 +189,24 @@ set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_backup} CACHE INTERNAL "" FORCE)
 
 if(libretro_core)
     add_compile_definitions(LIBRETRO_CORE=1)
-    add_subdirectory(libretro)
+
+    FetchContent_Declare(
+    libretro-common
+    GIT_REPOSITORY https://github.com/libretro/libretro-common.git
+    GIT_TAG        0abedaac6a795c093f2e1a22f3028fca9efdf3c9
+    CONFIGURE_COMMAND " "
+    BUILD_COMMAND " "
+    INSTALL_COMMAND " "
+    )
+
+    FetchContent_MakeAvailable(  libretro-common )
+
+    include_directories(${libretro-common_SOURCE_DIR}/include)
+    add_subdirectory(libretro/sdl-libretro)
+    add_subdirectory(libretro/sdl_mixer-libretro)
+    set(SDL_MIXER_LIBRARIES "sdl_mixer-libretro")
+    add_library(SDL::SDL ALIAS sdl-libretro)
+
 else()
     set(SDL_BUILDING_LIBRARY TRUE)
     find_package(SDL 1.2 REQUIRED)
@@ -179,3 +223,7 @@ endif()
 add_subdirectory(core)
 add_subdirectory(modules)
 add_subdirectory(core/bgdi)
+
+if(libretro_core)
+    add_subdirectory(libretro)
+endif()
