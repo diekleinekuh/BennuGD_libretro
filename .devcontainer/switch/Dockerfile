@@ -1,3 +1,3 @@
-FROM devkitpro/devkita64:20250728
+FROM devkitpro/devkita64:20251117
 RUN useradd -ms /bin/bash containeruser
 USER containeruser
