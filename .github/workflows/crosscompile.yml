@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: devkitpro/devkita64:20251117
-      options: --user root
+      options: --user 1001
     steps:
     - uses: actions/checkout@v4
     - name: Set reusable strings
