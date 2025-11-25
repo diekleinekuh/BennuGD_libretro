@@ -72,7 +72,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
 
     ExternalProject_Add( retroarch
         URL https://github.com/libretro/RetroArch/releases/download/v1.22.2/retroarch-sourceonly-1.22.2.tar.xz
-        URL_HASH SHA256=a2c9d7aefdf55996fe59f87dd0acc28e0dfd80f48470813b30494ac6c29d2701
+        URL_HASH SHA256=2a8b1713f7f4d2b53bad3e2297e48d78f5666098cf00d583d3e08f3c213f8aa6
         CONFIGURE_COMMAND ""
         BUILD_IN_SOURCE TRUE
         BUILD_ALWAYS TRUE
