@@ -117,7 +117,7 @@ jobs:
         -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_WARN_DEPRECATED=false
-        -S ${{ github.workspace }}
+        -S $GITHUB_WORKSPACE
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
     - name: Achive build results
