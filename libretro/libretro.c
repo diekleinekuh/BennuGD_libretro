@@ -446,17 +446,32 @@ void RETRO_CALLCONV retro_frame_time_callback(retro_usec_t usec)
 static void RETRO_CALLCONV retro_upload_audio()
 {
     uint64_t sample_rate = last_av_info.timing.sample_rate;
-    size_t frames = (frametime_usec * sample_rate)/ 1000000;
+    double fps = last_av_info.timing.fps;
+    
+    if (fps <= 0)
+    {
+        fps = 60.0;
+    }
+    
+    // Calculate exact samples for this frame
+    size_t frames = (size_t)((double)sample_rate / fps + 0.5);
+    
+    // Switch optimization: send audio in smaller chunks for better latency
+    #ifdef __SWITCH__
+    const size_t max_chunk = 512; // Smaller chunks for Switch
+    #else
+    const size_t max_chunk = audio_mixbuf_frames;
+    #endif
 
-    while(frames)
+    while(frames > 0)
     {
         size_t chunk = frames;
-        if (chunk>audio_mixbuf_frames)
+        if (chunk > max_chunk)
         {
-            chunk = audio_mixbuf_frames;
+            chunk = max_chunk;
         }
 
-        sdl_libretro_runaudio(audio_mixbuf, chunk*audio_frame_size);
+        sdl_libretro_runaudio(audio_mixbuf, chunk * audio_frame_size);
         audio_batch_cb((int16_t*)audio_mixbuf, chunk);
         frames -= chunk;
     }
@@ -839,13 +854,22 @@ void retro_init(void)
     audio_mixbuf = malloc(audio_mixbuf_frames*audio_frame_size);
     sdl_libretro_init_audio();
 
+    // SWITCH FIX: Disable audio callback on Switch
+    use_audio_callback = false;
+    
+    #ifndef __SWITCH__
+    // Only try to use audio callback on non-Switch platforms
     if (!environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &(struct retro_audio_callback){
         &retro_audio_callback,
         &retro_audio_set_state_callback
         } ))
     {
         log_cb(RETRO_LOG_WARN, "RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK failed\n");
+        use_audio_callback = false;
     }
+    #else
+    log_cb(RETRO_LOG_INFO, "Switch platform detected - using manual audio upload\n");
+    #endif
 
     if (!main_thread)
     {
