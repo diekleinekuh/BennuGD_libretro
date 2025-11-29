@@ -71,13 +71,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
     bundle_static_library(bennugd_libretro bennugd_libretro_merged)
 
     ExternalProject_Add( retroarch
-        URL https://github.com/libretro/RetroArch/releases/download/v1.22.2/retroarch-sourceonly-1.22.2.tar.xz
-        URL_HASH SHA256=2a8b1713f7f4d2b53bad3e2297e48d78f5666098cf00d583d3e08f3c213f8aa6
+        GIT_REPOSITORY https://github.com/diekleinekuh/RetroArch.git
+        GIT_TAG switch_audio_drivers_initially_blocking
         CONFIGURE_COMMAND ""
         BUILD_IN_SOURCE TRUE
         BUILD_ALWAYS TRUE
         BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting retroarch build"
         COMMAND cp "$<TARGET_FILE:bennugd_libretro_merged>" libretro_libnx.a
+        COMMAND touch runloop.c # Force a relink 
         COMMAND make NO_ICON=1 -j -f Makefile.libnx
         COMMAND cp retroarch_switch.nro ${CMAKE_BINARY_DIR}/bennugd_libretro_libnx.nro
         INSTALL_COMMAND ""
