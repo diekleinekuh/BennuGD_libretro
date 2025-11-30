@@ -47,6 +47,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
     target_compile_definitions(bennugd_libretro PRIVATE SWITCH=1 )
 endif()
 
+if (CMAKE_TOOLCHAIN_FILE MATCHES "vita.toolchain.cmake")
+    target_compile_definitions(bennugd_libretro PRIVATE VITA=1 )
+endif()
 
 target_include_directories(bennugd_libretro PRIVATE "${libretro-common_SOURCE_DIR}/include")
 
@@ -80,6 +83,24 @@ if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
         COMMAND cp "$<TARGET_FILE:bennugd_libretro_merged>" libretro_libnx.a
         COMMAND make NO_ICON=1 -j -f Makefile.libnx
         COMMAND cp retroarch_switch.nro ${CMAKE_BINARY_DIR}/bennugd_libretro_libnx.nro
+        INSTALL_COMMAND ""
+        DEPENDS bennugd_libretro_merged
+    )
+endif()
+
+if (VITA)
+    bundle_static_library(bennugd_libretro bennugd_libretro_merged)
+    
+    ExternalProject_Add( retroarch
+        URL https://github.com/libretro/RetroArch/releases/download/v1.22.2/retroarch-sourceonly-1.22.2.tar.xz
+        URL_HASH SHA256=2a8b1713f7f4d2b53bad3e2297e48d78f5666098cf00d583d3e08f3c213f8aa6
+        CONFIGURE_COMMAND ""
+        BUILD_IN_SOURCE TRUE
+        BUILD_ALWAYS TRUE
+        BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting retroarch build for PS Vita"
+        COMMAND cp "$<TARGET_FILE:bennugd_libretro_merged>" libretro_vita.a
+        COMMAND make -j -f Makefile.vita.salamander
+        COMMAND vita-make-fself -s retroarchvita_salamander.velf ${CMAKE_BINARY_DIR}/bennugd_libretro_vita.self
         INSTALL_COMMAND ""
         DEPENDS bennugd_libretro_merged
     )
