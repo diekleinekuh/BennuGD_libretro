@@ -152,7 +152,7 @@ jobs:
         -DCMAKE_WARN_DEPRECATED=false
         -DUSE_WOLFSSL=1
         -DWOLFSSL_ASM=0
-        -DCMAKE_C_FLAGS="-DSOMAXCONN=128 -fno-short-enums" \
+        -DCMAKE_C_FLAGS="-DSOMAXCONN=128 -fno-short-enums"
         -DUNIX=FALSE
         -S $GITHUB_WORKSPACE
     - name: Build
