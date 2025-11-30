@@ -133,6 +133,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: vitasdk/vitasdk
+      options: --user 1001      
     steps:
     - uses: actions/checkout@v5
     - name: Set reusable strings
