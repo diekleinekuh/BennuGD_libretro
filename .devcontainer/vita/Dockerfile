@@ -1,1 +1,1 @@
-FROM vitasdk/vitasdk:non-root
+FROM vitasdk/vitasdk

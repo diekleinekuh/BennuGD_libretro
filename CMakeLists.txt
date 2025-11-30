@@ -113,12 +113,6 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
         set(OPENSSL_CRYPTO_LIBRARY wolfssl::wolfssl)
         target_compile_definitions(wolfssl PUBLIC USE_WOLFSSL)
         target_compile_definitions(wolfssl PRIVATE NO_WRITEV)
-
-        if(VITA)
-            #target_link_libraries(wolfssl PUBLIC c m gcc)
-            #target_compile_definitions(wolfssl PUBLIC NO_SCECLIB=1)
-        endif()
-
         check_compiler_flag(C -Wno-unused-parameter HAVE_NO_WUNUSED_PARAMETER)
         if (HAVE_NO_WUNUSED_PARAMETER) 
             target_compile_options(wolfssl PRIVATE "-Wno-unused-parameter")

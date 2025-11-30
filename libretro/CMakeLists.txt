@@ -47,7 +47,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
     target_compile_definitions(bennugd_libretro PRIVATE SWITCH=1 )
 endif()
 
-if (CMAKE_TOOLCHAIN_FILE MATCHES "vita.toolchain.cmake")
+if (VITA)
     target_compile_definitions(bennugd_libretro PRIVATE VITA=1 )
 endif()
 
@@ -90,7 +90,6 @@ endif()
 
 if (VITA)
     bundle_static_library(bennugd_libretro bennugd_libretro_merged)
-    
     ExternalProject_Add( retroarch
         URL https://github.com/libretro/RetroArch/releases/download/v1.22.2/retroarch-sourceonly-1.22.2.tar.xz
         URL_HASH SHA256=2a8b1713f7f4d2b53bad3e2297e48d78f5666098cf00d583d3e08f3c213f8aa6
@@ -99,7 +98,10 @@ if (VITA)
         BUILD_ALWAYS TRUE
         BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting retroarch build for PS Vita"
         COMMAND cp "$<TARGET_FILE:bennugd_libretro_merged>" libretro_vita.a
+        # https://docs.libretro.com/development/retroarch/compilation/psvita/
         COMMAND make -j -f Makefile.vita.salamander
+        #COMMAND make -f Makefile.griffin platform=vita
+        #COMMAND make -j -f Makefile.vita DEBUG=1 HAVE_CHEATS=0 HAVE_NETWORKING=0 PC_DEVELOPMENT_IP_ADDRESS=1 PC_DEVELOPMENT_UDP_PORT=1 
         COMMAND vita-make-fself -s retroarchvita_salamander.velf ${CMAKE_BINARY_DIR}/bennugd_libretro_vita.self
         INSTALL_COMMAND ""
         DEPENDS bennugd_libretro_merged
