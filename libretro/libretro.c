@@ -20,6 +20,7 @@ static bool use_audio_callback;
 static void* audio_mixbuf;
 static const size_t audio_frame_size=2*sizeof(int16_t);
 static const size_t audio_mixbuf_frames=1024;
+static size_t remaining_audio_frames_to_upload = 0;
 
 
 static struct retro_perf_callback retro_perf_interface;
@@ -434,8 +435,17 @@ extern void sdl_libretro_cleanup_audio();
 extern void sdl_libretro_runaudio(void* mixbuf, size_t mixbuf_size);
 static void RETRO_CALLCONV retro_audio_callback(void)
 {
+    if (remaining_audio_frames_to_upload)
+    {
+        remaining_audio_frames_to_upload -= audio_batch_cb((int16_t*)audio_mixbuf + remaining_audio_frames_to_upload - audio_mixbuf_frames, remaining_audio_frames_to_upload);
+        if (remaining_audio_frames_to_upload)
+        {
+            return;
+        }
+    }
+
     sdl_libretro_runaudio(audio_mixbuf, audio_mixbuf_frames*audio_frame_size);
-    audio_batch_cb((int16_t*)audio_mixbuf, audio_mixbuf_frames);
+    remaining_audio_frames_to_upload = audio_mixbuf_frames - audio_batch_cb((int16_t*)audio_mixbuf, audio_mixbuf_frames);
 }
 
 void RETRO_CALLCONV retro_frame_time_callback(retro_usec_t usec)
