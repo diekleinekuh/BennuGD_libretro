@@ -93,7 +93,7 @@ if (VITA)
     bundle_static_library(bennugd_libretro bennugd_libretro_merged)
     ExternalProject_Add( retroarch
         GIT_REPOSITORY https://github.com/libretro/RetroArch.git
-        GIT_TAG v1.19.0
+        GIT_TAG master
         CONFIGURE_COMMAND ""
         BUILD_IN_SOURCE TRUE
         BUILD_ALWAYS TRUE
@@ -103,7 +103,7 @@ if (VITA)
         # https://docs.libretro.com/development/retroarch/compilation/psvita/
         #COMMAND make -j -f Makefile.vita.salamander
         #COMMAND make -f Makefile.griffin platform=vita
-        COMMAND make -j -f Makefile.vita DEBUG=1 HAVE_CHEATS=0 HAVE_NETWORKING=0 PC_DEVELOPMENT_IP_ADDRESS=1 PC_DEVELOPMENT_UDP_PORT=1 
+        COMMAND make -j -f Makefile.vita
         #COMMAND vita-make-fself -s retroarchvita_salamander.velf ${CMAKE_BINARY_DIR}/bennugd_libretro_vita.self
         INSTALL_COMMAND ""
         DEPENDS bennugd_libretro_merged
