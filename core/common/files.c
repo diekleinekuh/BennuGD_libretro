@@ -72,7 +72,9 @@ extern char * gzgets_libretro(struct gzFile_libretro* file, char *buf, size_t le
 
 const char* resolve_bgd_path(const char * dir);
 
-
+#ifdef feof
+#undef feof
+#endif
 
 #define fopen(filename,mode)                            fopen_libretro(filename, mode)
 #define fclose(stream)                                  fclose_libretro(stream)
