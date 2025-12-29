@@ -74,24 +74,37 @@ static int embedded    = 0;  /* 1 only if this is a stub with an embedded DCB */
  *
  */
 #if LIBRETRO_CORE
+#include "libretro.h"
+extern retro_log_printf_t log_cb;
+
 int bgdi_main(int argc, char *argv[])
 #else
 int main( int argc, char *argv[] )
 #endif
 {
-    bgd_malloc_initialize();
+    if (!bgd_malloc_initialize())
+    {
+#if LIBRETRO_CORE
+        log_cb(RETRO_LOG_ERROR, "Failed to initialize allocator\n");
+#else
+        fprintf( stderr, "Failed to initialize allocator" ) ;
+#endif
+        return -1;
+    }
 
     char * filename = NULL, dcbname[ __MAX_PATH ], *ptr, *arg0;
     int i, j, ret = -1;
     file * fp = NULL;
     dcb_signature dcb_signature;
 
+#if !LIBRETRO_CORE
     /* disable stdout buffering */
     setvbuf( stdout, NULL, _IONBF, BUFSIZ );
+#endif
 
     /* get my executable name */
 
-#ifdef _WIN32
+#if defined _WIN32 && !LIBRETRO_CORE
     if ( strlen( argv[0] ) < 4 || strncmpi( &argv[0][strlen( argv[0] ) - 4], ".exe", 4 ) )
     {
         arg0 = bgd_malloc( strlen( argv[0] ) + 5 );
@@ -99,10 +112,10 @@ int main( int argc, char *argv[] )
     }
     else
     {
-#endif
         arg0 = bgd_strdup( argv[0] );
-#ifdef _WIN32
     }
+#else
+    arg0 = bgd_strdup( argv[0] );
 #endif
 
     ptr = arg0 + strlen( arg0 );
@@ -327,7 +340,7 @@ fflush(stdout);
 
     sysproc_init() ;
 
-#ifdef _WIN32
+#if defined _WIN32 && !LIBRETRO_CORE
     HWND hWnd = /*GetForegroundWindow()*/ GetConsoleWindow();
     DWORD dwProcessId;
     GetWindowThreadProcessId( hWnd, &dwProcessId );
