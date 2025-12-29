@@ -125,7 +125,7 @@ jobs:
     - name: Achive build results
       uses: actions/upload-artifact@v4
       with:
-        name: bennugd_libretro.switch-libnx-release
+        name: bennugd_libretro.switch-libnx.Release
         path: ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro_libnx.nro
 
   master-branch-release:
