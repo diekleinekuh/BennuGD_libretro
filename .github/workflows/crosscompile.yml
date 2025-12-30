@@ -161,12 +161,12 @@ jobs:
     - name: Achive build results
       uses: actions/upload-artifact@v5
       with:
-        name: bennugd_libretro_vita
+        name: bennugd_libretro.vita.Release
         path: ${{ steps.strings.outputs.build-output-dir }}/bennugd_libretro_vita.self
 
   master-branch-release:
     runs-on: ubuntu-latest
-    needs: [zig-build,android-build,switch-build]
+    needs: [zig-build,android-build,switch-build,vita-build]
     permissions:
       contents: write
     if: github.ref == 'refs/heads/master'
