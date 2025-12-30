@@ -752,7 +752,9 @@ static pthread_key_t _memory_thread_heap;
 #    define TLS_MODEL
 #  else
 #    ifndef __HAIKU__
-#      define TLS_MODEL __attribute__((tls_model("initial-exec")))
+#      ifndef TLS_MODEL
+#        define TLS_MODEL __attribute__((tls_model("initial-exec")))
+#      endif
 #    else
 #      define TLS_MODEL
 #    endif
@@ -3639,11 +3641,11 @@ rpmalloc_get_heap_for_ptr(void* ptr)
 
 #endif
 
-#if ENABLE_PRELOAD || ENABLE_OVERRIDE
+// #if ENABLE_PRELOAD || ENABLE_OVERRIDE
 
-#include "malloc.c"
+// #include "malloc.c"
 
-#endif
+// #endif
 
 void
 rpmalloc_linker_reference(void) {

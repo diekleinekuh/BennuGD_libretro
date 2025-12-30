@@ -103,8 +103,6 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
         set (WOLFSSL_OPENSSLEXTRA "yes")
         set(WOLFSSL_CURL "yes")
         set(WOLFSSL_FILESYSTEM "yes")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_SCECLIB=1")
-
         FetchContent_Declare( wolfssl
             URL https://github.com/wolfSSL/wolfssl/archive/refs/tags/v5.8.2-stable.tar.gz
             URL_HASH SHA256=3ef126e3466e2f8f6ebb62b916a7f8fb26c6709dbdf2b63a167759f2fdb53068
