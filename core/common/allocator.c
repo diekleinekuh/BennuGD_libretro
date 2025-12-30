@@ -160,7 +160,6 @@ static void bgd_unmap(void* address, size_t size, size_t offset, size_t release)
 			rpmalloc_assert(0, "Failed to madvise virtual memory block as free");
 		}
 	//}
-#else
 #endif
 }
 
