@@ -99,12 +99,9 @@ if (VITA)
         BUILD_ALWAYS TRUE
         BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting retroarch build for PS Vita"
         COMMAND cp "$<TARGET_FILE:bennugd_libretro_merged>" libretro_vita.a
-        COMMAND touch runloop.c # Force a relink 
         # https://docs.libretro.com/development/retroarch/compilation/psvita/
-        #COMMAND make -j -f Makefile.vita.salamander
-        #COMMAND make -f Makefile.griffin platform=vita
-        COMMAND make -j -f Makefile.vita
-        #COMMAND vita-make-fself -s retroarchvita_salamander.velf ${CMAKE_BINARY_DIR}/bennugd_libretro_vita.self
+        COMMAND make -f Makefile.griffin platform=vita
+        COMMAND vita-make-fself retroarch_vita.elf ${CMAKE_BINARY_DIR}/bennugd_libretro_vita.self
         INSTALL_COMMAND ""
         DEPENDS bennugd_libretro_merged
     )
