@@ -90,18 +90,19 @@ if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
 endif()
 
 if (VITA)
+    # https://docs.libretro.com/development/retroarch/compilation/psvita/
     bundle_static_library(bennugd_libretro bennugd_libretro_merged)
     ExternalProject_Add( retroarch
         GIT_REPOSITORY https://github.com/libretro/RetroArch.git
-        GIT_TAG master
+        GIT_TAG v1.22.2
         CONFIGURE_COMMAND ""
         BUILD_IN_SOURCE TRUE
         BUILD_ALWAYS TRUE
         BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Starting retroarch build for PS Vita"
         COMMAND cp "$<TARGET_FILE:bennugd_libretro_merged>" libretro_vita.a
-        # https://docs.libretro.com/development/retroarch/compilation/psvita/
-        COMMAND make -f Makefile.griffin platform=vita
-        COMMAND vita-make-fself retroarch_vita.elf ${CMAKE_BINARY_DIR}/bennugd_libretro_vita.self
+        COMMAND make -f Makefile.vita.salamander
+        #COMMAND make -f Makefile.griffin platform=vita
+        COMMAND vita-make-fself retroarchvita_salamander.elf ${CMAKE_BINARY_DIR}/bennugd_libretro_vita.self
         INSTALL_COMMAND ""
         DEPENDS bennugd_libretro_merged
     )
