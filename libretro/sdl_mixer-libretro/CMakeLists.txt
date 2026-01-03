@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(sdl-mixer C)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
-set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 include(FetchContent)
 

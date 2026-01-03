@@ -55,10 +55,18 @@ typedef enum filename_cache_response
 #include <compat/strl.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include "rthreads/rthreads.h"
 #include "array/rhmap.h"
 
+#if NO_RTHREAD_SUPPORT
+static void* file_map_lock=NULL;
+void* slock_new() { return NULL; }
+void slock_lock(void* lock) {}
+void slock_unlock(void* lock) {}
+void slock_free(void* lock) {}
+#else
+#include "rthreads/rthreads.h"
 static slock_t* file_map_lock=NULL;
+#endif
 
 typedef struct file_map
 {

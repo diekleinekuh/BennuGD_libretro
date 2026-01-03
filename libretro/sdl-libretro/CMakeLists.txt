@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(sdl-libretro C)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
+#set(THREADS_PREFER_PTHREAD_FLAG ON)
+#find_package(Threads)
 
 set (SDL-src
     src/SDL.c
@@ -40,10 +40,10 @@ set (SDL-src
     src/stdlib/SDL_string.c
 
     src/thread/SDL_thread.c
-    src/thread/generic/SDL_syssem.c
-    src/thread/libretro/SDL_syscond.c
-    src/thread/libretro/SDL_sysmutex.c
-    src/thread/libretro/SDL_systhread.c
+    #src/thread/generic/SDL_syssem.c
+    #src/thread/libretro/SDL_syscond.c
+    #src/thread/libretro/SDL_sysmutex.c
+    #src/thread/libretro/SDL_systhread.c
 
     src/timer/SDL_timer.c
     src/timer/libretro/SDL_systimer.c
@@ -75,8 +75,29 @@ set (SDL-src
     src/loadso/dummy/SDL_sysloadso.c
 )
 
-add_compile_definitions(__LIBRETRO__ LSB_FIRST )
+set(SDL-compile-definitions
+    __LIBRETRO__
+    LSB_FIRST
+)
+
+if (Threads_FOUND)
+    list(APPEND SDL-src
+        src/thread/generic/SDL_syssem.c
+        src/thread/libretro/SDL_syscond.c
+        src/thread/libretro/SDL_sysmutex.c
+        src/thread/libretro/SDL_systhread.c
+    )
+else()
+    list(APPEND SDL-compile-definitions SDL_THREADS_DISABLED=1)
+    list(APPEND SDL-src
+        src/thread/generic/SDL_syssem.c
+        src/thread/generic/SDL_syscond.c
+        src/thread/generic/SDL_sysmutex.c
+        src/thread/generic/SDL_systhread.c
+    )
+endif()
 
 add_library( sdl-libretro STATIC ${SDL-src})
-target_link_libraries(sdl-libretro Threads::Threads)
 target_include_directories(sdl-libretro PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+target_compile_definitions(sdl-libretro PRIVATE ${SDL-compile-definitions})

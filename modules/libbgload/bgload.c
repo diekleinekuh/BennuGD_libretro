@@ -75,7 +75,15 @@ int bgload( int ( *fn )(const char*), int * params )
 {
     bgdata *t = prep( params );
     t->fn = fn;
-    SDL_CreateThread( bgDoLoad, ( void * )t );
+    if (SDL_CreateThread( bgDoLoad, ( void * )t ))
+    {
+        return 0;
+    }
+    else
+    {
+        bgDoLoad(t);
+    }
+
     return 0 ;
 }
 

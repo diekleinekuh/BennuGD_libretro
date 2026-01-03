@@ -51,5 +51,22 @@
             "HAVE_ASPRINTF" : "0",
             "USE_WOLFSSL" : "1"
         }
+    },
+    {
+        "name": "wii",
+        "toolchainFile": "/opt/devkitpro/cmake/Wii.cmake",
+        "cmakeSettings": {
+            "HAVE_ASPRINTF" : "0",
+            "USE_WOLFSSL" : "1"
+        }
+    },
+    {
+        "name": "WiiU",
+        "toolchainFile": "/opt/devkitpro/cmake/WiiU.cmake",
+        "cmakeSettings": {
+            "USE_WOLFSSL" : "1",
+            "WOLFSSL_SINGLE_THREADED": "On",
+            "BUILD_CRYPTONLY": "Off"
+        }
     }
 ]

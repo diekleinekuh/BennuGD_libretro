@@ -15,7 +15,8 @@
 
 static struct retro_vfs_interface_info retro_vfs_interface_info = { 3, NULL};
 
-static retro_usec_t frametime_usec;
+static retro_usec_t frametime_usec = 0;
+static retro_usec_t monotonic_time = 0;
 static bool use_audio_callback;
 static void* audio_mixbuf;
 static const size_t audio_frame_size=2*sizeof(int16_t);
@@ -27,6 +28,11 @@ static struct retro_perf_callback retro_perf_interface;
 
 uint64_t retro_get_microseconds()
 {
+    if (monotonic_time>0)
+    {
+        return monotonic_time;
+    }
+
     if (retro_perf_interface.get_time_usec)
     {
         return retro_perf_interface.get_time_usec();
@@ -327,7 +333,7 @@ static void set_core_options()
             .info = "Scaling in pixels",
             .default_value = "20",
             .values = { D_PX(""), D_PX("1"), D_PX("2"), D_PX("3"), D_PX("4"), D_PX("5"), D_PX("6"), D_PX("7"), D_PX("8"), D_PX("9"), { "100", "100px"},{ NULL, NULL} }
-        },        
+        },
         get_mouse_button_mapping(0),
         get_mouse_button_mapping(1),
         get_mouse_button_mapping(2),
@@ -338,6 +344,8 @@ static void set_core_options()
         {NULL}
     };
     #undef DECILE
+    #undef D_PERCENT
+    #undef D_PX
 
     // check options version
     unsigned core_options_version=0;
@@ -361,7 +369,7 @@ static void set_core_options()
             variables[i].key = option->key;
 
             size_t buffer_size = write_legacy_option(NULL, 0, option);
-            char* buffer = malloc(buffer_size + 1);            
+            char* buffer = malloc(buffer_size + 1);
             write_legacy_option(buffer, buffer_size, option);
             variables[i].value = buffer;
         }
@@ -451,6 +459,7 @@ static void RETRO_CALLCONV retro_audio_callback(void)
 void RETRO_CALLCONV retro_frame_time_callback(retro_usec_t usec)
 {
     frametime_usec = usec;
+    monotonic_time += usec;
 }
 
 static void RETRO_CALLCONV retro_upload_audio()
@@ -849,13 +858,13 @@ void retro_init(void)
     audio_mixbuf = malloc(audio_mixbuf_frames*audio_frame_size);
     sdl_libretro_init_audio();
 
-    if (!environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &(struct retro_audio_callback){
-        &retro_audio_callback,
-        &retro_audio_set_state_callback
-        } ))
-    {
-        log_cb(RETRO_LOG_WARN, "RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK failed\n");
-    }
+    // if (!environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK, &(struct retro_audio_callback){
+    //     &retro_audio_callback,
+    //     &retro_audio_set_state_callback
+    //     } ))
+    // {
+    //     log_cb(RETRO_LOG_WARN, "RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK failed\n");
+    // }
 
     if (!main_thread)
     {

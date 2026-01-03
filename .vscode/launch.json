@@ -8,8 +8,10 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "retroarch",
-            "args": ["-L","${workspaceFolder}/build/bennugd_libretro.so", 
+            "program": "/usr/bin/retroarch",
+            "args": [
+                "-v", "--log-file", "${env:HOME}/retroarch.log",
+                "-L","${workspaceFolder}/build/bennugd_libretro.so", 
                 "${env:HOME}/SORR/SorR.dat"],
             "cwd": "${workspaceFolder}"
         },
