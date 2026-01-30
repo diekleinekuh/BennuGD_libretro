@@ -464,20 +464,46 @@ void RETRO_CALLCONV retro_frame_time_callback(retro_usec_t usec)
 
 static void RETRO_CALLCONV retro_upload_audio()
 {
-    uint64_t sample_rate = last_av_info.timing.sample_rate;
-    size_t frames = (frametime_usec * sample_rate)/ 1000000;
+    static size_t remaining_frames_in_buffer=0;
 
-    while(frames)
+    if (remaining_frames_in_buffer)
     {
-        size_t chunk = frames;
+        remaining_frames_in_buffer -= audio_batch_cb((int16_t*)audio_mixbuf + remaining_frames_in_buffer - audio_mixbuf_frames, remaining_frames_in_buffer);
+        if (remaining_frames_in_buffer)
+        {
+            return;
+        }
+    }
+
+    uint64_t sample_rate = last_av_info.timing.sample_rate;
+
+    int64_t audio_upload_usec=1000000/fps_value;
+    if (last_av_info.timing.fps>0)
+    {
+        audio_upload_usec = (int64_t)(1000000.0/last_av_info.timing.fps);
+    }
+
+
+    static size_t remaining_frames=0;
+
+    remaining_frames = (audio_upload_usec * sample_rate)/ 1000000;
+
+    while(remaining_frames)
+    {
+        size_t chunk = remaining_frames;
         if (chunk>audio_mixbuf_frames)
         {
             chunk = audio_mixbuf_frames;
         }
 
         sdl_libretro_runaudio(audio_mixbuf, chunk*audio_frame_size);
-        audio_batch_cb((int16_t*)audio_mixbuf, chunk);
-        frames -= chunk;
+        remaining_frames-=chunk;
+        size_t submitted = audio_batch_cb((int16_t*)audio_mixbuf, chunk);
+        if (submitted < chunk)
+        {
+            remaining_frames_in_buffer = chunk - submitted;
+            break;
+        }
     }
 }
 
@@ -787,20 +813,15 @@ void retro_init(void)
     }
 
 
-    enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
-    //if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
+    enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_RGB565;
+    if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
     {
-        log_cb(RETRO_LOG_WARN, "RETRO_PIXEL_FORMAT_XRGB8888 not supported.\n");
-        fmt = RETRO_PIXEL_FORMAT_RGB565;
-        if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
-        {
-            log_cb(RETRO_LOG_WARN, "RETRO_PIXEL_FORMAT_RGB565 not supported.\n");
-            libretro_depth=15;
-        }
-        else
-        {
-            libretro_depth=16;
-        }
+        log_cb(RETRO_LOG_WARN, "RETRO_PIXEL_FORMAT_RGB565 not supported.\n");
+        libretro_depth=15;
+    }
+    else
+    {
+        libretro_depth=16;
     }
 
     {
