@@ -1,0 +1,16 @@
+.PHONY: build
+
+build:
+	cmake -B build \
+	-DCMAKE_TOOLCHAIN_FILE=/usr/local/vitasdk/share/vita.toolchain.cmake \
+	-DCMAKE_C_COMPILER=/usr/local/vitasdk/bin/arm-vita-eabi-gcc \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_WARN_DEPRECATED=false \
+	-DUSE_WOLFSSL=1 \
+	-DWOLFSSL_ASM=0 \
+    -DHAVE_ASPRINTF=1 \
+	-DCMAKE_C_FLAGS="-DSOMAXCONN=128 -fno-short-enums" \
+	-DCMAKE_CXX_FLAGS="-fno-short-enums" \
+	-DUNIX=FALSE \
+	-S .
+	cmake --build build
