@@ -936,6 +936,12 @@ unsigned retro_get_region(void)
 void retro_run(void)
 {
     input_poll_cb();
+
+    // When retroarch is configured to do late polling it will poll input on the first call to input_state_cb in a frame.
+    // This seems to cause problems when running under Android with libco. 
+    // If the first call to input_state_cb comes from a libco thread the polling will fail and sometimes crash.
+    // So this call here triggers input polling before entering the bennugd thread to make sure it happens before.
+    libretro_input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, 0); 
     bool update_varaibles = false;
     if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &update_varaibles))
     {
