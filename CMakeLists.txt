@@ -73,6 +73,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 
 
+if (CMAKE_TOOLCHAIN_FILE MATCHES "vita.toolchain.cmake")
+    include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+    set(VITA TRUE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
+endif()
+
 include(FetchContent)
 
 # turn off building shared libraries for dependencies
