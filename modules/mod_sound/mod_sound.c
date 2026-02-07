@@ -183,7 +183,7 @@ static int sound_init()
         else
             audio_rate = 11025;
 
-        audio_format = AUDIO_S16;
+        audio_format = AUDIO_S16SYS;
         audio_channels = GLODWORD( mod_sound, SOUND_MODE ) + 1;
         audio_buffers = 1024 * audio_rate / 22050;
 

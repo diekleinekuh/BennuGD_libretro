@@ -126,7 +126,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 
 	if (!obtained)
 	{
-		if (desired->format!=AUDIO_S16)
+		if (desired->format!=AUDIO_S16SYS)
 		{
 			SDL_SetError("SDL_OpenAudio() only AUDIO_S16 is supported in libretro implementation");
 			return(-1);
@@ -158,7 +158,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 
 	// This is what libretro expects
 	current_audio->spec.channels = 2;
-	current_audio->spec.format = AUDIO_S16;	
+	current_audio->spec.format = AUDIO_S16SYS;	
 	current_audio->spec.freq = desired->freq;
 	current_audio->spec.samples = 1024;
 	SDL_CalculateAudioSpec(&current_audio->spec);

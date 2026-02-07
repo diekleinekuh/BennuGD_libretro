@@ -56,7 +56,7 @@
 #define SDL_HAS_64BIT_TYPE 1
 /* Endianness */
 //#undef SDL_BYTEORDER
-#define SDL_BYTEORDER 1234
+//#define SDL_BYTEORDER 1234
 
 /* Comment this if you want to build without any C library requirements */
 //#undef HAVE_LIBC
