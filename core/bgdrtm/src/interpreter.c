@@ -70,9 +70,9 @@ static int stack_dump( INSTANCE * r ) {
     while ( ptr < r->stack_ptr ) {
         if ( i == 5 ) {
             i = 0;
-            printf( "\n" );
+            debug_output( "\n" );
         }
-        printf( "%08X ", *ptr++ );
+        debug_output( "%08X ", *ptr++ );
         i++;
     }
 
@@ -187,7 +187,7 @@ int instance_go( INSTANCE * r ) {
     /* Restore if exit by debug                                                        */
 
     if ( debug > 0 ) {
-        printf( "\n>>> Instance:%s ProcID:%d StackUsed:%d/%d\n", r->proc->name,
+        debug_output( ">>> Instance:%s ProcID:%d StackUsed:%d/%d\n", r->proc->name,
                                                                  LOCDWORD( r, PROCESS_ID ),
                                                                  (int)( r->stack_ptr - r->stack ) / (int)sizeof( r->stack[0] ),
                                                                  ( r->stack[0] & ~STACK_RETURN_VALUE )
@@ -237,11 +237,11 @@ main_loop_instance_go:
             if ( debug > 2 )
             {
                 int c = 45 - stack_dump( r ) * 9;
-                if ( debug > 1 ) printf( "%*.*s[%4u] ", c, c, "", (int)( ptr - r->code ) );
+                debug_output( "%*.*s[%4u] ", c, c, "", (int)( ptr - r->code ) );
             }
-            else if ( debug > 1 ) printf( "[%4u] ", (int)( ptr - r->code ) );
+            else if ( debug > 1 ) debug_output( "[%4u] ", (int)( ptr - r->code ) );
             mnemonic_dump( *ptr, ptr[1] );
-            fflush(stdout);
+            //fflush(stdout);
         }
 
         switch ( *ptr )
@@ -2035,7 +2035,7 @@ main_loop_instance_go:
 
             case MN_DEBUG:
                 if ( dcb.data.NSourceFiles ) {
-                    if ( debug > 0 ) printf( "\n::: DEBUG from %s(%d)\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
+                    if ( debug > 0 ) debug_output( "\n::: DEBUG from %s(%d)\n", r->proc->name, LOCDWORD( r, PROCESS_ID ) );
                     trace_sentence = -1;
                     debugger_show_console = 1;
                 }

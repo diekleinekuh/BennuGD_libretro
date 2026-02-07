@@ -16,6 +16,10 @@
         "toolchainFile": "${workspaceFolder}/cmake/zig.toolchain.arm-linux-gnueabihf"
     },
     {
+        "name": "zig powerpc-linux-gnueabi",
+        "toolchainFile": "${workspaceFolder}/cmake/zig.toolchain.powerpc-linux-gnueabi"
+    },
+    {
         "name": "zig aarch64-macos",
         "toolchainFile": "${workspaceFolder}/cmake/zig.toolchain.aarch64-macos"
     },

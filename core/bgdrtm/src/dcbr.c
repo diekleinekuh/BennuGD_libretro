@@ -43,6 +43,8 @@
 #define SYSPROCS_ONLY_DECLARE
 #include "sysprocs.h"
 
+#include "libretro.h"
+extern retro_log_printf_t log_cb;
 /* --------------------------------------------------------------------------- */
 
 void * globaldata = 0 ;
@@ -201,6 +203,7 @@ DCB_VAR * read_and_arrange_varspace( file * fp, int count )
         file_read( fp, &vars[n], sizeof( DCB_VAR ) ) ;
         ARRANGE_DWORD( &vars[n].ID );
         ARRANGE_DWORD( &vars[n].Offset );
+        ARRANGE_DWORD( &vars[n].Varspace );
         for ( n1 = 0; n1 < MAX_TYPECHUNKS; n1++ ) ARRANGE_DWORD( &vars[n].Type.Count[n1] );
         ARRANGE_DWORD( &vars[n].Type.Members );
     }
@@ -208,17 +211,138 @@ DCB_VAR * read_and_arrange_varspace( file * fp, int count )
     return vars;
 }
 
+//#if __BYTEORDER == __BIG_ENDIAN
+static uint32_t fix_endianess_type(uint8_t* dst, DCB_TYPEDEF* var);
+static void fix_endianess_data(int* data, DCB_VAR* variables, int count)
+{
+    for (int i=0; i<count; ++i)
+    {
+        fix_endianess_type((uint8_t*)data + variables[i].Offset, &variables[i].Type);
+    }
+}
+static uint32_t fix_endianess_types( uint8_t * dst, DCB_TYPEDEF * var, int nvars)
+{
+    int result = 0;
+    int partial;
+    DCB_TYPEDEF * _var = var;
+    int _nvars = nvars ;
+
+    for ( ; nvars > 0; nvars--, var++ )
+    {
+        partial = fix_endianess_type( dst, var );
+        result += partial;
+        dst += partial;
+    }
+    return result;
+}
+
+static int fix_endianess_vars( void * dst, DCB_VAR * vars, int nvars )
+{
+    int result = 0;
+    int partial;
+
+    // for ( ; nvars > 0; nvars--, var++ )
+    // {
+    //     partial = fix_endianess_type( dst, &var->Type );
+    //     dst += partial;
+    //     result += partial;
+    // }
+
+    for ( int n=0; n < nvars; ++n)
+    {        
+        partial = fix_endianess_type((uint8_t*)dst + vars[n].Offset, &vars[n].Type );
+        result += partial;
+    }
+
+    return result;
+}
+
+static inline void SwapBytes(uint8_t* left, uint8_t* right)
+{
+    uint8_t tmp=*left;
+    *left=*right;
+    *right=tmp;
+}
+
+static uint32_t fix_endianess_type(uint8_t* dst, DCB_TYPEDEF* var)
+{
+
+#define SWAP_DWORD(a) { SwapBytes(a, a+3); SwapBytes(a+1, a+2); }
+#define SWAP_WORD(a)  { SwapBytes(a, a+1); }
+#define SWAP_DWORDS(a,n) { for(int i=0; i<n; ++i) { SWAP_DWORD(a+n*4)}  }
+#define SWAP_WORDS(a,n)  { for(int i=0; i<n; ++i) { SWAP_WORD(a+n*2) }  }
+
+    int count  = 1;
+    int result = 0;
+    int n      = 0;
+
+    for ( ;; )
+    {
+        switch ( var->BaseType[n] )
+        {
+            case TYPE_FLOAT:
+            case TYPE_INT:
+            case TYPE_DWORD:
+            case TYPE_POINTER:
+                SWAP_DWORDS(dst, count);
+                return 4 * count;
+
+            case TYPE_WORD:
+            case TYPE_SHORT:
+                SWAP_WORDS(dst, count);
+                return 2 * count;
+
+            case TYPE_BYTE:
+            case TYPE_SBYTE:
+            case TYPE_CHAR:
+                return count;
+
+            case TYPE_STRING:
+                while ( count-- )
+                {
+                    SWAP_DWORD(dst);
+                    dst = dst +4;
+                    result += 4;
+                }
+                return result;
+
+            case TYPE_ARRAY:
+                count *= var->Count[n];
+                n++;
+                continue;
+
+            case TYPE_STRUCT:
+                for ( ; count ; count-- )
+                {
+                    int partial = fix_endianess_vars( dst, dcb.varspace_vars[var->Members], dcb.varspace[var->Members].NVars );
+                    dst = (( uint8_t* )dst ) + partial;
+                    result += partial;
+                }
+                break;
+
+            default:
+                fprintf( stderr, "ERROR: Runtime error - Could not fix endianess datatype\n" ) ;
+                exit( 1 );
+                break;
+        }
+        break;
+    }
+    return result;
+}
+//#endif
 /* ---------------------------------------------------------------------- */
 
 int dcb_load_from( file * fp, const char * filename, int offset )
 {
+    log_cb(RETRO_LOG_DEBUG, "dcb_load_from\n");
     unsigned int n ;
     uint32_t size;
 
     /* Lee el contenido del fichero */
 
     file_seek( fp, offset, SEEK_SET );
-    file_read( fp, &dcb, sizeof( DCB_HEADER_DATA ) ) ;
+    memset(&dcb, 0, sizeof( DCB_HEADER_DATA ));
+    file_read( fp, &dcb, sizeof( DCB_HEADER_DATA ) ) ;    
 
     ARRANGE_DWORD( &dcb.data.Version );
     ARRANGE_DWORD( &dcb.data.NProcs );
@@ -228,6 +352,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
     ARRANGE_DWORD( &dcb.data.NLocVars );
     ARRANGE_DWORD( &dcb.data.NLocStrings );
     ARRANGE_DWORD( &dcb.data.NGloVars );
+    ARRANGE_DWORD( &dcb.data.NVarSpaces );
 
     ARRANGE_DWORD( &dcb.data.SGlobal );
     ARRANGE_DWORD( &dcb.data.SLocal );
@@ -257,6 +382,8 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( memcmp( dcb.data.Header, DCB_MAGIC, sizeof( DCB_MAGIC ) - 1 ) != 0 || dcb.data.Version < 0x0700 ) return 0 ;
 
+    log_cb(RETRO_LOG_DEBUG, "dcb_load_from: SGlobal=%d SLocal=%d NLocStrings=%d NProcs=%d NVarSpaces=%d\n", dcb.data.SGlobal, dcb.data.SLocal, dcb.data.NLocStrings, dcb.data.NProcs, dcb.data.NVarSpaces);
+
     globaldata = bgd_calloc( dcb.data.SGlobal + 4, 1 ) ;
     localdata  = bgd_calloc( dcb.data.SLocal + 4, 1 ) ;
     localstr   = ( int * ) bgd_calloc( dcb.data.NLocStrings + 4, sizeof( int ) ) ;
@@ -282,8 +409,11 @@ int dcb_load_from( file * fp, const char * filename, int offset )
     }
 
     file_seek( fp, offset + dcb.data.OProcsTab, SEEK_SET ) ;
+
+    log_cb(RETRO_LOG_DEBUG, "loop dcb.data.NProcs\n");
     for ( n = 0 ; n < dcb.data.NProcs ; n++ )
     {
+        //log_cb(RETRO_LOG_DEBUG, "loop dcb.data.NProcs n=%d\n", n);
         file_read( fp, &dcb.proc[n], sizeof( DCB_PROC_DATA ) ) ;
 
         ARRANGE_DWORD( &dcb.proc[n].data.ID );
@@ -330,13 +460,16 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( dcb.data.NFiles )
     {
+        log_cb(RETRO_LOG_DEBUG, "loop dcb.data.NFiles\n");
         DCB_FILE dcbfile;
         char fname[__MAX_PATH];
 
         xfile_init( dcb.data.NFiles );
         file_seek( fp, offset + dcb.data.OFilesTab, SEEK_SET ) ;
+        
         for ( n = 0 ; n < dcb.data.NFiles; n++ )
         {
+            //log_cb(RETRO_LOG_DEBUG, "loop dcb.data.NFiles n=%d\n", n);
             file_read( fp, &dcbfile, sizeof( DCB_FILE ) ) ;
 
             ARRANGE_DWORD( &dcbfile.SName );
@@ -352,6 +485,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( dcb.data.NImports )
     {
+        log_cb(RETRO_LOG_DEBUG, "NImports\n");
         dcb.imports = ( uint32_t * )bgd_calloc( dcb.data.NImports, sizeof( uint32_t ) ) ;
         file_seek( fp, offset + dcb.data.OImports, SEEK_SET ) ;
         file_readUint32A( fp, dcb.imports, dcb.data.NImports ) ;
@@ -361,11 +495,13 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( dcb.data.NID )
     {
+        log_cb(RETRO_LOG_DEBUG, "loop dcb.data.NID\n");
         dcb.id = ( DCB_ID * ) bgd_calloc( dcb.data.NID, sizeof( DCB_ID ) ) ;
         file_seek( fp, offset + dcb.data.OID, SEEK_SET ) ;
 
         for ( n = 0; n < dcb.data.NID; n++ )
         {
+            //log_cb(RETRO_LOG_DEBUG, "loop dcb.data.NID n=%d\n", n);
             file_read( fp, &dcb.id[n], sizeof( DCB_ID ) ) ;
             ARRANGE_DWORD( &dcb.id[n].Code );
         }
@@ -385,12 +521,14 @@ int dcb_load_from( file * fp, const char * filename, int offset )
 
     if ( dcb.data.NVarSpaces )
     {
+        log_cb(RETRO_LOG_DEBUG, "dcb.data.NVarSpaces=%d\n", dcb.data.NVarSpaces);
         dcb.varspace = ( DCB_VARSPACE * ) bgd_calloc( dcb.data.NVarSpaces, sizeof( DCB_VARSPACE ) ) ;
         dcb.varspace_vars = ( DCB_VAR ** ) bgd_calloc( dcb.data.NVarSpaces, sizeof( DCB_VAR * ) ) ;
         file_seek( fp, offset + dcb.data.OVarSpaces, SEEK_SET ) ;
 
         for ( n = 0; n < dcb.data.NVarSpaces; n++ )
         {
+            //log_cb(RETRO_LOG_DEBUG, "read DCB_VARSPACE n=%d\n", n);
             file_read( fp, &dcb.varspace[n], sizeof( DCB_VARSPACE ) ) ;
             ARRANGE_DWORD( &dcb.varspace[n].NVars );
             ARRANGE_DWORD( &dcb.varspace[n].OVars );
@@ -401,12 +539,14 @@ int dcb_load_from( file * fp, const char * filename, int offset )
             dcb.varspace_vars[n] = 0 ;
             if ( !dcb.varspace[n].NVars ) continue ;
             file_seek( fp, offset + dcb.varspace[n].OVars, SEEK_SET ) ;
+            //log_cb(RETRO_LOG_DEBUG, "read read_and_arrange_varspace n=%d\n", n);
             dcb.varspace_vars[n] = read_and_arrange_varspace( fp, dcb.varspace[n].NVars );
         }
     }
 
     if ( dcb.data.NSourceFiles )
     {
+        log_cb(RETRO_LOG_DEBUG, "dcb.data.NSourceFiles\n");
         char fname[__MAX_PATH] ;
 
         dcb.sourcecount = ( uint32_t * ) bgd_calloc( dcb.data.NSourceFiles, sizeof( uint32_t ) ) ;
@@ -415,6 +555,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
         file_seek( fp, offset + dcb.data.OSourceFiles, SEEK_SET ) ;
         for ( n = 0; n < dcb.data.NSourceFiles; n++ )
         {
+            //log_cb(RETRO_LOG_DEBUG, "dcb.data.NSourceFiles n=%d\n", n);
             file_readUint32( fp, &size ) ;
             file_read( fp, fname, size ) ;
             if ( !load_file( fname, n ) ) fprintf( stdout, "WARNING: Runtime warning - file not found (%s)\n", fname ) ;
@@ -424,9 +565,11 @@ int dcb_load_from( file * fp, const char * filename, int offset )
     /* ZZZZZZZZZZZZZZZZZZZZZZZZZZ */
 
     /* Recupera los procesos */
+    log_cb(RETRO_LOG_DEBUG, "dcb.data.NProcs\n");
 
     for ( n = 0 ; n < dcb.data.NProcs ; n++ )
     {
+        //log_cb(RETRO_LOG_DEBUG, "dcb.data.NProcs n=%d\n", n);
         procs[n].params             = dcb.proc[n].data.NParams ;
         procs[n].string_count       = dcb.proc[n].data.NPriStrings ;
         procs[n].pubstring_count    = dcb.proc[n].data.NPubStrings ;
@@ -487,7 +630,7 @@ int dcb_load_from( file * fp, const char * filename, int offset )
         if ( dcb.proc[n].data.NPriVars )
         {
             file_seek( fp, offset + dcb.proc[n].data.OPriVars, SEEK_SET ) ;
-            dcb.proc[n].privar = read_and_arrange_varspace( fp, dcb.proc[n].data.NPriVars );
+            dcb.proc[n].privar = read_and_arrange_varspace( fp, dcb.proc[n].data.NPriVars );            
         }
 
         if ( dcb.proc[n].data.NPubVars )
@@ -495,14 +638,21 @@ int dcb_load_from( file * fp, const char * filename, int offset )
             file_seek( fp, offset + dcb.proc[n].data.OPubVars, SEEK_SET ) ;
             dcb.proc[n].pubvar = read_and_arrange_varspace( fp, dcb.proc[n].data.NPubVars );
         }
+        #if __BYTEORDER == __BIG_ENDIAN
+            fix_endianess_data(procs[n].pridata, dcb.proc[n].privar, dcb.proc[n].data.NPriVars);
+            fix_endianess_data(procs[n].pubdata, dcb.proc[n].pubvar, dcb.proc[n].data.NPubVars);
+        #endif
     }
 
     /* Recupero tabla de fixup de sysprocs */
 
     sysproc_code_ref = bgd_calloc( dcb.data.NSysProcsCodes, sizeof( DCB_SYSPROC_CODE2 ) ) ;
     file_seek( fp, offset + dcb.data.OSysProcsCodes, SEEK_SET ) ;
+
+    log_cb(RETRO_LOG_DEBUG, "dcb.data.NSysProcsCodes\n");
     for ( n = 0; n < dcb.data.NSysProcsCodes; n++ )
     {
+        //log_cb(RETRO_LOG_DEBUG, "dcb.data.NSysProcsCodes n=%d\n", n);
         DCB_SYSPROC_CODE sdcb;
         file_read( fp, &sdcb, sizeof( DCB_SYSPROC_CODE ) ) ;
 
@@ -519,12 +669,20 @@ int dcb_load_from( file * fp, const char * filename, int offset )
         if ( sdcb.Params ) file_read( fp, sysproc_code_ref[n].ParamTypes, sdcb.Params ) ;
     }
 
+    log_cb(RETRO_LOG_DEBUG, "sysprocs_fixup\n");
     sysprocs_fixup();
 
     mainproc = procdef_get_by_name( "MAIN" );
 
+#if __BYTEORDER == __BIG_ENDIAN
+    fix_endianess_data(globaldata, dcb.glovar, dcb.data.NGloVars);
+    fix_endianess_data(localdata, dcb.locvar, dcb.data.NLocVars);
+#endif
+
+    log_cb(RETRO_LOG_DEBUG, "done\n");
     return 1 ;
 }
+
 
 /* ---------------------------------------------------------------------- */
 

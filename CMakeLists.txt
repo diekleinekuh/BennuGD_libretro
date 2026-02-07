@@ -69,8 +69,8 @@ if (CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
     endif()
 endif()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 
 
 include(FetchContent)

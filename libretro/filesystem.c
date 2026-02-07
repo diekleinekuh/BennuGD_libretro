@@ -27,11 +27,14 @@ size_t retro_dir_root_len = 0;
 
 static bool case_insensitive_io = false;
 
-
+#if NO_RTHREAD_SUPPORT
+#   define THREAD_LOCAL
+#else
 #ifdef _MSC_VER
 #   define THREAD_LOCAL __declspec(thread)
 #else
 #   define THREAD_LOCAL _Thread_local
+#endif
 #endif
 
 #ifndef CASE_INSENSITIVE_FILESYSTEM_EMULATION
@@ -394,6 +397,7 @@ int fflush_libretro(RFILE *stream)
 
 size_t fread_libretro(void *ptr, size_t size, size_t nmemb, RFILE *stream)
 {
+    //memset(ptr, 0, size*nmemb);
     return rfread(ptr, size, nmemb, stream);
 }
 

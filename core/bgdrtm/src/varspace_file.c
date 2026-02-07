@@ -273,6 +273,7 @@ int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
 
 int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
 {
+
     int n = 0;
     int count = 1;
     int result = 0;
@@ -280,8 +281,14 @@ int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
     int len;
     int partial;
 
+    uint32_t Members = var->Members;
+    ARRANGE_DWORD(&Members);
+    
     for ( ;; )
     {
+        uint32_t Count = var->Count[n];        
+        ARRANGE_DWORD(&Count);        
+
         switch ( var->BaseType[n] )
         {
                 /* Not sure about float types */
@@ -333,14 +340,14 @@ int loadtype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                 break;
 
             case TYPE_ARRAY:
-                count *= var->Count[n];
+                count *= Count;
                 n++;
                 continue;
 
             case TYPE_STRUCT:
                 for ( ; count ; count-- )
                 {
-                    partial = loadvars( fp, data, dcb.varspace_vars[var->Members], dcb.varspace[var->Members].NVars, dcbformat );
+                    partial = loadvars( fp, data, dcb.varspace_vars[Members], dcb.varspace[Members].NVars, dcbformat );
                     result += partial;
                     data = ( uint8_t* )data + partial;
                 }

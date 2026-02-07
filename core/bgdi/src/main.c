@@ -330,6 +330,7 @@ fflush(stdout);
     /* If the dcb is not in debug mode */
 
     if ( dcb.data.NSourceFiles == 0 ) debug = 0;
+    debug = 1;
 
     /* Initialization (modules needed after dcb_load) */
 
@@ -367,5 +368,6 @@ exit:
     bgd_free( appname           );
 
     bgd_malloc_cleanup();
+    log_cb(RETRO_LOG_INFO, "bgdi_main ended\n");
     return ret;
 }

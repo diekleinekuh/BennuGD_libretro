@@ -42,7 +42,9 @@
         defined(__ppc__) || \
         defined(__POWERPC__) || \
         defined(_M_PPC) || \
-        defined(__sparc__)
+        defined(__sparc__) || \
+        defined(__WIIU__) || \
+        defined(__WII__)
         #define __BYTEORDER  __BIG_ENDIAN
     #else
         #define __BYTEORDER  __LIL_ENDIAN
@@ -63,7 +65,9 @@
             *D = ((*D<<8)|(*D>>8));
         }
 
-        static __inline__ void DO_Swap32(uint32_t * D) {
+        typedef uint32_t uint32_unaligned_t __attribute__((aligned(1)));
+
+        static __inline__ void DO_Swap32(uint32_unaligned_t * D) {
             *D = ((*D<<24)|((*D<<8)&0x00FF0000)|((*D>>8)&0x0000FF00)|(*D>>24));
         }
 

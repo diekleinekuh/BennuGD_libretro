@@ -48,6 +48,9 @@
 
 #if LIBRETRO_CORE
 
+#include "libretro.h"
+extern retro_log_printf_t log_cb;
+
 extern struct RFILE * fopen_libretro ( const char * filename, const char * mode );
 extern int fclose_libretro( struct RFILE* file);
 extern int feof_libretro(struct RFILE *stream);
@@ -161,6 +164,8 @@ void file_add_xfile( file * fp, const char * stubname, long offset, char * name,
 
 int file_read( file * fp, void * buffer, int len )
 {
+    //log_cb(RETRO_LOG_INFO, "file_read %d bytes to %p from %s\n", len, buffer, fp->name);
+    //memset(buffer, 0, len);
     assert( len != 0 );
 
     if ( fp->type == F_XFILE )

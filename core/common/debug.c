@@ -214,8 +214,8 @@ void mnemonic_dump( int i, int param )
     if ( debug > 1 )
     {
 #endif
-        if ( MN_PARAMS( i ) ) printf( "%08X %08X "    , i, param );
-        else                  printf( "%08X          ", i );
+        if ( MN_PARAMS( i ) ) debug_output( "%08X %08X "    , i, param );
+        else                  debug_output( "%08X          ", i );
 #ifdef __BGDRTM__
     }
 #endif
@@ -229,51 +229,51 @@ void mnemonic_dump( int i, int param )
             switch ( MN_TYPEOF( i ) )
             {
                 case MN_UNSIGNED:
-                    printf( "UNSIGNED " ) ;
+                    debug_output( "UNSIGNED " ) ;
                     break ;
 
                 case MN_WORD:
-                    printf( "SHORT    " ) ;
+                    debug_output( "SHORT    " ) ;
                     break ;
 
                 case MN_WORD | MN_UNSIGNED:
-                    printf( "WORD     " ) ;
+                    debug_output( "WORD     " ) ;
                     break ;
 
                 case MN_BYTE:
-                    printf( "CHAR     " ) ;
+                    debug_output( "CHAR     " ) ;
                     break ;
 
                 case MN_BYTE | MN_UNSIGNED:
-                    printf( "BYTE     " ) ;
+                    debug_output( "BYTE     " ) ;
                     break ;
 
                 case MN_FLOAT:
-                    printf( "FLOAT    " ) ;
+                    debug_output( "FLOAT    " ) ;
                     break ;
 
                 case MN_STRING:
-                    printf( "STRING   " ) ;
+                    debug_output( "STRING   " ) ;
                     break ;
 
                 default:
-                    printf( "         " ) ;
+                    debug_output( "         " ) ;
                     break ;
             }
 
-            printf( "%s", mnemonics_sorted[n].name ) ;
+            debug_output( "%s", mnemonics_sorted[n].name ) ;
 
             if ( i == MN_SYSCALL || i == MN_SYSPROC )
             {
-                printf( "%s (%d)\n", sysproc_name( param ), param ) ;
+                debug_output( "%s (%d)\n", sysproc_name( param ), param ) ;
             }
             else if ( i == MN_CALL || i == MN_PROC || i == MN_TYPE )
             {
 #ifndef __BGDRTM__
-                if ( libmode )  printf( "%s (%d)\n", identifier_name( (procdef_search(param))->identifier ), param ) ;
-                else            printf( "%s (%d)\n", identifier_name( (procdef_get(param))->identifier ), param ) ;
+                if ( libmode )  debug_output( "%s (%d)\n", identifier_name( (procdef_search(param))->identifier ), param ) ;
+                else            debug_output( "%s (%d)\n", identifier_name( (procdef_get(param))->identifier ), param ) ;
 #else
-                printf( "%s (%d)\n", procdef_get(param)->name, param ) ;
+                debug_output( "%s (%d)\n", procdef_get(param)->name, param ) ;
 #endif
             }
             else if ( i != MN_SENTENCE )
@@ -281,11 +281,11 @@ void mnemonic_dump( int i, int param )
                 switch ( MN_PARAMS( i ) )
                 {
                     case    1:
-                            printf( "%d", param ) ;
+                            debug_output( "%d", param ) ;
                             break;
 
                 }
-                printf( "\n" ) ;
+                debug_output( "\n" ) ;
             }
 
 #ifdef __BGDRTM__
@@ -297,17 +297,52 @@ void mnemonic_dump( int i, int param )
 #ifdef __BGDRTM__
             if ( dcb.sourcecount[param >> 24] )
             {
-                if ( dcb.data.Version == 0x0700 ) printf( "%s:%-10d %s\n", dcb.sourcefiles[param >> 24], param & 0xFFFFFF, dcb.sourcelines[param >> 24] [( param & 0xFFFFFF )-1] ) ;
-                else                              printf( "%s:%-10d %s\n", dcb.sourcefiles[param >> 20], param & 0xFFFFF , dcb.sourcelines[param >> 20] [( param & 0xFFFFF  )-1] ) ;
+                if ( dcb.data.Version == 0x0700 ) debug_output( "%s:%-10d %s\n", dcb.sourcefiles[param >> 24], param & 0xFFFFFF, dcb.sourcelines[param >> 24] [( param & 0xFFFFFF )-1] ) ;
+                else                              debug_output( "%s:%-10d %s\n", dcb.sourcefiles[param >> 20], param & 0xFFFFF , dcb.sourcelines[param >> 20] [( param & 0xFFFFF  )-1] ) ;
             }
 #else
-            printf( "%s:%-10d\n", files[param>>20], param&(( 1 << 20 ) - 1 ) ) ;
+            debug_output( "%s:%-10d\n", files[param>>20], param&(( 1 << 20 ) - 1 ) ) ;
 #endif
         }
     }
 #ifdef __BGDRTM__
     else if ( debug > 1 )
 #endif
-        printf( "\n" );
+       debug_output( "\n" );
 
+}
+
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include "libretro.h"
+extern retro_log_printf_t log_cb;
+
+void debug_output(const char* format, ...)
+{
+    static char buffer[1025]={0};
+    static int buffer_pos=0;
+
+    va_list args;
+    va_start (args, format);
+    vsnprintf (buffer+buffer_pos,1024-buffer_pos,format, args);
+    va_end (args);
+
+    char* pos = buffer+buffer_pos;
+    char* start=buffer;
+    while(*pos)
+    {
+        if (*pos=='\n')
+        {
+            *pos='\0';
+            log_cb( RETRO_LOG_DEBUG,  "%s\n", start );
+            start = pos + 1;
+        }
+        ++pos;
+    }
+    buffer_pos = pos-start;
+    if (start != buffer)
+    {
+        memmove(buffer, start,  buffer_pos);
+    }
 }

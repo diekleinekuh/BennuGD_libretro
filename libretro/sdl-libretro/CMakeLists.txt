@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(sdl-libretro C)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 #set(THREADS_PREFER_PTHREAD_FLAG ON)
 #find_package(Threads)
 
@@ -77,7 +77,6 @@ set (SDL-src
 
 set(SDL-compile-definitions
     __LIBRETRO__
-    LSB_FIRST
 )
 
 if (Threads_FOUND)

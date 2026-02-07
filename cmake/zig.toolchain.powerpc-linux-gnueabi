@@ -1,0 +1,10 @@
+set(ZIG_TARGET powerpc-linux-gnueabihf.2.30 )
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR powerpc)
+
+include( "${CMAKE_CURRENT_LIST_DIR}/zig.toolchain.cmake" )
+set(WITH_NEON false)
+set(WITH_RUNTIME_CPU_DETECTION false)
+set(WITH_ALTIVEC off)
+set(PNG_POWERPC_VSX "off" CACHE STRING "Enable POWERPC VSX optimizations: on|off; on is default")
+set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -mhard-float " )

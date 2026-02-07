@@ -55,6 +55,8 @@ endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
     target_compile_definitions(bennugd_libretro PRIVATE SWITCH=1 )
+elseif(CMAKE_SYSTEM_NAME MATCHES "CafeOS")
+    target_compile_definitions(bennugd_libretro PRIVATE WIIU=1 __wiiu__=1 __wut__=1 HW_RVL=1)
 endif()
 
 
@@ -95,8 +97,8 @@ if (NOT TARGET_SUPPORTS_SHARED_LIBS_PROPERTY)
         )
     elseif (CMAKE_SYSTEM_NAME MATCHES "CafeOS")
         ExternalProject_Add( retroarch
-            GIT_REPOSITORY https://github.com/diekleinekuh/RetroArch.git
-            GIT_TAG switch_audio_drivers_initially_blocking
+            GIT_REPOSITORY https://github.com/ashquarky/RetroArch.git
+            GIT_TAG wiiu-wut-merge
             CONFIGURE_COMMAND ""
             BUILD_IN_SOURCE TRUE
             BUILD_ALWAYS TRUE
@@ -105,8 +107,8 @@ if (NOT TARGET_SUPPORTS_SHARED_LIBS_PROPERTY)
             COMMAND touch runloop.c # Force a relink
             #COMMAND . /opt/devkitpro/wiiuvars.sh
             #COMMAND printenv
-            COMMAND make NO_ICON=1 -f Makefile.wiiu
-            COMMAND cp retroarch_wiiu.rpx ${CMAKE_BINARY_DIR}/bennugd_libretro_wiiu.rpx
+            COMMAND make NO_ICON=1 DEBUG=1 -f Makefile.wiiu
+            COMMAND cp retroarch_wiiu.rpx ${CMAKE_BINARY_DIR}/bennugd_libretro.rpx
             INSTALL_COMMAND ""
             DEPENDS bennugd_libretro_merged
         )

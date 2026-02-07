@@ -266,6 +266,7 @@ void string_dump( void ( *wlog )( const char *fmt, ... ) )
 
 const char * string_get( int code )
 {
+    //debug_output("string_get code=%d, string_allocated=%d\n", code, string_allocated);
     assert( code < string_allocated && code >= 0 ) ;
     return string_ptr[code] ;
 }

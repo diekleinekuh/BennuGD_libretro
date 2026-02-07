@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+void debug_output(const char* format, ...);
+
 #if SIZE_MAX>UINT32_MAX // check for 64 bit system
 
 #include <assert.h>

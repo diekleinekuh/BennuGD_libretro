@@ -1,9 +1,14 @@
 FROM devkitpro/devkitppc:20251231
-#RUN mkdir /opt/devkitpro/wut/include/wiiu
-#RUN ln -s /opt/devkitpro/wut/include/coreinit /opt/devkitpro/wut/include/wiiu/os
-RUN useradd -ms /bin/bash containeruser
-run adduser containeruser sudo
-RUN echo 'containeruser:lol' | chpasswd
-USER containeruser
-RUN echo ". /opt/devkitpro/wiiuvars.sh" > /home/containeruser/.bashrc
+RUN apt-get install -y --no-install-recommends zlib1g-dev && rm -rf /var/lib/apt/lists/*
+RUN git clone --recursive https://github.com/yawut/wiiurpxtool-ng && \
+    cd wiiurpxtool-ng && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    cmake --build . && \
+    cp ./wiiurpxtool-ng /usr/bin/wiiurpxtool && \
+    cd ../.. && \
+    rm -rf wiiurpxtool-ng
 
+RUN useradd -ms /bin/bash containeruser
+USER containeruser
