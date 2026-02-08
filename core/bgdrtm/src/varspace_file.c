@@ -189,8 +189,14 @@ int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
     int32_t len;
     int partial;
 
+    uint32_t Members = var->Members;
+    ARRANGE_DWORD(&Members);    
+
     for ( ;; )
     {
+        uint32_t Count = var->Count[n];
+        ARRANGE_DWORD(&Count);
+
         switch ( var->BaseType[n] )
         {
             case TYPE_FLOAT:
@@ -231,14 +237,14 @@ int savetype( file * fp, void * data, DCB_TYPEDEF * var, int dcbformat )
                 break;
 
             case TYPE_ARRAY:
-                count *= var->Count[n];
+                count *= Count;
                 n++;
                 continue;
 
             case TYPE_STRUCT:
                 for ( ; count ; count-- )
                 {
-                    partial = savevars( fp, data, dcb.varspace_vars[var->Members], dcb.varspace[var->Members].NVars, dcbformat );
+                    partial = savevars( fp, data, dcb.varspace_vars[Members], dcb.varspace[Members].NVars, dcbformat );
                     data = (( uint8_t* )data ) + partial;
                     result += partial;
                 }
