@@ -330,7 +330,6 @@ fflush(stdout);
     /* If the dcb is not in debug mode */
 
     if ( dcb.data.NSourceFiles == 0 ) debug = 0;
-    debug = 1;
 
     /* Initialization (modules needed after dcb_load) */
 
