@@ -539,6 +539,12 @@ static int load_wav( const char * filename )
         return( 0 );
     }
 
+    // Sound data is stored in memory. No need to keep the file open
+    // This will help systems with a limitation on open files like the WiiU
+    file_close( fp );
+    SDL_FreeRW( h->rwops );
+    h->rwops = NULL;
+
     return (( int ) int_from_ptr(h) );
 }
 
@@ -588,7 +594,10 @@ static int unload_wav( int id )
     __sound_handle * h = (__sound_handle *) ptr_from_int(id);
     if ( audio_initialized && id && h->hnd ) {
         Mix_FreeChunk(( Mix_Chunk * ) h->hnd );
-        file_close( h->rwops->hidden.unknown.data1 );
+        if (h->rwops)
+        {
+            file_close( h->rwops->hidden.unknown.data1 );
+        }
         sound_handle_free( h );
     }
     return ( 0 );
