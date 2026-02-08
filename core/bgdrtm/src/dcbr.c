@@ -269,8 +269,8 @@ static uint32_t fix_endianess_type(uint8_t* dst, DCB_TYPEDEF* var)
 
 #define SWAP_DWORD(a) { SwapBytes(a, a+3); SwapBytes(a+1, a+2); }
 #define SWAP_WORD(a)  { SwapBytes(a, a+1); }
-#define SWAP_DWORDS(a,n) { for(int i=0; i<n; ++i) { SWAP_DWORD(a+n*4)}  }
-#define SWAP_WORDS(a,n)  { for(int i=0; i<n; ++i) { SWAP_WORD(a+n*2) }  }
+#define SWAP_DWORDS(a,n) { for(int i=0; i<n; ++i) { SWAP_DWORD(a+i*4)}  }
+#define SWAP_WORDS(a,n)  { for(int i=0; i<n; ++i) { SWAP_WORD(a+i*2) }  }
 
     int count  = 1;
     int result = 0;
