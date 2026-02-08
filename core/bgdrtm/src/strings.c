@@ -332,6 +332,8 @@ void string_load( void * fp, int ostroffs, int ostrdata, int nstrings, int total
 
 void string_use( int code )
 {
+    assert(code>=0);
+    assert(code<string_allocated);
     string_uct[code]++ ;
 }
 
