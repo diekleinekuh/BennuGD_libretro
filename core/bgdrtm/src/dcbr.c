@@ -328,6 +328,10 @@ static uint32_t fix_endianess_type(uint8_t* dst, DCB_TYPEDEF* var)
         break;
     }
     return result;
+#undef SWAP_DWORD
+#undef SWAP_WORD
+#undef SWAP_DWORDS
+#undef SWAP_WORDS
 }
 //#endif
 /* ---------------------------------------------------------------------- */
