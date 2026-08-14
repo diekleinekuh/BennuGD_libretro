@@ -1,0 +1,30 @@
+# Software Information
+display_name = "BennuGD"
+authors = "SplinterGU|diekleinekuh"
+supported_extensions = "dat|dcb"
+corename = "BennuGD"
+categories = "Game"
+license = "GPLv2"
+permissions = ""
+display_version = "git"
+
+# Hardware Information
+manufacturer = "N/A"
+systemname = "BennuGD"
+systemid = "bennugd"
+
+# Libretro Features
+supports_no_game = "false"
+database = ""
+savestate = "false"
+cheats = "false"
+libretro_saves = "false"
+core_options = "true"
+core_options_version = "1.0"
+load_subsystem = "false"
+hw_render = "false"
+needs_fullpath = "true"
+disk_control = "false"
+is_experimental = "false"
+
+description = "Libretro core for BennuGD games. Load the game entry point (.dcb or .dat)."

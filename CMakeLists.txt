@@ -73,6 +73,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "compile as PIC by default")
 
 
+if (CMAKE_TOOLCHAIN_FILE MATCHES "vita.toolchain.cmake")
+    include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+    set(VITA TRUE)
+    # Vita/SCE ELF rejects GOT relocs (e.g. R_ARM_BASE_PREL = 25) from PIC objects.
+    set(CMAKE_POSITION_INDEPENDENT_CODE OFF CACHE BOOL "compile as PIC by default" FORCE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
+    string(APPEND CMAKE_C_FLAGS " -fno-pic -fno-PIC -fno-pie -fno-PIE")
+    string(APPEND CMAKE_CXX_FLAGS " -fno-pic -fno-PIC -fno-pie -fno-PIE")
+endif()
+
 include(FetchContent)
 
 # turn off building shared libraries for dependencies
@@ -109,6 +119,11 @@ if (NO_SYSTEM_DEPENDENCIES OR NOT OpenSSL_FOUND)
         check_compiler_flag(C -Wno-unused-parameter HAVE_NO_WUNUSED_PARAMETER)
         if (HAVE_NO_WUNUSED_PARAMETER) 
             target_compile_options(wolfssl PRIVATE "-Wno-unused-parameter")
+        endif()
+        # Vita GCC (and some others) false-positive MaskMac as stringop-overflow under -Werror.
+        check_compiler_flag(C -Wno-stringop-overflow HAVE_NO_STRINGOP_OVERFLOW)
+        if (HAVE_NO_STRINGOP_OVERFLOW)
+            target_compile_options(wolfssl PRIVATE "-Wno-stringop-overflow")
         endif()
         message("using internal wolfssl")
     else()
@@ -200,6 +215,16 @@ if(libretro_core)
     )
 
     FetchContent_MakeAvailable(  libretro-common )
+
+    # libretro-common scefiber.co_switch never calls sceFiberRun (assigns
+    # co_active_ before the test). Replace with a fixed copy for Vita builds.
+    if (VITA)
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/libretro/vita/scefiber.c"
+            "${libretro-common_SOURCE_DIR}/libco/scefiber.c"
+            COPYONLY
+        )
+    endif()
 
     include_directories(${libretro-common_SOURCE_DIR}/include)
     add_subdirectory(libretro/sdl-libretro)
